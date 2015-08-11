@@ -1,0 +1,38 @@
+/* ==========================================================================
+	Prezzideo styles
+	https://github.com/frenski/prezzideo
+   ========================================================================== 
+*/
+
+.prezzideo {
+	position: relative;
+}
+
+.prezzideo-slides {
+	position: absolute;
+	width: 100%;
+	background: black;
+}
+
+.prezzideo-slides img{
+	position: absolute;
+	z-index:0;
+}
+
+.prezzideo-video {
+    position: relative;
+    padding-bottom: 48%;
+    padding-top: 30px; height: 0; overflow: hidden;
+	margin-top: 1em;
+}
+
+.prezzideo-video iframe,
+.prezzideo-video object,
+.prezzideo-video embed,
+.prezzideo-video .prezzideo-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
