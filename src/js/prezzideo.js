@@ -28,7 +28,7 @@
 		callbackInit: null,
 		callbackDistroy: null,
 		videoProvider: 'youtube',
-		defaultBigScreen: 'slides',
+		defaultBigScreen: 'video',
 		smallScreenPosition: 'bottom-right'
 	};
 	
@@ -141,7 +141,7 @@
 			
 			if (config.defaultBigScreen == 'video') {
 				var slideC = _selectChild(config.dom.slidesContainer);
-				slideC.className += ' ' + slidesShrinkedClass;
+				slideC.className += ' ' + config.dom.slidesShrinkedClass;
 			} else if (config.defaultBigScreen == 'slides') {
 				var videoC = _selectChild(config.dom.videoContainer);
 				videoC.className += ' ' + config.dom.videoShrinkedClass;
