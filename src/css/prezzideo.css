@@ -6,25 +6,57 @@
 
 .prezzideo {
 	position: relative;
+	padding-bottom: 48%;
 }
 
 .prezzideo-slides {
 	position: absolute;
 	width: 100%;
+	height: 100%;
 	background: black;
+	overflow: hidden;
+	z-index: 0;
 }
 
-.prezzideo-slides img{
+.prezzideo-slides .prezzideo-slides-item {
 	position: absolute;
-	z-index:0;
+}
+
+.prezzideo-slide-vertical {
+	width: 100%;
+	top: 50%;
+}
+
+.prezzideo-slide-horizontal {
+	height: 100%;
+	left: 50%;
 }
 
 .prezzideo-video {
-    position: relative;
+	width: 100%;
+    position: absolute;
     padding-bottom: 48%;
-    padding-top: 30px; height: 0; overflow: hidden;
-	margin-top: 1em;
+    padding-top: 20px; 
+	height: 0; 
+	overflow: hidden;
+	z-index: 0;
 }
+
+.prezzideo-video-shrinked {
+	width: 25%;
+	padding-bottom: 12%;
+	z-index: 1;
+}
+
+.prezzideo-slides-shrinked {
+	width: 20%;
+	z-index: 1;
+}
+
+.prezzideo-screen-position-top-left { top: 0; left: 0; }
+.prezzideo-screen-position-top-right { top: 0; right: 0; }
+.prezzideo-screen-position-bottom-left { bottom: 0; left: 0; }
+.prezzideo-screen-position-bottom-right { bottom: 0; right: 0; }
 
 .prezzideo-video iframe,
 .prezzideo-video object,
