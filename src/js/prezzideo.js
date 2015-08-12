@@ -28,7 +28,7 @@
 		callbackInit: null,
 		callbackDistroy: null,
 		videoProvider: 'youtube',
-		defaultBigScreen: 'video',
+		defaultBigScreen: 'slides',
 		smallScreenPosition: 'bottom-right'
 	};
 	
@@ -89,6 +89,21 @@
 		
 	}
 	
+	// Adds or removes class to/from an element
+    function _toggleClass(el, className, add) {
+        if(el){
+            if(el.classList) {
+                el.classList[add ? "add" : "remove"](className);
+            }
+            else {
+                var classList = (" " + element.className + " ")
+								.replace(/\s+/g, " ")
+								.replace(" " + className + " ", "");
+                el.className = classList + (add ? " " + className : "");
+            }
+        }
+    }
+	
 	
 	// The player class
 	function Prezzideo(element,id) {
@@ -141,10 +156,10 @@
 			
 			if (config.defaultBigScreen == 'video') {
 				var slideC = _selectChild(config.dom.slidesContainer);
-				slideC.className += ' ' + config.dom.slidesShrinkedClass;
+				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
 			} else if (config.defaultBigScreen == 'slides') {
 				var videoC = _selectChild(config.dom.videoContainer);
-				videoC.className += ' ' + config.dom.videoShrinkedClass;
+				_toggleClass(videoC, config.dom.videoShrinkedClass, true)
 			}
 			
 		}
@@ -153,8 +168,10 @@
 		var _changeSmallScreenPosition = function( position ) {
 			var slideC = _selectChild(config.dom.slidesContainer);
 			var videoC = _selectChild(config.dom.videoContainer);
-			slideC.className += ' ' +config.dom.screenPositionClass + position;
-			videoC.className += ' ' +config.dom.screenPositionClass + position;
+			_toggleClass(slideC, 
+				config.dom.screenPositionClass + position, true);
+			_toggleClass(videoC, 
+				config.dom.screenPositionClass + position, true);
 		}
 		
 		
@@ -170,13 +187,13 @@
 				if (cRatio <= iRatio) {
 					// Adds vertical alignment of the class, since it's wider
 					// than the container
-					self.slides[i].className += ' ' + config.dom.slideVClass;
+					_toggleClass(self.slides[i], config.dom.slideVClass, true);
 					var marginTop = - self.slides[i].clientHeight / 2;
 					self.slides[i].style.marginTop = marginTop + 'px';
 				} else {
 					// Adds vertical alignment of the class, since it's higher
 					// than the container
-					self.slides[i].className += ' ' + config.dom.slideHClass;
+					_toggleClass(self.slides[i], config.dom.slideHClass, true);
 					var marginLeft = - self.slides[i].clientWidth / 2;
 					self.slides[i].style.marginLeft = marginLeft + 'px';
 				}
