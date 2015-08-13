@@ -23,7 +23,14 @@
 			videoContainer: '.prezzideo-video',
 			videoShrinkedClass: 'prezzideo-video-shrinked',
 			screenPositionClass: 'prezzideo-screen-position-',
-			buttonSwap: 'prezzideo-swap-screen-button'
+			controlSwap: 'prezzideo-swap-screen-button',
+			controlBar: 'prezzideo-control-bar',
+			controlSlider: 'prezzideo-control-slider',
+			controlTimeline: 'prezzideo-control-timeline',
+			controlPlayPause: 'prezzideo-control-playpause',
+			controlPlay: 'prezzideo-control-play',
+			controlPause: 'prezzideo-control-pause',
+			controlFullscreen: 'prezzideo-control-fullscreen'
 		},
 		autoplay: false,
 		callbackInit: null,
@@ -101,6 +108,7 @@
 		node.appendChild(textnode);
 		node.className = className;
 		container.appendChild(node);
+		return node;
 	}
 	
 	// A crossbrowser function to add or remove class to/from an element
@@ -160,14 +168,24 @@
 		// Attaches all events to the controls
 		var _addEvents = function(){
 			// adding an event to the swap button
-			var buttonSwap = _selectChild('.'+config.dom.buttonSwap);
+			var buttonSwap = _selectChild('.'+config.dom.controlSwap);
 			_addEvent(buttonSwap,'click', _swapScreens);
 		}
 		
 		// A funtion to insert controls to the player
 		var _insertControls = function() {
 			// inserting the button over the small screen for swapping
-			_appendElement(self.element, 'div', config.dom.buttonSwap, '');
+			_appendElement(self.element, 'div', config.dom.controlSwap, '');
+			
+			// inserting the control bar at the bottom
+			var bar = _appendElement(
+					self.element, 'div', config.dom.controlBar, '');
+			_appendElement(bar, 'div', config.dom.controlTimeline, '');
+			_appendElement(bar, 'div', config.dom.controlSlider, '');
+			_appendElement(bar, 'div', config.dom.controlPlayPause + 
+				' ' + config.dom.controlPlay, '');
+			_appendElement(bar, 'div', config.dom.controlFullscreen, '');
+			
 		}
 		
 		// This function inits which of the screen is on the top and what
@@ -190,7 +208,7 @@
 		var _changeSmallScreenPosition = function( position ) {
 			var slideC = _selectChild(config.dom.slidesContainer);
 			var videoC = _selectChild(config.dom.videoContainer);
-			var buttonSwap = _selectChild('.'+config.dom.buttonSwap);
+			var buttonSwap = _selectChild('.'+config.dom.controlSwap);
 			// First removing the old classes if they exist
 			for (var i = 0; i < config.smallScreenPositions.length; i++){
 				var pos = config.dom.screenPositionClass 
