@@ -22,14 +22,16 @@
 			slidesShrinkedClass: 'prezzideo-slides-shrinked',
 			videoContainer: '.prezzideo-video',
 			videoShrinkedClass: 'prezzideo-video-shrinked',
-			screenPositionClass: 'prezzideo-screen-position-'
+			screenPositionClass: 'prezzideo-screen-position-',
+			buttonSwap: 'prezzideo-swap-screen-button'
 		},
 		autoplay: false,
 		callbackInit: null,
 		callbackDistroy: null,
 		videoProvider: 'youtube',
 		defaultBigScreen: 'slides',
-		smallScreenPosition: 'bottom-right'
+		smallScreenPositionDef: 'bottom-right',
+		smallScreenPositions:['top-left','top-right','bottom-left','bottom-right']
 	};
 	
 	var vProvidersEmbedCode = {
@@ -38,7 +40,7 @@
 	
 
 	/* 
-		Private Methods -------------------------------------------------------
+		Private Methods and Classes -------------------------------------------
 	*/
 	
 	// Extending the defaults config
@@ -83,13 +85,25 @@
 
 	}
 	
-	
-	// A generic function to add html markup do a dom element
-	var _insertHTML = function() {
-		
+	// A generic function to append html markup do a dom element
+	var _appendHTML = function(el, html) {
+		el.innerHTML = el.innerHTML + html;
 	}
 	
-	// Adds or removes class to/from an element
+	// A generic function to prepend html markup do a dom element
+	var _prependHTML = function(el, html) {
+		el.innerHTML = html + el.innerHTML;
+	}
+	
+	var _appendElement = function(container, type, className, content){
+		var node = document.createElement(type);
+		var textnode = document.createTextNode(content);
+		node.appendChild(textnode);
+		node.className = className;
+		container.appendChild(node);
+	}
+	
+	// A crossbrowser function to add or remove class to/from an element
     function _toggleClass(el, className, add) {
         if(el){
             if(el.classList) {
@@ -103,6 +117,24 @@
             }
         }
     }
+
+	// A generic crossbrowser funciton to handle events addition
+	var _addEvent = function(obj,type,fn) {
+		if (obj.addEventListener) {
+			obj.addEventListener (type,fn,false);
+		} else if (obj.attachEvent) {
+			obj.attachEvent ('on'+type,fn);
+		}
+	}
+
+	// A generic crossbrowser funciton to handle events removal
+	var _removeEvent = function(obj,type,fn) {
+		if (obj.removeEventListener) {
+			obj.removeEventListener (type,fn,false);
+		} else if (obj.detachEvent) {
+			obj.detachEvent ('on'+type,fn);
+		}
+	}
 	
 	
 	// The player class
@@ -113,6 +145,7 @@
 		self.playerId = id;
 		self.slides = [];
 		self.currentSlide = 0;
+		self.bigScreen = config.defaultBigScreen;
 		
 		// A funciton to select a child dom element by selector
 		var _selectChild = function(selector) {
@@ -124,35 +157,24 @@
 			return self.element.querySelectorAll(selector);
 		}
 		
-		// A crossbrowser funciton to handle events addition
-		var _addEvent = function(obj,type,fn) {
-			if (obj.addEventListener) {
-				obj.addEventListener (type,fn,false);
-			} else if (obj.attachEvent) {
-				obj.attachEvent ('on'+type,fn);
-			}
+		// Attaches all events to the controls
+		var _addEvents = function(){
+			// adding an event to the swap button
+			var buttonSwap = _selectChild('.'+config.dom.buttonSwap);
+			_addEvent(buttonSwap,'click', _swapScreens);
 		}
 		
-		// A crossbrowser funciton to handle events removal
-		var _removeEvent = function(obj,type,fn) {
-			if (obj.removeEventListener) {
-				obj.removeEventListener (type,fn,false);
-			} else if (obj.detachEvent) {
-				obj.detachEvent ('on'+type,fn);
-			}
-		}
-		
-		
+		// A funtion to insert controls to the player
 		var _insertControls = function() {
-			
+			// inserting the button over the small screen for swapping
+			_appendElement(self.element, 'div', config.dom.buttonSwap, '');
 		}
-		
 		
 		// This function inits which of the screen is on the top and what
 		// is the default position of the each screen: top, right, bottom, left
-		var _initPositions = function() {
+		var _initScreensPositions = function() {
 			
-			_changeSmallScreenPosition(config.smallScreenPosition);
+			_changeSmallScreenPosition(config.smallScreenPositionDef);
 			
 			if (config.defaultBigScreen == 'video') {
 				var slideC = _selectChild(config.dom.slidesContainer);
@@ -164,14 +186,42 @@
 			
 		}
 		
-		
+		// Changes the position of the small screen
 		var _changeSmallScreenPosition = function( position ) {
 			var slideC = _selectChild(config.dom.slidesContainer);
 			var videoC = _selectChild(config.dom.videoContainer);
+			var buttonSwap = _selectChild('.'+config.dom.buttonSwap);
+			// First removing the old classes if they exist
+			for (var i = 0; i < config.smallScreenPositions.length; i++){
+				var pos = config.dom.screenPositionClass 
+						+ config.smallScreenPositions[i];
+				_toggleClass(slideC, pos, false);
+				_toggleClass(videoC, pos, false);
+				_toggleClass(buttonSwap, pos, false);
+			}
 			_toggleClass(slideC, 
 				config.dom.screenPositionClass + position, true);
 			_toggleClass(videoC, 
 				config.dom.screenPositionClass + position, true);
+			_toggleClass(buttonSwap, 
+				config.dom.screenPositionClass + position, true);
+		}
+		
+		// swaps screens
+		var _swapScreens = function() {
+			var slideC = _selectChild(config.dom.slidesContainer);
+			var videoC = _selectChild(config.dom.videoContainer);
+			if (self.bigScreen == 'video') {
+				_toggleClass(slideC, config.dom.slidesShrinkedClass, false);
+				_toggleClass(videoC, config.dom.videoShrinkedClass, true);
+				_resetSlidesPositions();
+				self.bigScreen = 'slides';
+			} else if (self.bigScreen == 'slides') {
+				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
+				_toggleClass(videoC, config.dom.videoShrinkedClass, false);
+				_resetSlidesPositions();
+				self.bigScreen = 'video';
+			}
 		}
 		
 		
@@ -179,7 +229,7 @@
 		// images and place the image depending on that and also make the
 		// latest ones invisible
 		// TODO: add some sorting function
-		var _resetImages = function() {
+		var _resetSlidesPositions = function() {
 			var cRatio = self.element.clientWidth / self.element.clientHeight;
 			for (var i = 0; i < self.slides.length; i ++ ){
 				var iRatio = self.slides[i].clientWidth / 
@@ -197,10 +247,8 @@
 					var marginLeft = - self.slides[i].clientWidth / 2;
 					self.slides[i].style.marginLeft = marginLeft + 'px';
 				}
-				if (i > 0 ) self.slides[i].style.display = 'none';
 			}
 		}
-		
 		
 		// Gets the slides depending on the attributes and sends the array
 		// for loading
@@ -224,8 +272,24 @@
 					.replace('{{id}}', self.element.getAttribute('data-urlid'))
 					.replace('{{auto}}', config.autoplay)
 				+ '</div>';
-			self.element.innerHTML += videoMarkup;
-		} 
+			_appendHTML (self.element, videoMarkup)
+		}
+		
+		
+		// Shows the selected slide
+		var _goToSlide = function(id) {
+			if (id in self.slides) {
+				var currentSlide = self.slides[self.currentSlide];
+				var newSlide = self.slides[id];
+				currentSlide.style.zIndex = '0';
+				newSlide.style.zIndex = '1';
+			}
+		}
+		
+		// Shows the next slide
+		var _nextSlide = function() {
+			_goToSlide(self.currentSlide + 1);	
+		}
 		
 		// A function to play the video
 		var _play = function() {
@@ -237,19 +301,26 @@
 			
 		}
 		
+		// A funtion to stop completely the video
+		var _pause = function() {
+			
+		}
+		
 		// The function to be called on init
 		var _init = function() {
 			_addVideo();
+			_insertControls();
 			_getSlides(function(){
-				_resetImages();
+				_resetSlidesPositions();
+				_goToSlide(0);
 			});
-			_initPositions();
-			// console.log('init player'+self.playerId);
+			_initScreensPositions();
+			_addEvents();
 		}
 		
 		// The function to be called on init
 		var _destroy = function() {
-			// console.log('some destroy function');
+			
 		}
 		
 		// Inits or returns empty object if init fails
@@ -260,7 +331,10 @@
 		
 		return {
 			play: _play,
-			pause: _pause
+			pause: _pause,
+			stop: _stop,
+			swap: _swapScreens,
+			smallScreenPosition: _changeSmallScreenPosition
 		}
 
 	}
@@ -272,7 +346,7 @@
 	
 	// The prezzideo player class
 	// @param options - settings provided by the user
-	api.init = function(options){
+	api.init = function(options) {
 		// Takes into consideration the user's settings
 		config = _extendConfig(defaults, options);
 

@@ -20,6 +20,7 @@
 
 .prezzideo-slides .prezzideo-slides-item {
 	position: absolute;
+	z-index: 0;
 }
 
 .prezzideo-slide-vertical {
@@ -52,6 +53,14 @@
 	width: 25%;
 	height: 25%;
 	z-index: 1;
+}
+
+.prezzideo-swap-screen-button {
+	position: absolute;
+	width: 25%;
+	height: 33%;
+	z-index: 2;
+	cursor: pointer;
 }
 
 .prezzideo-screen-position-top-left { top: 0; left: 0; }
