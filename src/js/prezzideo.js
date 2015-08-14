@@ -68,7 +68,7 @@
 	}
 	
 	// A function which allows for image preloading
-	var _loadImages = function(imgs, imgsReturn, loadCallback) {
+	var _loadImages = function(imgs, imgsReturn, timesArr, loadCallback) {
 
 		// Creates a new image object with src of the dom image
 		var img = new Image();
@@ -77,13 +77,17 @@
 		if( imgs.length > 1 ) { 
 	 		img.onload = function() {
 				imgsReturn.push(imgs[0]);
+				timesArr.push(
+					_stringToSeconds(imgs[0].getAttribute('data-time')));
 				imgs.shift(); 
 				// recursively calls the function with the updated array 
-				_loadImages(imgs, imgsReturn, loadCallback); 
+				_loadImages(imgs, imgsReturn, timesArr, loadCallback); 
 			}
 		} else {
 			img.onload = function() {
 				imgsReturn.push(imgs[0]);
+				timesArr.push(
+					_stringToSeconds(imgs[0].getAttribute('data-time')));
 				if(typeof loadCallback === 'function') {
 				    loadCallback();
 				}
@@ -154,6 +158,97 @@
 		}
 	}
 	
+	// Converts string time to seconts
+	var _stringToSeconds = function (str) {
+		var units = str.split(':')
+		return parseFloat(units[0]) * 3600 
+				+ parseFloat(units[1]) * 60
+				+ parseFloat(units[2]);
+	}
+	
+	
+	// TIMER CLASS
+	function Timer (trigger_points, delegate) {
+
+		// Properties ---------------------------------------------------------
+		
+		// keeps the self of the current instance
+		var self = this;
+		
+		// keeps the times, where actions are required
+		self.triggerPoints = trigger_points;
+		
+		// keeps the current point in order to trigger delegate call if changed
+		self.currentPoint = 0;
+		
+		// keeps the current time
+		self.currentTime = 0;
+		
+		// keeps the time interval object
+		self.interval = null;
+		
+		// If the video is not being played yet, then the meta data is not
+		// loaded, therefore we get the duration after loading the video for
+		// the first time. We keep this to make sure we add the duration to the
+		// triggerPoints only when it's played for the first time.
+		self.durationCalculated = false;
+		
+		
+		// Methods ------------------------------------------------------------
+		
+		// updates the current time
+		var _updateTime = function (time) {
+			self.currentTime = time;
+			_updateCurrentPoint();
+		}
+		
+		// Finds the closest trigger point based on the current time
+		var _findPoint = function () {
+			var point = null;
+			for (var i = self.triggerPoints.length-2; i >= 0; i-- ) {
+				if (self.currentTime >= self.triggerPoints[i]) {
+					point = i;
+					break;
+				}
+			}
+			return point;
+		}
+		
+		// Updates the current trigger point if necessary
+		var _updateCurrentPoint = function () {
+			if ( !( self.currentTime >= self.triggerPoints[self.currentPoint] && 
+				self.currentTime < self.triggerPoints[self.currentPoint+1]) ){
+				self.currentPoint = _findPoint();
+				if (self.currentPoint) {
+					if( typeof delegate.onPointChange === 'function' ) {
+						delegate.onPointChange(self.currentPoint);
+					}
+				}
+			}
+		}
+		
+		
+		// API ------------------------------------------------------------
+		
+		return {
+			
+			updateTime: _updateTime,
+			getTime: function() { return self.currentTime; },
+			setPlaying: function( intFunction ) {
+				self.interval = window.setInterval( intFunction, 500);
+			},
+			resetPlaying: function() {
+				window.clearInterval(self.interval);
+			},
+			addEndPoint: function(time) {
+				self.triggerPoints.push(time);
+			}
+			
+		}
+
+	}
+
+	
 	// PLAYER CLASS
 	function Prezzideo(element,id) {
 		
@@ -190,6 +285,12 @@
 		
 		// keeps the state - playing or stoped
 		self.playing = false;
+		
+		// keeps the timer instance
+		self.timer = {};
+		
+		// keeps the time of each slide in seconds
+		self.slideTimes = [];
 		
 		
 		// Methods ------------------------------------------------------------
@@ -334,7 +435,7 @@
 					}
 				}
 			}
-			_loadImages(images, self.slides, loadCallback);
+			_loadImages(images, self.slides, self.slideTimes, loadCallback);
 		}
 		
 		// Adds the video markup to the container, depending on the provider
@@ -392,11 +493,24 @@
 					},
 					'onStateChange': function(event){
 						
+						self.timer.resetPlaying();
+						
+						var obj = event.target;
+						
 						switch(event.data) {
 							case 0:
 								self.playing = false;
 								break;
 							case 1:
+								// We add the final point (the duration) to the
+								// points array of the timer
+								if (!self.timer.durationCalculated){
+									self.timer.durationCalculated = true;
+									self.timer.addEndPoint(obj.getDuration());
+								}
+								self.timer.setPlaying(function(){
+									self.timer.updateTime(obj.getCurrentTime());
+								})
 								self.playing = true;
 								break;
 							case 2: 
@@ -452,15 +566,17 @@
 		
 		// The function to be called on init
 		var _init = function() {
-			
-			_addVideo();
-			_insertControls();
+	
 			_getSlides(function(){
 				_resetSlidesPositions();
 				_goToSlide(0);
+				self.timer = new Timer(self.slideTimes, 
+									  { onPointChange: _goToSlide });
+				_addVideo();
+				_insertControls();
+				_initScreensPositions();
+				_addEvents();
 			});
-			_initScreensPositions();
-			_addEvents();
 			
 		}
 		
