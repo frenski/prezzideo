@@ -92,23 +92,33 @@
 
 	}
 	
-	// A generic function to append html markup do a dom element
+	// A generic function to append html markup to a dom element
 	var _appendHTML = function(el, html) {
 		el.innerHTML = el.innerHTML + html;
 	}
 	
-	// A generic function to prepend html markup do a dom element
+	// A generic function to prepend html markup to a dom element
 	var _prependHTML = function(el, html) {
 		el.innerHTML = html + el.innerHTML;
 	}
 	
-	var _appendElement = function(container, type, className, content){
+	// A generic function to append element to another dom element
+	var _appendElement = function(container, type, className, content, id) {
 		var node = document.createElement(type);
 		var textnode = document.createTextNode(content);
+		if (typeof id !== 'undefined') node.setAttribute('id', id);
 		node.appendChild(textnode);
 		node.className = className;
 		container.appendChild(node);
 		return node;
+	}
+	
+	// A generic function to append script
+	var _appendScript = function(src) {
+		var tag = document.createElement('script');
+		tag.src = src;
+ 		var firstScriptTag = document.getElementsByTagName('script')[0];
+ 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 	}
 	
 	// A crossbrowser function to add or remove class to/from an element
@@ -118,7 +128,7 @@
                 el.classList[add ? "add" : "remove"](className);
             }
             else {
-                var classList = (" " + element.className + " ")
+                var classList = (" " + el.className + " ")
 								.replace(/\s+/g, " ")
 								.replace(" " + className + " ", "");
                 el.className = classList + (add ? " " + className : "");
@@ -144,16 +154,45 @@
 		}
 	}
 	
-	
-	// The player class
+	// PLAYER CLASS
 	function Prezzideo(element,id) {
 		
+		// Properties ---------------------------------------------------------
+		
+		// keeps the self of the current instance
         var self = this;
+
+		// keeps the dom element objects
         self.element = element;
+
+		// keeps the sequence id of the player - 0,1,2...
 		self.playerId = id;
+		
+		// keeps the ide of the container, for ie 'prezzideo-video1'
+		self.videoContainerId = config.dom.videoContainer.substr(
+			1,config.dom.videoContainer.length-1) + id
+		
+		// keeps the slides dom elements in an array
 		self.slides = [];
+		
+		// keeps the array index of the current slide being displayed
 		self.currentSlide = 0;
+		
+		// keeps a track of which screen is large now
 		self.bigScreen = config.defaultBigScreen;
+		
+		// keeps the video provider instance object, for ie - YT
+		self.player = {};
+		
+		// An object to hold the play, pause, stop.. functios to communicate
+		// with the video provider API
+		self.actions = {};
+		
+		// keeps the state - playing or stoped
+		self.playing = false;
+		
+		
+		// Methods ------------------------------------------------------------
 		
 		// A funciton to select a child dom element by selector
 		var _selectChild = function(selector) {
@@ -169,7 +208,22 @@
 		var _addEvents = function(){
 			// adding an event to the swap button
 			var buttonSwap = _selectChild('.'+config.dom.controlSwap);
-			_addEvent(buttonSwap,'click', _swapScreens);
+			var controlPP = _selectChild('.'+config.dom.controlPlayPause);
+			var buttonStop = _selectChild('.'+config.dom.controlStop);
+			_addEvent(buttonSwap, 'click', _swapScreens);
+			_addEvent(controlPP, 'click', function(){
+				if (!self.playing) {
+					_toggleClass(controlPP, config.dom.controlPlay, false);
+					_toggleClass(controlPP, config.dom.controlPause, true);
+					self.playing = true;
+					_play();
+				} else {
+					_toggleClass(controlPP, config.dom.controlPlay, true);
+					_toggleClass(controlPP, config.dom.controlPause, false);
+					self.playing = false;
+					_pause();
+				}
+			});
 		}
 		
 		// A funtion to insert controls to the player
@@ -285,12 +339,78 @@
 		
 		// Adds the video markup to the container, depending on the provider
 		var _addVideo = function() {
-			var videoMarkup = '<div class="prezzideo-video">'
-				+ vProvidersEmbedCode[config.videoProvider]
-					.replace('{{id}}', self.element.getAttribute('data-urlid'))
-					.replace('{{auto}}', config.autoplay)
-				+ '</div>';
-			_appendHTML (self.element, videoMarkup)
+			
+			var videoContainer = _appendElement(
+				self.element, 'div', 
+				config.dom.videoContainer
+					.substr(1,config.dom.videoContainer.length-1), 
+				'', self.videoContainerId
+			);
+			
+			switch(config.videoProvider) {
+			    case 'youtube':
+					if (typeof YT === 'object') {
+						_initYoutube(videoContainer);
+					} else {
+						_appendScript("https://www.youtube.com/iframe_api");
+						window.onYouTubeIframeAPIReady = function() {
+							_initYoutube(videoContainer);
+						}
+					}
+			        break;
+			    default:
+			        break;
+			}
+		}
+		
+		
+		// Videos initializers
+		var _initYoutube = function(videoContainer) {
+			
+			_appendElement(
+				videoContainer, 'div', '', '', 
+				self.videoContainerId+'-youtube'
+			);
+			
+			self.player = new YT.Player(self.videoContainerId+'-youtube', {
+				videoId: self.element.getAttribute('data-urlid'),
+				playerVars: {
+					autoplay: 0,
+					controls: 0,
+					rel: 0,
+					showinfo: 0,
+					iv_load_policy: 3,
+					modestbranding: 1,
+					disablekb: 1
+				},
+				events: {
+					'onReady': function(event){
+						var obj = event.target;
+						self.actions.play = function() { obj.playVideo(); }
+						self.actions.stop = function() { obj.stopVideo(); }
+						self.actions.pause = function() { obj.pauseVideo(); }
+					},
+					'onStateChange': function(event){
+						
+						switch(event.data) {
+							case 0:
+								self.playing = false;
+								break;
+							case 1:
+								self.playing = true;
+								break;
+							case 2: 
+								self.playing = false;
+								break;
+							case 3:
+								self.playing = false;
+								break;
+						}
+						
+					}
+				}
+			});
+			
 		}
 		
 		
@@ -311,21 +431,28 @@
 		
 		// A function to play the video
 		var _play = function() {
-			
+			if ( typeof self.actions.play === 'function' ){
+				self.actions.play();
+			}
+		}
+		
+		// A funtion to stop completely the video
+		var _stop = function() {
+			if ( typeof self.actions.stop === 'function' ){
+				self.actions.stop();
+			}
 		}
 		
 		// A funtion to pause the video
 		var _pause = function() {
-			
-		}
-		
-		// A funtion to stop completely the video
-		var _pause = function() {
-			
+			if ( typeof self.actions.pause === 'function' ){
+				self.actions.pause();
+			}
 		}
 		
 		// The function to be called on init
 		var _init = function() {
+			
 			_addVideo();
 			_insertControls();
 			_getSlides(function(){
@@ -334,6 +461,7 @@
 			});
 			_initScreensPositions();
 			_addEvents();
+			
 		}
 		
 		// The function to be called on init
@@ -390,7 +518,7 @@
 				}
 			}
 			
-			// adds the player to an array
+			// adds the player to the array of players
 			players.push(elements[i].prezzideo);
 		}
 		
