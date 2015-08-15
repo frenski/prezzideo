@@ -212,7 +212,6 @@
 			self.currentTime = time;
 			_updateCurrentPoint();
 			if (typeof delegate.onTimeUpdate === 'function' && duration) {
-				console.log(time/duration);
 				delegate.onTimeUpdate(time/duration);
 			}
 		}
@@ -330,14 +329,8 @@
 			_addEvent(buttonSwap, 'click', _swapScreens);
 			_addEvent(buttonPP, 'click', function(){
 				if (!self.playing) {
-					_toggleClass(buttonPP, config.dom.controlPlay, false);
-					_toggleClass(buttonPP, config.dom.controlPause, true);
-					self.playing = true;
 					_play();
 				} else {
-					_toggleClass(buttonPP, config.dom.controlPlay, true);
-					_toggleClass(buttonPP, config.dom.controlPause, false);
-					self.playing = false;
 					_pause();
 				}
 			});
@@ -378,6 +371,17 @@
 		var _calcSliderPosition = function(timeFract) {
 			var timeline = _selectChild('.'+config.dom.controlTimeline);
 			return Math.round(timeFract * timeline.clientWidth);
+		}
+		
+		var _setPPButtonStatus = function(){
+			var buttonPP = _selectChild('.'+config.dom.controlPlayPause);
+			if (!self.playing) {
+				_toggleClass(buttonPP, config.dom.controlPlay, true);
+				_toggleClass(buttonPP, config.dom.controlPause, false);
+			} else {
+				_toggleClass(buttonPP, config.dom.controlPlay, false);
+				_toggleClass(buttonPP, config.dom.controlPause, true);
+			}
 		}
 		
 		// This function inits which of the screen is on the top and what
@@ -564,6 +568,8 @@
 								self.playing = false;
 								break;
 						}
+						
+						_setPPButtonStatus();
 						
 					}
 				}
