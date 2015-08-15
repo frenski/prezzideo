@@ -1,9 +1,9 @@
-// ==========================================================================
+// ============================================================================
 // Prezzideo
 // prezzideo.js v0.1
 // https://github.com/frenski/prezzideo
 // License: The MIT License (MIT)
-// ==========================================================================
+// ============================================================================
 
 (function( api, undefined ) { 
 	
@@ -166,6 +166,17 @@
 				+ parseFloat(units[2]);
 	}
 	
+	// Gets mouse coordinates on an event
+	var _getMouseCoords = function(e) {
+		if (e.pageX || e.pageY){
+			return { x:e.pageX, y:e.pageY };
+		}
+		return {
+			x:e.clientX + document.body.scrollLeft - document.body.clientLeft,
+			y:e.clientY + document.body.scrollTop  - document.body.clientTop
+		}
+	}
+	
 	
 	// TIMER CLASS
 	function Timer (trigger_points, delegate) {
@@ -191,15 +202,19 @@
 		// loaded, therefore we get the duration after loading the video for
 		// the first time. We keep this to make sure we add the duration to the
 		// triggerPoints only when it's played for the first time.
-		self.durationCalculated = false;
+		self.isDurationSet = false;
 		
 		
 		// Methods ------------------------------------------------------------
 		
 		// updates the current time
-		var _updateTime = function (time) {
+		var _updateTime = function (time, duration) {
 			self.currentTime = time;
 			_updateCurrentPoint();
+			if (typeof delegate.onTimeUpdate === 'function' && duration) {
+				console.log(time/duration);
+				delegate.onTimeUpdate(time/duration);
+			}
 		}
 		
 		// Finds the closest trigger point based on the current time
@@ -216,10 +231,10 @@
 		
 		// Updates the current trigger point if necessary
 		var _updateCurrentPoint = function () {
-			if ( !( self.currentTime >= self.triggerPoints[self.currentPoint] && 
-				self.currentTime < self.triggerPoints[self.currentPoint+1]) ){
+			if ( !( self.currentTime >= self.triggerPoints[self.currentPoint]
+				&& self.currentTime < self.triggerPoints[self.currentPoint+1]) ){
 				self.currentPoint = _findPoint();
-				if (self.currentPoint) {
+				if (self.currentPoint !== null) {
 					if( typeof delegate.onPointChange === 'function' ) {
 						delegate.onPointChange(self.currentPoint);
 					}
@@ -235,7 +250,7 @@
 			updateTime: _updateTime,
 			getTime: function() { return self.currentTime; },
 			setPlaying: function( intFunction ) {
-				self.interval = window.setInterval( intFunction, 500);
+				self.interval = window.setInterval( intFunction, 100);
 			},
 			resetPlaying: function() {
 				window.clearInterval(self.interval);
@@ -309,22 +324,32 @@
 		var _addEvents = function(){
 			// adding an event to the swap button
 			var buttonSwap = _selectChild('.'+config.dom.controlSwap);
-			var controlPP = _selectChild('.'+config.dom.controlPlayPause);
+			var buttonPP = _selectChild('.'+config.dom.controlPlayPause);
 			var buttonStop = _selectChild('.'+config.dom.controlStop);
+			var timeline = _selectChild('.'+config.dom.controlTimeline);
 			_addEvent(buttonSwap, 'click', _swapScreens);
-			_addEvent(controlPP, 'click', function(){
+			_addEvent(buttonPP, 'click', function(){
 				if (!self.playing) {
-					_toggleClass(controlPP, config.dom.controlPlay, false);
-					_toggleClass(controlPP, config.dom.controlPause, true);
+					_toggleClass(buttonPP, config.dom.controlPlay, false);
+					_toggleClass(buttonPP, config.dom.controlPause, true);
 					self.playing = true;
 					_play();
 				} else {
-					_toggleClass(controlPP, config.dom.controlPlay, true);
-					_toggleClass(controlPP, config.dom.controlPause, false);
+					_toggleClass(buttonPP, config.dom.controlPlay, true);
+					_toggleClass(buttonPP, config.dom.controlPause, false);
 					self.playing = false;
 					_pause();
 				}
 			});
+			_addEvent(timeline, 'click', function(e){
+				var mouseX = _getMouseCoords(e).x;
+				var timelineX = timeline.getBoundingClientRect().x;
+				var relativeX = mouseX - timelineX;
+				var timelineW = timeline.clientWidth;
+				_setSliderPosition(relativeX);
+				_goToTime(relativeX/timelineW);
+			});
+			
 		}
 		
 		// A funtion to insert controls to the player
@@ -341,6 +366,18 @@
 				' ' + config.dom.controlPlay, '');
 			_appendElement(bar, 'div', config.dom.controlFullscreen, '');
 			
+		}
+		
+		// Sets the slider position, by passing value for x
+		var _setSliderPosition = function(posX) {
+			var slider = _selectChild('.'+config.dom.controlSlider);
+			slider.style.left = posX + 'px';
+		}
+		
+		// caclilates slider position, by passing a fraction of the time passed
+		var _calcSliderPosition = function(timeFract) {
+			var timeline = _selectChild('.'+config.dom.controlTimeline);
+			return Math.round(timeFract * timeline.clientWidth);
 		}
 		
 		// This function inits which of the screen is on the top and what
@@ -402,7 +439,7 @@
 		// images and place the image depending on that and also make the
 		// latest ones invisible
 		// TODO: add some sorting function
-		var _resetSlidesPositions = function() {
+		var _setSlidesPositions = function() {
 			var cRatio = self.element.clientWidth / self.element.clientHeight;
 			for (var i = 0; i < self.slides.length; i ++ ){
 				var iRatio = self.slides[i].clientWidth / 
@@ -490,6 +527,10 @@
 						self.actions.play = function() { obj.playVideo(); }
 						self.actions.stop = function() { obj.stopVideo(); }
 						self.actions.pause = function() { obj.pauseVideo(); }
+						self.actions.goToTime = function(time) { 
+							var timeInSec = time * obj.getDuration();
+							obj.seekTo(timeInSec); 
+						}
 					},
 					'onStateChange': function(event){
 						
@@ -504,13 +545,16 @@
 							case 1:
 								// We add the final point (the duration) to the
 								// points array of the timer
-								if (!self.timer.durationCalculated){
-									self.timer.durationCalculated = true;
+								if (!self.timer.duration) {
+									self.timer.isDurationSet = true;
 									self.timer.addEndPoint(obj.getDuration());
 								}
 								self.timer.setPlaying(function(){
-									self.timer.updateTime(obj.getCurrentTime());
-								})
+									self.timer.updateTime(
+										obj.getCurrentTime(),
+										obj.getDuration()
+									);
+								});
 								self.playing = true;
 								break;
 							case 2: 
@@ -531,10 +575,11 @@
 		// Shows the selected slide
 		var _goToSlide = function(id) {
 			if (id in self.slides) {
-				var currentSlide = self.slides[self.currentSlide];
+				var curSlide = self.slides[self.currentSlide];
 				var newSlide = self.slides[id];
-				currentSlide.style.zIndex = '0';
+				curSlide.style.zIndex = '0';
 				newSlide.style.zIndex = '1';
+				self.currentSlide = id;
 			}
 		}
 		
@@ -564,17 +609,36 @@
 			}
 		}
 		
+		// A funtion to go to a certain part of the video - time is fraction of
+		// the full time. In Youtube function calculated	
+		var _goToTime = function(time) {
+			if ( typeof self.actions.goToTime === 'function' ){
+				self.actions.goToTime(time);
+			}
+		}
+		
 		// The function to be called on init
 		var _init = function() {
 	
 			_getSlides(function(){
-				_resetSlidesPositions();
+				// Repositios each slide
+				_setSlidesPositions();
+				// Makes the first slide visible
 				_goToSlide(0);
+				// Inits the slider, by passing the sl. times and the delegate
 				self.timer = new Timer(self.slideTimes, 
-									  { onPointChange: _goToSlide });
+									  { onPointChange: _goToSlide,
+										onTimeUpdate: function(t) {
+											var x = _calcSliderPosition(t);
+											_setSliderPosition(x);
+										}});
+				// Adds the video scripts
 				_addVideo();
+				// Inserst the dom elements for controling the video
 				_insertControls();
+				// Makes one of the screens to appear big, depending on setting
 				_initScreensPositions();
+				// Adds the event handlers
 				_addEvents();
 			});
 			
@@ -595,6 +659,7 @@
 			play: _play,
 			pause: _pause,
 			stop: _stop,
+			goto: _goToTime,
 			swap: _swapScreens,
 			smallScreenPosition: _changeSmallScreenPosition
 		}

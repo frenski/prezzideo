@@ -106,7 +106,8 @@
 }
 
 .prezzideo-control-timeline {
-	width: 100%;
+	margin-left: 10px;
+	margin-right: 10px;
 	height: 5px;
 	background: #ccc;
 	cursor: pointer;
