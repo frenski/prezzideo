@@ -114,7 +114,8 @@
 }
 
 .prezzideo-control-fullscreen,
-.prezzideo-control-playpause {
+.prezzideo-control-playpause,
+.prezzideo-control-stop {
 	width: 32px;
 	height: 32px;
 	cursor: pointer;
@@ -130,8 +131,14 @@
 	margin-left: 5px;
 }
 
-.prezzideo-control-fullscreen {
+.prezzideo-control-stop {
+	float: left;
+	margin-left: 5px;
+	background-image: url('img/prezzideo-control-stop.png');
+	background-size: 100% 100%;
+}
 
+.prezzideo-control-fullscreen {
 	float: right;
 	margin-right: 5px;
 	background-image: url('img/prezzideo-control-full.png');
@@ -148,8 +155,20 @@
 	background-size: 100% 100%;
 }
 
+.prezzideo-display-time {
+	position: absolute;
+	width: 90px;
+	top: 10px;
+	left: 50%;
+	margin-left: -45px;
+	font-size: 0.8em;
+	color: #ddd;
+	text-align: center;
+}
+
 .prezzideo-control-fullscreen:hover,
-.prezzideo-control-playpause:hover {
+.prezzideo-control-playpause:hover,
+.prezzideo-control-stop:hover {
 	opacity: 0.7;
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;

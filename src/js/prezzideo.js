@@ -30,7 +30,9 @@
 			controlPlayPause: 'prezzideo-control-playpause',
 			controlPlay: 'prezzideo-control-play',
 			controlPause: 'prezzideo-control-pause',
-			controlFullscreen: 'prezzideo-control-fullscreen'
+			controlStop: 'prezzideo-control-stop',
+			controlFullscreen: 'prezzideo-control-fullscreen',
+			displayTime: 'prezzideo-display-time'
 		},
 		autoplay: false,
 		callbackInit: null,
@@ -166,6 +168,16 @@
 				+ parseFloat(units[2]);
 	}
 	
+	var _secondsToString = function (secondsTotal) {
+		var hours = Math.floor(secondsTotal/3600);
+		var minutes = Math.floor((secondsTotal%3600)/60);
+		var seconds = Math.floor((secondsTotal%3600)%60);
+		if (seconds < 10) seconds = '0' + seconds;
+		var stringTime = minutes + ':'+seconds;
+		if (hours) stringTime = hours + ':' + stringTime;
+		return stringTime;
+	}
+	
 	// Gets mouse coordinates on an event
 	var _getMouseCoords = function(e) {
 		if (e.pageX || e.pageY){
@@ -212,7 +224,7 @@
 			self.currentTime = time;
 			_updateCurrentPoint();
 			if (typeof delegate.onTimeUpdate === 'function' && duration) {
-				delegate.onTimeUpdate(time/duration);
+				delegate.onTimeUpdate(time, duration);
 			}
 		}
 		
@@ -279,7 +291,7 @@
 		
 		// keeps the ide of the container, for ie 'prezzideo-video1'
 		self.videoContainerId = config.dom.videoContainer.substr(
-			1,config.dom.videoContainer.length-1) + id
+			1, config.dom.videoContainer.length-1) + id;
 		
 		// keeps the slides dom elements in an array
 		self.slides = [];
@@ -293,7 +305,7 @@
 		// keeps the video provider instance object, for ie - YT
 		self.player = {};
 		
-		// An object to hold the play, pause, stop.. functios to communicate
+		// An object to hold the play, pause, stop.. functions to communicate
 		// with the video provider API
 		self.actions = {};
 		
@@ -327,6 +339,7 @@
 			var buttonStop = _selectChild('.'+config.dom.controlStop);
 			var timeline = _selectChild('.'+config.dom.controlTimeline);
 			_addEvent(buttonSwap, 'click', _swapScreens);
+			_addEvent(buttonStop, 'click', _stop);
 			_addEvent(buttonPP, 'click', function(){
 				if (!self.playing) {
 					_play();
@@ -342,7 +355,6 @@
 				_setSliderPosition(relativeX);
 				_goToTime(relativeX/timelineW);
 			});
-			
 		}
 		
 		// A funtion to insert controls to the player
@@ -357,7 +369,9 @@
 			_appendElement(bar, 'div', config.dom.controlSlider, '');
 			_appendElement(bar, 'div', config.dom.controlPlayPause + 
 				' ' + config.dom.controlPlay, '');
+			_appendElement(bar, 'div', config.dom.controlStop, '');
 			_appendElement(bar, 'div', config.dom.controlFullscreen, '');
+			_appendElement(bar, 'div', config.dom.displayTime, '0:00 / 0:00');
 			
 		}
 		
@@ -365,6 +379,12 @@
 		var _setSliderPosition = function(posX) {
 			var slider = _selectChild('.'+config.dom.controlSlider);
 			slider.style.left = posX + 'px';
+		}
+		
+		var _setDisplayTime = function(timeElapsed, timeTotal) {
+			var displayTime = _selectChild('.'+config.dom.displayTime);
+			displayTime.innerHTML = _secondsToString(timeElapsed) + ' / ' + 
+				_secondsToString(timeTotal);
 		}
 		
 		// caclilates slider position, by passing a fraction of the time passed
@@ -428,12 +448,12 @@
 			if (self.bigScreen == 'video') {
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, false);
 				_toggleClass(videoC, config.dom.videoShrinkedClass, true);
-				_resetSlidesPositions();
+				_setSlidesPositions();
 				self.bigScreen = 'slides';
 			} else if (self.bigScreen == 'slides') {
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
 				_toggleClass(videoC, config.dom.videoShrinkedClass, false);
-				_resetSlidesPositions();
+				_setSlidesPositions();
 				self.bigScreen = 'video';
 			}
 		}
@@ -543,6 +563,9 @@
 						var obj = event.target;
 						
 						switch(event.data) {
+							case -1:
+								self.playing = false;
+								break;
 							case 0:
 								self.playing = false;
 								break;
@@ -634,9 +657,11 @@
 				// Inits the slider, by passing the sl. times and the delegate
 				self.timer = new Timer(self.slideTimes, 
 									  { onPointChange: _goToSlide,
-										onTimeUpdate: function(t) {
-											var x = _calcSliderPosition(t);
+										onTimeUpdate: function(t,d) {
+											var frac = t/d;
+											var x = _calcSliderPosition(frac);
 											_setSliderPosition(x);
+											_setDisplayTime(t,d);
 										}});
 				// Adds the video scripts
 				_addVideo();
