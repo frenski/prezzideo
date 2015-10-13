@@ -349,7 +349,7 @@
 			});
 			_addEvent(timeline, 'click', function(e){
 				var mouseX = _getMouseCoords(e).x;
-				var timelineX = timeline.getBoundingClientRect().x;
+				var timelineX = timeline.getBoundingClientRect().left;
 				var relativeX = mouseX - timelineX;
 				var timelineW = timeline.clientWidth;
 				_setSliderPosition(relativeX);
