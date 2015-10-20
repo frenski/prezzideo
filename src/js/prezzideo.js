@@ -207,6 +207,9 @@
 		// keeps the current time
 		self.currentTime = 0;
 		
+		// keeps the current time
+		self.duration = 0;
+		
 		// keeps the time interval object
 		self.interval = null;
 		
@@ -260,6 +263,7 @@
 			
 			updateTime: _updateTime,
 			getTime: function() { return self.currentTime; },
+			getDuration: function() { return self.duration; },
 			setPlaying: function( intFunction ) {
 				self.interval = window.setInterval( intFunction, 100);
 			},
@@ -268,8 +272,11 @@
 			},
 			addEndPoint: function(time) {
 				self.triggerPoints.push(time);
+			},
+			setDuration: function(time) {
+				self.duration = time;
+				self.isDurationSet = true;
 			}
-			
 		}
 
 	}
@@ -338,6 +345,7 @@
 			var buttonPP = _selectChild('.'+config.dom.controlPlayPause);
 			var buttonStop = _selectChild('.'+config.dom.controlStop);
 			var timeline = _selectChild('.'+config.dom.controlTimeline);
+			var slider = _selectChild('.'+config.dom.controlSlider);
 			_addEvent(buttonSwap, 'click', _swapScreens);
 			_addEvent(buttonStop, 'click', _stop);
 			_addEvent(buttonPP, 'click', function(){
@@ -347,14 +355,40 @@
 					_pause();
 				}
 			});
-			_addEvent(timeline, 'click', function(e){
+			
+			var positionSlider = function (e){
 				var mouseX = _getMouseCoords(e).x;
 				var timelineX = timeline.getBoundingClientRect().left;
 				var relativeX = mouseX - timelineX;
 				var timelineW = timeline.clientWidth;
+				var relativeW = relativeX/timelineW;
 				_setSliderPosition(relativeX);
-				_goToTime(relativeX/timelineW);
+				_goToTime(relativeW);
+				return {'relX':relativeX, 'relW':relativeW};
+			}
+			
+			// timeline click event
+			_addEvent(timeline, 'click', function(e){
+				positionSlider(e);
 			});
+			// Slider down, move and up events
+			var sliderMove = function (e) {
+				var posSl = positionSlider(e);
+				var duration = self.timer.getDuration();
+				if (duration) {
+					_setDisplayTime(posSl.relW * duration, duration);
+				}
+			}
+			var sliderUp = function() {
+				_removeEvent(document, 'mousemove', sliderMove);
+				_removeEvent(document, 'mouseup', sliderUp);
+			}
+			var sliderDown = function() {
+				_addEvent(document, 'mousemove', sliderMove);
+				_addEvent(document, 'mouseup', sliderUp);
+			}
+			_addEvent(slider, 'mousedown', sliderDown);
+			
 		}
 		
 		// A funtion to insert controls to the player
@@ -572,9 +606,10 @@
 							case 1:
 								// We add the final point (the duration) to the
 								// points array of the timer
-								if (!self.timer.duration) {
-									self.timer.isDurationSet = true;
-									self.timer.addEndPoint(obj.getDuration());
+								if (!self.timer.getDuration()) {
+									var duration = obj.getDuration()
+									self.timer.addEndPoint(duration);
+									self.timer.setDuration(duration);
 								}
 								self.timer.setPlaying(function(){
 									self.timer.updateTime(
