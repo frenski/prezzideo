@@ -40,7 +40,17 @@
 		videoProvider: 'youtube',
 		defaultBigScreen: 'slides',
 		smallScreenPositionDef: 'bottom-right',
-		smallScreenPositions:['top-left','top-right','bottom-left','bottom-right']
+		smallScreenPositions:['top-left','top-right','bottom-left','bottom-right'],
+
+		fullScreen:false,
+		resolution: { 
+			small:{width:'100%',height:'auto',marginTop:'0'},
+			medium:{width:'180%',height:'310px',marginTop:'-20%'},
+	   }
+
+
+
+
 	};
 	
 	var vProvidersEmbedCode = {
@@ -346,6 +356,9 @@
 			var buttonStop = _selectChild('.'+config.dom.controlStop);
 			var timeline = _selectChild('.'+config.dom.controlTimeline);
 			var slider = _selectChild('.'+config.dom.controlSlider);
+			var buttonFullScreen = 	_selectChild('.'+config.dom.controlFullscreen);
+			
+			_addEvent(buttonFullScreen, 'click', _changeScreenSize);
 			_addEvent(buttonSwap, 'click', _swapScreens);
 			_addEvent(buttonStop, 'click', _stop);
 			_addEvent(buttonPP, 'click', function(){
@@ -491,13 +504,34 @@
 				self.bigScreen = 'video';
 			}
 		}
+
+
+		var _changeScreenSize = function() {
+			var slideC = _selectChild(config.dom.slidesContainer);
+			var videoC = _selectChild(config.dom.videoContainer);
+			const container = document.querySelector(config.dom.container);
+		
+			if(defaults.fullScreen){
+				container.style.width = defaults.resolution.small.width;
+				container.style.height = defaults.resolution.small.height;
+				container.style.top =  defaults.resolution.small.marginTop;
+			}else{
+				container.style.width = defaults.resolution.medium.width;
+				container.style.height = defaults.resolution.medium.height;
+				container.style.top =  defaults.resolution.medium.marginTop;
+			}
+				_setSlidesPositions();
+			
+			defaults.fullScreen = !defaults.fullScreen;
+		}
 		
 		
 		// A function to compare the aspect ratio of the container and the 
 		// images and place the image depending on that and also make the
 		// latest ones invisible
-		// TODO: add some sorting function
+		// TODO: add some sorting function    	//.sort((a, b) => b - a)
 		var _setSlidesPositions = function() {
+		
 			var cRatio = self.element.clientWidth / self.element.clientHeight;
 			for (var i = 0; i < self.slides.length; i ++ ){
 				var iRatio = self.slides[i].clientWidth / 
