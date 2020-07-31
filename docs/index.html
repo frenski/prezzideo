@@ -2,87 +2,176 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+<!--<![endif]-->
 
-        <link rel="stylesheet" href="css/normalize.min.css">
-        <link rel="stylesheet" href="css/main.css">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-		<link rel="stylesheet" href="../src/css/prezzideo.css">
+    <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
 
-        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 8]>
+    <link rel="stylesheet" href="../src/css/prezzideo.css">
+
+    <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+
+<body>
+    <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <div class="header-container">
-            <header class="wrapper clearfix">
-                <h1 class="title">Prezzideo</h1>
-            </header>
+    <div class="header-container">
+        <header class="wrapper clearfix">
+            <h1 class="title">Prezzideo</h1>
+        </header>
+    </div>
+
+    <div class="main-container">
+        <div class="main wrapper clearfix">
+
+            <article>
+                <header>
+                    <h1>Prezzideo Examples</h1>
+                    <p>Here is an example:</p>
+                </header>
+                <section>
+                    <h2>Example 1</h2>
+                    <div id="player-containers">
+
+                    </div>
+
+
+
         </div>
+        </section>
+        <footer>
+            <h3>Check out the Github source here:</h3>
+            <p><a href="https://github.com/frenski/prezzideo"></a></p>
+        </footer>
+        </article>
 
-        <div class="main-container">
-            <div class="main wrapper clearfix">
+    </div> <!-- #main -->
+    </div> <!-- #main-container -->
+    <button id="test"></button>
+    <div class="footer-container">
+        <footer class="wrapper">
+            <h3>footer</h3>
+        </footer>
+    </div>
 
-                <article>
-                    <header>
-                        <h1>Prezzideo Examples</h1>
-                        <p>Here is an example:</p>
-                    </header>
-                    <section>
-                        <h2>Example 1</h2>
-                        <div id="player-containers">
-                        <div class="prezzideo" data-urlid="KpXP_MU0uws" width="100%">
-                            
-                        	<div class="prezzideo-slides">
-                        		<img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item" data-time="00:00:00">
-								<img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item" data-time="00:00:10">
-								<img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item" data-time="00:03:02">
-                        	</div>
-                        </div>
-                  
+    <script src="../src/js/prezzideo.js"></script>
 
+    <script>
 
-                        </div>
-                    </section>
-                    <footer>
-                        <h3>Check out the Github source here:</h3>
-                        <p><a href="https://github.com/frenski/prezzideo"></a></p>
-                    </footer>
-                </article>
+        const presentations = [
+            {
+            stage: document.getElementById('player-containers'),
+            assets: {
+                urlid: 'KpXP_MU0uws',
+                slides:
+                    [
+                        {
+                            image: 'img/Presentation1/Slide1.png',
+                            time: ['00', '00', '00']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide2.png',
+                            time: ['00', '00', '10']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide3.png',
+                            time: ['00', '03', '02']
+                        }
+                    ]
+            }
+        },
+        {
+            stage: document.getElementById('player-containers'),
+            assets: {
+                urlid: 'KpXP_MU0uws',
+                slides:
+                    [
+                        {
+                            image: 'img/Presentation1/Slide1.png',
+                            time: ['00', '00', '00']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide2.png',
+                            time: ['00', '00', '10']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide3.png',
+                            time: ['00', '03', '02']
+                        }
+                    ]
+            }
+        },
+        {
+            stage: document.getElementById('player-containers'),
+            assets: {
+                urlid: 'KpXP_MU0uws',
+                slides:
+                    [
+                        {
+                            image: 'img/Presentation1/Slide1.png',
+                            time: ['00', '00', '00']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide2.png',
+                            time: ['00', '00', '10']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide3.png',
+                            time: ['00', '03', '02']
+                        }
+                    ]
+            }
+        },
+        {
+            stage: document.getElementById('player-containers'),
+            assets: {
+                urlid: 'KpXP_MU0uws',
+                slides:
+                    [
+                        {
+                            image: 'img/Presentation1/Slide1.png',
+                            time: ['00', '00', '00']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide2.png',
+                            time: ['00', '00', '10']
+                        },
+                        {
+                            image: 'img/Presentation1/Slide3.png',
+                            time: ['00', '03', '02']
+                        }
+                    ]
+            }
+        },
+        
+    ]
+        prezzideo.init(presentations);
 
-            </div> <!-- #main -->
-        </div> <!-- #main-container -->
-        <button id="test"></button>
-        <div class="footer-container">
-            <footer class="wrapper">
-                <h3>footer</h3>
-            </footer>
-        </div>
+    </script>
 
-        <script src="../src/js/prezzideo.js"></script>
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+        (function (b, o, i, l, e, r) {
+            b.GoogleAnalyticsObject = l; b[l] || (b[l] =
+                function () { (b[l].q = b[l].q || []).push(arguments) }); b[l].l = +new Date;
+            e = o.createElement(i); r = o.getElementsByTagName(i)[0];
+            e.src = '//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e, r)
+        }(window, document, 'script', 'ga'));
+        ga('create', 'UA-XXXXX-X', 'auto'); ga('send', 'pageview');
+    </script>
+</body>
 
-		<script>
-            prezzideo.init();
-          
-        </script>
-
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
-        </script>
-    </body>
 </html>
