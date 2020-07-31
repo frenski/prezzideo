@@ -109,11 +109,14 @@
 	}
 
 	// A generic function which create and element and appends to given element
-	const _createElement = (type, parent, params = {}) => {
+	const _createElement = (type, parent, attributes={}, content={}) => {
 		const element = document.createElement(type);
 		parent.appendChild(element);
-		for (const i in params) {
-			element.setAttribute(i, params[i]);
+		for (const attr in attributes) {
+			element.setAttribute(attr, attributes[attr]);
+		}
+		for (const item in content) {
+			element[item] = content[item];
 		}
 		return element;
 	}
@@ -164,6 +167,7 @@
 
 	// A generic crossbrowser funciton to handle events addition
 	var _addEvent = function (obj, type, fn) {
+	
 		if (obj.addEventListener) {
 			obj.addEventListener(type, fn, false);
 		} else if (obj.attachEvent) {
@@ -300,54 +304,18 @@
 		}
 
 	}
-// a function that returns a selection for every element in an Prezzidio container
-	const _selectPrezzideoElements = (element) =>{
-		const children = element.children;
-		const dom = {
-			container:element,
-			slidesContainer:children[0],
-			slidesItems:children[0].children,
 
-			videoContainer:children[1],
-			controlSwap:children[2],
-			controlBar:children[3],
-			constrolFullscreen:children[3].querySelector('.prezzideo-control-fullscreen')
-
-
-		}
-
-		return dom;
-		//  {
-		// 	container: '.prezzideo',
-		// 	slidesContainer: '.prezzideo-slides',
-		// 	slideItem: '.prezzideo-slides-item',
-		// 	slideVClass: 'prezzideo-slide-vertical',
-		// 	slideHClass: 'prezzideo-slide-horizontal',
-		// 	slidesShrinkedClass: 'prezzideo-slides-shrinked',
-		// 	videoContainer: '.prezzideo-video',
-		// 	videoShrinkedClass: 'prezzideo-video-shrinked',
-		// 	screenPositionClass: 'prezzideo-screen-position-',
-		// 	controlSwap: 'prezzideo-swap-screen-button',
-		// 	controlBar: 'prezzideo-control-bar',
-		// 	controlSlider: 'prezzideo-control-slider',
-		// 	controlTimeline: 'prezzideo-control-timeline',
-		// 	controlPlayPause: 'prezzideo-control-playpause',
-		// 	controlPlay: 'prezzideo-control-play',
-		// 	controlPause: 'prezzideo-control-pause',
-		// 	controlStop: 'prezzideo-control-stop',
-		// 	controlFullscreen: 'prezzideo-control-fullscreen',
-		// 	displayTime: 'prezzideo-display-time'
-		// }
-	}
 	// a function that creates container element for prezzideo player
 	const _createPrezzideoContainer = (parent, options) => {
-		return _createElement('div', parent, { class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,'full-screen':options['full-screen'] });
+		return _createElement('div', parent, { 'data-id':options.id, id:`player-container_${options.id}`, class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,
+		'size-screen':options['size-screen'] });
 	}
 	// a function that creates slide image elements
 	const _createPrezzideoSlides = (parent, options) => {
-		const slidesContainer = _createElement('div', parent, { class: 'prezzideo-slides' });
-		options.slides.map((item) => _createElement('img', slidesContainer,
+		const slidesContainer = _createElement('div', parent, { id:`slides-container_${options.id}`, class: 'prezzideo-slides' });
+		options.slides.map((item,i) => _createElement('img', slidesContainer,
 			{
+				id:`slide-${i}_${item.id}`,
 				class: 'prezzideo-slides-item',
 				'src': item.image,
 				'data-time': `${item.time[0]}:${item.time[1]}:${item.time[2]}`
@@ -357,12 +325,25 @@
 	}
 
 	const _createPrezzideoView = (parent, options, settings) => {
-		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'full-screen': settings.screen.fullScreen });
-
+		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'size-screen': settings.screen.screenSize, id:options.id });
 		_createPrezzideoSlides(container, options);
 		return container;
 	}
-
+// a function that returns a selection for every element in an Prezzidio container
+// Depricated - adding ids instead
+const _selectPrezzideoElements = (element) =>{
+	const children = element.children;
+	const dom = {
+		container:element,
+		slidesContainer:children[0],
+		slidesItems:children[0].children,
+		// videoContainer:children[1],
+		// controlSwap:children[2],
+		// controlBar:children[3],
+		controlFullscreen:children[4],
+	}
+	return dom;
+}
 	// PLAYER CLASS
 	function Prezzideo(element, id) {
 
@@ -420,14 +401,15 @@
 		}
 
 		// Attaches all events to the controls
-		var _addEvents = function () {
-			// adding an event to the swap button
-			var buttonSwap = _selectChild('.' + config.dom.controlSwap);
-			var buttonPP = _selectChild('.' + config.dom.controlPlayPause);
-			var buttonStop = _selectChild('.' + config.dom.controlStop);
-			var timeline = _selectChild('.' + config.dom.controlTimeline);
-			var slider = _selectChild('.' + config.dom.controlSlider);
-			var buttonFullScreen = _selectChild('.' + config.dom.controlFullscreen);
+		var _addEvents = function (id) {
+
+			const buttonSwap =document.getElementById('controlSwap' + '_'+id);
+			const buttonPP = document.getElementById('controlPlayPause' + '_'+id); 
+			const buttonStop =  document.getElementById('controlStop' + '_'+id);
+			const timeline =document.getElementById('controlTimeline' + '_'+id); 
+			const slider = document.getElementById('controlSlider' + '_'+id); 
+			const buttonFullScreen = document.getElementById('controlFullscreen' + '_'+id); 
+
 
 			_addEvent(buttonFullScreen, 'click', _changeScreenSize);
 			_addEvent(buttonSwap, 'click', _swapScreens);
@@ -476,21 +458,24 @@
 		}
 
 		// A funtion to insert controls to the player
-		var _insertControls = function () {
+		var _insertControls = function (id=0) {
 			// inserting the button over the small screen for swapping
-			_appendElement(self.element, 'div', config.dom.controlSwap, '');
+			// _appendElement(self.element, 'div', config.dom.controlSwap, '');
+			_createElement(
+				'div',
+				self.element,{id:`controlSwap_${id}`, class: config.dom.controlSwap});
 
 			// inserting the control bar at the bottom
-			var bar = _appendElement(
-				self.element, 'div', config.dom.controlBar, '');
-			_appendElement(bar, 'div', config.dom.controlTimeline, '');
-			_appendElement(bar, 'div', config.dom.controlSlider, '');
-			_appendElement(bar, 'div', config.dom.controlPlayPause +
-				' ' + config.dom.controlPlay, '');
-			_appendElement(bar, 'div', config.dom.controlStop, '');
-			_appendElement(bar, 'div', config.dom.controlFullscreen, '');
-			_appendElement(bar, 'div', config.dom.displayTime, '0:00 / 0:00');
-
+			const bar = _createElement(
+				'div',
+				self.element,{id:`controlBar_${id}`, class: config.dom.controlBar});
+			_createElement('div',bar,{id:`controlTimeline_${id}`, class: config.dom.controlTimeline});
+			_createElement('div',bar,{id:`controlSlider_${id}`, class: config.dom.controlSlider});
+			_createElement('div',bar,{id:`controlPlayPause_${id}`, class:  config.dom.controlPlayPause +
+				' ' + config.dom.controlPlay});
+			_createElement('div',bar,{id:`controlStop_${id}`, class: config.dom.controlStop});
+			_createElement('div',bar,{id:`controlFullscreen_${id}`, class: config.dom.controlFullscreen});
+			_createElement('div',bar,{id:`displayTime_${id}`, class: config.dom.displayTime}, {textContent:'0:00 / 0:00'});
 		}
 
 		// Sets the slider position, by passing value for x
@@ -524,7 +509,7 @@
 
 		// This function inits which of the screen is on the top and what
 		// is the default position of the each screen: top, right, bottom, left
-		var _initScreensPositions = function () {
+		var _initScreensPositions = function (id) {
 
 			_changeSmallScreenPosition(config.smallScreenPositionDef);
 
@@ -578,27 +563,28 @@
 
 
 		var _changeScreenSize = function () {
-			var slideC = _selectChild(config.dom.slidesContainer);
-			var videoC = _selectChild(config.dom.videoContainer);
+			
+		
+			const container = this.parentElement.parentElement;
 	
-			const container = document.querySelector(config.dom.container);
-			const fullScreen = new Boolean(container.getAttribute('full-screen'));
-			_selectPrezzideoElements(container);
-			if (fullScreen) {
+			const screenSize =  container.getAttribute('size-screen');
+			
+			// _selectPrezzideoElements(container);
+			if (screenSize === 'medium') {
 				container.style.width = defaults.resolution.small.width;
 				container.style.height = defaults.resolution.small.height;
 				container.style.top = defaults.resolution.small.marginTop;
-				container.setAttribute('full-screen',!fullScreen)
+				container.setAttribute('size-screen','small')
 
 			} else {
 				container.style.width = defaults.resolution.medium.width;
 				container.style.height = defaults.resolution.medium.height;
 				container.style.top = defaults.resolution.medium.marginTop;
-				container.setAttribute('full-screen',!fullScreen)
+				container.setAttribute('size-screen','medium')
 
 			}
 
-			console.log(container)
+			console.log(container.getAttribute('size-screen'))
 		}
 
 
@@ -644,14 +630,27 @@
 		}
 
 		// Adds the video markup to the container, depending on the provider
-		var _addVideo = function () {
-
-			var videoContainer = _appendElement(
-				self.element, 'div',
-				config.dom.videoContainer
+		var _addVideo = function (id) {
+			// (type, parent, attributes = {})
+		
+		//	_appendElement = function (container, type, className, content, id) 
+	
+		var videoContainer = _createElement(
+				'div',
+				self.element,
+				{
+					class:	config.dom.videoContainer
 					.substr(1, config.dom.videoContainer.length - 1),
-				'', self.videoContainerId
-			);
+					id:self.videoContainerId
+				}
+					)
+		
+			// var videoContainer = _appendElement(
+			// 	self.element, 'div',
+			// 	config.dom.videoContainer
+			// 		.substr(1, config.dom.videoContainer.length - 1),
+			// 	'', self.videoContainerId
+			// );
 
 			switch (config.videoProvider) {
 				case 'youtube':
@@ -810,14 +809,16 @@
 							_setDisplayTime(t, d);
 						}
 					});
+					const playerID = self.element.getAttribute('data-id')
 				// Adds the video scripts
-				_addVideo();
+				_addVideo(playerID);
 				// Inserst the dom elements for controling the video
-				_insertControls();
+			
+				_insertControls(playerID);
 				// Makes one of the screens to appear big, depending on setting
-				_initScreensPositions();
+				_initScreensPositions(playerID);
 				// Adds the event handlers
-				_addEvents();
+				_addEvents(playerID);
 			});
 
 		}
@@ -856,36 +857,17 @@
 	
 		// Takes into consideration the user's settings
 
-		config = _extendConfig(defaults, options);
 
+		config = _extendConfig(defaults, options);
 		// Get the players 
 		const elements  = presentations.map((presentation) => {
-			// settings.dom: {
-			// 	container: '.prezzideo',
-			// 	slidesContainer: '.prezzideo-slides',
-			// 	slideItem: '.prezzideo-slides-item',
-			// 	slideVClass: 'prezzideo-slide-vertical',
-			// 	slideHClass: 'prezzideo-slide-horizontal',
-			// 	slidesShrinkedClass: 'prezzideo-slides-shrinked',
-			// 	videoContainer: '.prezzideo-video',
-			// 	videoShrinkedClass: 'prezzideo-video-shrinked',
-			// 	screenPositionClass: 'prezzideo-screen-position-',
-			// 	controlSwap: 'prezzideo-swap-screen-button',
-			// 	controlBar: 'prezzideo-control-bar',
-			// 	controlSlider: 'prezzideo-control-slider',
-			// 	controlTimeline: 'prezzideo-control-timeline',
-			// 	controlPlayPause: 'prezzideo-control-playpause',
-			// 	controlPlay: 'prezzideo-control-play',
-			// 	controlPause: 'prezzideo-control-pause',
-			// 	controlStop: 'prezzideo-control-stop',
-			// 	controlFullscreen: 'prezzideo-control-fullscreen',
-			// 	displayTime: 'prezzideo-display-time'
-			// }
-			console.log(presentation.settings)
-			return _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings)
+			
+			const view =  _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings);
+			// console.log(view)
+			// const controlParent = _selectPrezzideoElements(presentation.stage).controlFullscreen;
+		
+			return view;
 		});
-		console.log(elements)
-	//	var elements = document.querySelectorAll(config.dom.container);
 		var players = [];
 
 		// Initializing Prezzideo instance for each DOM element
@@ -897,9 +879,9 @@
 				var prezzideo = new Prezzideo(elements[i], i);
 
 				// Set prezzideo to false if setup failed
-				// elements[i].prezzideo = 
-				// 	(Object.keys(prezzideo).length ? prezzideo : false);
-				elements[i].prezzideo = prezzideo
+				elements[i].prezzideo = 
+				 	(Object.keys(prezzideo).length ? prezzideo : false);
+				// elements[i].prezzideo = prezzideo
 				// Callback
 				if (typeof config.callbackInit === "function") {
 					config.callbackInit(elements[i].prezzideo);
@@ -910,7 +892,7 @@
 			players.push(elements[i].prezzideo);
 
 		}
-		console.log(players)
+		// console.log(players)
 		return players;
 	}
 

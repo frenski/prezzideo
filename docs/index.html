@@ -73,54 +73,64 @@
         const presentations = [
            
         {
+           
             stage: document.getElementById('player-containers'),
             assets: {
+                id:0,
                 urlid: 'KpXP_MU0uws',
                 slides:
                     [
                         {
+                            id:0,
                             image: 'img/Presentation1/Slide1.png',
                             time: ['00', '00', '00']
                         },
                         {
+                            id:1,
                             image: 'img/Presentation1/Slide2.png',
                             time: ['00', '00', '10']
                         },
                         {
+                            id:2,
                             image: 'img/Presentation1/Slide3.png',
                             time: ['00', '03', '02']
                         }
                     ]
             },
             settings:{
-                screen:{fullScreen:false}
-            }
-        },
-        {
-            stage: document.getElementById('player-containers'),
-            assets: {
-                urlid: 'KpXP_MU0uws',
-                slides:
-                    [
-                        {
-                            image: 'img/Presentation1/Slide1.png',
-                            time: ['00', '00', '00']
-                        },
-                        {
-                            image: 'img/Presentation1/Slide2.png',
-                            time: ['00', '00', '10']
-                        },
-                        {
-                            image: 'img/Presentation1/Slide3.png',
-                            time: ['00', '03', '02']
-                        }
-                    ]
-            },
-            settings:{
-                screen:{fullScreen:false}
+                screen:{screenSize:'small'},
             }
         }
-        
+        ,
+        {
+           
+            stage: document.getElementById('player-containers'),
+            assets: {
+                id:1,
+                urlid: 'KpXP_MU0uws',
+                slides:
+                    [
+                        {
+                            id:0,
+                            image: 'img/Presentation1/Slide1.png',
+                            time: ['00', '00', '00']
+                        },
+                        {
+                            id:1,
+                            image: 'img/Presentation1/Slide2.png',
+                            time: ['00', '00', '10']
+                        },
+                        {
+                            id:2,
+                            image: 'img/Presentation1/Slide3.png',
+                            time: ['00', '03', '02']
+                        }
+                    ]
+            },
+            settings:{
+                screen:{screenSize:'small'},
+            }
+        }
     ]
         prezzideo.init(presentations);
 
