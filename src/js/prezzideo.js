@@ -42,12 +42,11 @@
 		smallScreenPositionDef: 'bottom-right',
 		smallScreenPositions: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
 
-		fullScreen: false,
+	
 		resolution: {
 			small: { width: '100%', height: 'auto', marginTop: '0' },
 			medium: { width: '180%', height: '310px', marginTop: '-20%' },
 		}
-
 
 
 
@@ -319,8 +318,11 @@
 		return slidesContainer;
 	}
 
-	const _createPrezideoView = (parent, options) => {
-		const container = _createPrezzideoContainer(parent, { urlid: options.urlid });
+	const _createPrezideoView = (parent, options, settings) => {
+		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, full_screen: settings.fullScreen });
+
+		
+	
 		_createPrezzideoSlides(container, options);
 		return container;
 	}
@@ -543,19 +545,19 @@
 			var slideC = _selectChild(config.dom.slidesContainer);
 			var videoC = _selectChild(config.dom.videoContainer);
 			const container = document.querySelector(config.dom.container);
+			console.log(container)
+			// if (defaults.fullScreen) {
+			// 	container.style.width = defaults.resolution.small.width;
+			// 	container.style.height = defaults.resolution.small.height;
+			// 	container.style.top = defaults.resolution.small.marginTop;
+			// } else {
+			// 	container.style.width = defaults.resolution.medium.width;
+			// 	container.style.height = defaults.resolution.medium.height;
+			// 	container.style.top = defaults.resolution.medium.marginTop;
+			// }
+			// _setSlidesPositions();
 
-			if (defaults.fullScreen) {
-				container.style.width = defaults.resolution.small.width;
-				container.style.height = defaults.resolution.small.height;
-				container.style.top = defaults.resolution.small.marginTop;
-			} else {
-				container.style.width = defaults.resolution.medium.width;
-				container.style.height = defaults.resolution.medium.height;
-				container.style.top = defaults.resolution.medium.marginTop;
-			}
-			_setSlidesPositions();
-
-			defaults.fullScreen = !defaults.fullScreen;
+			//defaults.fullScreen = !defaults.fullScreen;
 		}
 
 
@@ -807,20 +809,19 @@
 	*/
 
 	// The prezzideo player class
+	// @param presentations - settings provided by the user
 	// @param options - settings provided by the user
 	api.init = function (presentations, options) {
-
-		const views = presentations.map((presentation) => {
-			return _createPrezideoView(presentation.stage, presentation.assets)
-		});
-		console.log(views)
+	
 		// Takes into consideration the user's settings
 
 		config = _extendConfig(defaults, options);
 
 		// Get the players 
-		var elements = document.querySelectorAll(config.dom.container);
-
+		const elements  = presentations.map((presentation) => {
+			return _createPrezideoView(presentation.stage, presentation.assets, presentation.settings)
+		});
+	//	var elements = document.querySelectorAll(config.dom.container);
 		var players = [];
 
 		// Initializing Prezzideo instance for each DOM element
