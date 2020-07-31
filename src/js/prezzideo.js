@@ -107,7 +107,17 @@
 		}
 
 	}
-	
+
+	// A generic function which create and element and appends to given element
+		const _createElement = (type, parent, params = {}) => {
+        const element = document.createElement(type);
+        parent.appendChild(element);
+        for (const i in params) {
+            element.setAttribute(i,params[i]);
+        }
+        return element; 
+    }
+
 	// A generic function to append html markup to a dom element
 	var _appendHTML = function(el, html) {
 		el.innerHTML = el.innerHTML + html;
@@ -291,10 +301,131 @@
 
 	}
 
-	
+// a function that creates container element for prezzideo player
+const _createPrezzideoContainer = (parent,options) =>{
+		return  _createElement('div', parent,{class:'prezzideo', width:'100%', 'data-urlid':options.urlid } );
+}
+// a function that creates slide image elements
+const _createPrezzideoSlides = (parent,options)=>{
+	const slidesContainer = _createElement('div', parent ,{class:'prezzideo-slides' } );
+		options.slides.map((item)=> _createElement('img',slidesContainer, 
+		{class:'prezzideo-slides-item',
+		'src': item.image,
+		 'data-time': `${item.time[0]}:${item.time[1]}:${item.time[2]}`
+		} ));
+
+return slidesContainer;
+//  `
+// 	<div class="prezzideo" data-urlid="KpXP_MU0uws" width="100%">
+// 	<div class="prezzideo-slides">
+// 		<img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item" data-time="00:00:00">
+// 		<img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item" data-time="00:00:10">
+// 		<img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item" data-time="00:03:02">
+// 	</div>
+// </div>
+// `
+}
+
+ const _createPrezideoView = (parent,options) =>{
+	const container = _createPrezzideoContainer(parent,{urlid:options.urlid});
+//	{slides:[{'image':'', 'time':''}]}
+	_createPrezzideoSlides(container,options)
+ }
+
+//  document.getElementById('player-containers')
+
+_createPrezideoView(
+	document.getElementById('player-containers'),
+{
+	urlid:'KpXP_MU0uws',
+	slides:
+	[
+		{
+			image:'img/Presentation1/Slide1.png' ,
+			time:['00','00','00']
+		},
+		{
+			image:'img/Presentation1/Slide2.png' ,
+			time:['00','00','10']
+		},
+		{
+			image:'img/Presentation1/Slide3.png' ,
+			time:['00','03','02']
+		}
+		
+	]
+
+});
+
+_createPrezideoView(
+	document.getElementById('player-containers'),
+{
+	urlid:'KpXP_MU0uws',
+	slides:
+	[
+		{
+			image:'img/Presentation1/Slide1.png' ,
+			time:['00','00','00']
+		},
+		{
+			image:'img/Presentation1/Slide2.png' ,
+			time:['00','00','10']
+		},
+		{
+			image:'img/Presentation1/Slide3.png' ,
+			time:['00','03','02']
+		}
+		
+	]
+
+});
+_createPrezideoView(
+	document.getElementById('player-containers'),
+{
+	urlid:'KpXP_MU0uws',
+	slides:
+	[
+		{
+			image:'img/Presentation1/Slide1.png' ,
+			time:['00','00','00']
+		},
+		{
+			image:'img/Presentation1/Slide2.png' ,
+			time:['00','00','10']
+		},
+		{
+			image:'img/Presentation1/Slide3.png' ,
+			time:['00','03','02']
+		}
+		
+	]
+
+});
+_createPrezideoView(
+	document.getElementById('player-containers'),
+{
+	urlid:'KpXP_MU0uws',
+	slides:
+	[
+		{
+			image:'img/Presentation1/Slide1.png' ,
+			time:['00','00','00']
+		},
+		{
+			image:'img/Presentation1/Slide2.png' ,
+			time:['00','00','10']
+		},
+		{
+			image:'img/Presentation1/Slide3.png' ,
+			time:['00','03','02']
+		}
+		
+	]
+
+});
 	// PLAYER CLASS
 	function Prezzideo(element,id) {
-		
+
 		// Properties ---------------------------------------------------------
 		
 		// keeps the self of the current instance
@@ -302,7 +433,7 @@
 
 		// keeps the dom element objects
         self.element = element;
-
+	
 		// keeps the sequence id of the player - 0,1,2...
 		self.playerId = id;
 		
@@ -779,6 +910,7 @@
 
 		// Get the players 
 		var elements = document.querySelectorAll(config.dom.container);
+	
 		var players = [];
 
 		// Initializing Prezzideo instance for each DOM element
@@ -790,9 +922,9 @@
 				var prezzideo = new Prezzideo(elements[i],i);
 
 				// Set prezzideo to false if setup failed
-				elements[i].prezzideo = 
-					(Object.keys(prezzideo).length ? prezzideo : false);
-
+				// elements[i].prezzideo = 
+				// 	(Object.keys(prezzideo).length ? prezzideo : false);
+						elements[i].prezzideo = prezzideo
 				// Callback
 				if(typeof config.callbackInit === "function") {
 					config.callbackInit(elements[i].prezzideo);
@@ -801,8 +933,9 @@
 			
 			// adds the player to the array of players
 			players.push(elements[i].prezzideo);
+	
 		}
-		
+		console.log(players)
 		return players;
 	}
 
