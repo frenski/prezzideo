@@ -300,10 +300,48 @@
 		}
 
 	}
+// a function that returns a selection for every element in an Prezzidio container
+	const _selectPrezzideoElements = (element) =>{
+		const children = element.children;
+		const dom = {
+			container:element,
+			slidesContainer:children[0],
+			slidesItems:children[0].children,
 
+			videoContainer:children[1],
+			controlSwap:children[2],
+			controlBar:children[3],
+			constrolFullscreen:children[3].querySelector('.prezzideo-control-fullscreen')
+
+
+		}
+
+		return dom;
+		//  {
+		// 	container: '.prezzideo',
+		// 	slidesContainer: '.prezzideo-slides',
+		// 	slideItem: '.prezzideo-slides-item',
+		// 	slideVClass: 'prezzideo-slide-vertical',
+		// 	slideHClass: 'prezzideo-slide-horizontal',
+		// 	slidesShrinkedClass: 'prezzideo-slides-shrinked',
+		// 	videoContainer: '.prezzideo-video',
+		// 	videoShrinkedClass: 'prezzideo-video-shrinked',
+		// 	screenPositionClass: 'prezzideo-screen-position-',
+		// 	controlSwap: 'prezzideo-swap-screen-button',
+		// 	controlBar: 'prezzideo-control-bar',
+		// 	controlSlider: 'prezzideo-control-slider',
+		// 	controlTimeline: 'prezzideo-control-timeline',
+		// 	controlPlayPause: 'prezzideo-control-playpause',
+		// 	controlPlay: 'prezzideo-control-play',
+		// 	controlPause: 'prezzideo-control-pause',
+		// 	controlStop: 'prezzideo-control-stop',
+		// 	controlFullscreen: 'prezzideo-control-fullscreen',
+		// 	displayTime: 'prezzideo-display-time'
+		// }
+	}
 	// a function that creates container element for prezzideo player
 	const _createPrezzideoContainer = (parent, options) => {
-		return _createElement('div', parent, { class: 'prezzideo', width: '100%', 'data-urlid': options.urlid });
+		return _createElement('div', parent, { class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,'full-screen':options['full-screen'] });
 	}
 	// a function that creates slide image elements
 	const _createPrezzideoSlides = (parent, options) => {
@@ -318,11 +356,9 @@
 		return slidesContainer;
 	}
 
-	const _createPrezideoView = (parent, options, settings) => {
-		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, full_screen: settings.fullScreen });
+	const _createPrezzideoView = (parent, options, settings) => {
+		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'full-screen': settings.screen.fullScreen });
 
-		
-	
 		_createPrezzideoSlides(container, options);
 		return container;
 	}
@@ -544,20 +580,25 @@
 		var _changeScreenSize = function () {
 			var slideC = _selectChild(config.dom.slidesContainer);
 			var videoC = _selectChild(config.dom.videoContainer);
+	
 			const container = document.querySelector(config.dom.container);
-			console.log(container)
-			// if (defaults.fullScreen) {
-			// 	container.style.width = defaults.resolution.small.width;
-			// 	container.style.height = defaults.resolution.small.height;
-			// 	container.style.top = defaults.resolution.small.marginTop;
-			// } else {
-			// 	container.style.width = defaults.resolution.medium.width;
-			// 	container.style.height = defaults.resolution.medium.height;
-			// 	container.style.top = defaults.resolution.medium.marginTop;
-			// }
-			// _setSlidesPositions();
+			const fullScreen = new Boolean(container.getAttribute('full-screen'));
+			_selectPrezzideoElements(container);
+			if (fullScreen) {
+				container.style.width = defaults.resolution.small.width;
+				container.style.height = defaults.resolution.small.height;
+				container.style.top = defaults.resolution.small.marginTop;
+				container.setAttribute('full-screen',!fullScreen)
 
-			//defaults.fullScreen = !defaults.fullScreen;
+			} else {
+				container.style.width = defaults.resolution.medium.width;
+				container.style.height = defaults.resolution.medium.height;
+				container.style.top = defaults.resolution.medium.marginTop;
+				container.setAttribute('full-screen',!fullScreen)
+
+			}
+
+			console.log(container)
 		}
 
 
@@ -819,8 +860,31 @@
 
 		// Get the players 
 		const elements  = presentations.map((presentation) => {
-			return _createPrezideoView(presentation.stage, presentation.assets, presentation.settings)
+			// settings.dom: {
+			// 	container: '.prezzideo',
+			// 	slidesContainer: '.prezzideo-slides',
+			// 	slideItem: '.prezzideo-slides-item',
+			// 	slideVClass: 'prezzideo-slide-vertical',
+			// 	slideHClass: 'prezzideo-slide-horizontal',
+			// 	slidesShrinkedClass: 'prezzideo-slides-shrinked',
+			// 	videoContainer: '.prezzideo-video',
+			// 	videoShrinkedClass: 'prezzideo-video-shrinked',
+			// 	screenPositionClass: 'prezzideo-screen-position-',
+			// 	controlSwap: 'prezzideo-swap-screen-button',
+			// 	controlBar: 'prezzideo-control-bar',
+			// 	controlSlider: 'prezzideo-control-slider',
+			// 	controlTimeline: 'prezzideo-control-timeline',
+			// 	controlPlayPause: 'prezzideo-control-playpause',
+			// 	controlPlay: 'prezzideo-control-play',
+			// 	controlPause: 'prezzideo-control-pause',
+			// 	controlStop: 'prezzideo-control-stop',
+			// 	controlFullscreen: 'prezzideo-control-fullscreen',
+			// 	displayTime: 'prezzideo-display-time'
+			// }
+			console.log(presentation.settings)
+			return _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings)
 		});
+		console.log(elements)
 	//	var elements = document.querySelectorAll(config.dom.container);
 		var players = [];
 
