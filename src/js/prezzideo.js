@@ -7,6 +7,28 @@
 
 (function (api, undefined) {
 
+	//hack youtubeAPIReady to work for mutlitple instances
+	let _YTisReady = false;
+	const _YTcallbacks = [];
+	window.enqueueOnYoutubeIframeAPIReady = function (callback) {
+	  if (_YTisReady) {
+		callback();
+	  } else {
+		_YTcallbacks.push(callback);
+	  }
+	}
+  
+	window.onYouTubeIframeAPIReady = function () {
+		_YTisReady = true;
+	  _YTcallbacks.forEach(function (callback) {
+		callback();
+	  });
+	  _YTcallbacks.splice(0);
+	}
+
+
+
+
 	/* 
 		Private Properties ----------------------------------------------------
 	*/
@@ -34,6 +56,7 @@
 			controlFullscreen: 'prezzideo-control-fullscreen',
 			displayTime: 'prezzideo-display-time'
 		},
+		loadedScripts:{},
 		autoplay: false,
 		callbackInit: null,
 		callbackDistroy: null,
@@ -144,10 +167,14 @@
 
 	// A generic function to append script
 	var _appendScript = function (src) {
-		var tag = document.createElement('script');
-		tag.src = src;
-		var firstScriptTag = document.getElementsByTagName('script')[0];
-		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+		if(!config.loadedScripts[src]){
+			var tag = document.createElement('script');
+			tag.src = src;
+			config.loadedScripts[src]= true;
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+		}
+	
 	}
 
 	// A crossbrowser function to add or remove class to/from an element
@@ -583,8 +610,7 @@ const _selectPrezzideoElements = (element) =>{
 				container.setAttribute('size-screen','medium')
 
 			}
-
-			console.log(container.getAttribute('size-screen'))
+			_setSlidesPositions();
 		}
 
 
@@ -629,6 +655,8 @@ const _selectPrezzideoElements = (element) =>{
 			_loadImages(images, self.slides, self.slideTimes, loadCallback);
 		}
 
+		//hack window.onYoutubeIframeAPIReady
+		
 		// Adds the video markup to the container, depending on the provider
 		var _addVideo = function (id) {
 			// (type, parent, attributes = {})
@@ -644,23 +672,27 @@ const _selectPrezzideoElements = (element) =>{
 					id:self.videoContainerId
 				}
 					)
-		
-			// var videoContainer = _appendElement(
-			// 	self.element, 'div',
-			// 	config.dom.videoContainer
-			// 		.substr(1, config.dom.videoContainer.length - 1),
-			// 	'', self.videoContainerId
-			// );
+				
 
 			switch (config.videoProvider) {
+			
 				case 'youtube':
+			
 					if (typeof YT === 'object') {
 						_initYoutube(videoContainer);
+					
 					} else {
 						_appendScript("https://www.youtube.com/iframe_api");
-						window.onYouTubeIframeAPIReady = function () {
-							_initYoutube(videoContainer);
-						}
+					
+				
+							
+						
+						enqueueOnYoutubeIframeAPIReady(function () {
+									_initYoutube(videoContainer);
+								  })
+
+					
+					
 					}
 					break;
 				default:
@@ -671,12 +703,15 @@ const _selectPrezzideoElements = (element) =>{
 
 		// Videos initializers
 		var _initYoutube = function (videoContainer) {
-
-			_appendElement(
-				videoContainer, 'div', '', '',
-				self.videoContainerId + '-youtube'
-			);
-
+			_createElement(
+				'div',
+				videoContainer,
+				{
+					id: self.videoContainerId + '-youtube'
+				}
+					)
+		
+				
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
 				playerVars: {
