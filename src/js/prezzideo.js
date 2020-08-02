@@ -496,13 +496,16 @@ const _selectPrezzideoElements = (element) =>{
 			const bar = _createElement(
 				'div',
 				self.element,{id:`controlBar_${id}`, class: config.dom.controlBar});
-			_createElement('div',bar,{id:`controlTimeline_${id}`, class: config.dom.controlTimeline});
+			const timeline = _createElement('div',bar,{id:`controlTimeline_${id}`, class: config.dom.controlTimeline});
 			_createElement('div',bar,{id:`controlSlider_${id}`, class: config.dom.controlSlider});
 			_createElement('div',bar,{id:`controlPlayPause_${id}`, class:  config.dom.controlPlayPause +
 				' ' + config.dom.controlPlay});
 			_createElement('div',bar,{id:`controlStop_${id}`, class: config.dom.controlStop});
 			_createElement('div',bar,{id:`controlFullscreen_${id}`, class: config.dom.controlFullscreen});
 			_createElement('div',bar,{id:`displayTime_${id}`, class: config.dom.displayTime}, {textContent:'0:00 / 0:00'});
+
+				
+			_addTimeStamps(timeline,id)
 		}
 
 		// Sets the slider position, by passing value for x
@@ -617,13 +620,25 @@ const _selectPrezzideoElements = (element) =>{
 				  controlbar.style.bottom = 0;
 				  video.style.bottom = '3.3%';
 				  presentation.style.bottom = '3.3%';
-				  
 				container.setAttribute('size-screen','full')
-
 			}
 			_setSlidesPositions();
 		}
 
+		const _addTimeStamps = (timeline,id) =>{
+		
+			const timestamps = [...document.getElementById('slides-container_'+id).children]
+		
+			timeline.innerHTML = '';
+			timestamps.map((stamp)=>{
+			const time = stamp.getAttribute('data-time').split(':');
+			const seconds =  (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2]); 
+		
+			_createElement('div',timeline,{class:'time-stamp'},{style:`left:${seconds}px`})
+				// timeline.innerHTML += `<div style="position:absolute;left:${stamp}px;background:red;height:5px;width:5px;"></div>`
+			});
+
+		}
 
 		// A function to compare the aspect ratio of the container and the 
 		// images and place the image depending on that and also make the
@@ -909,6 +924,7 @@ const _selectPrezzideoElements = (element) =>{
 		const elements  = presentations.map((presentation) => {
 			
 			const view =  _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings);
+			
 			// console.log(view)
 			// const controlParent = _selectPrezzideoElements(presentation.stage).controlFullscreen;
 		
