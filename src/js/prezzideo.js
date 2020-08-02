@@ -11,19 +11,19 @@
 	let _YTisReady = false;
 	const _YTcallbacks = [];
 	window.enqueueOnYoutubeIframeAPIReady = function (callback) {
-	  if (_YTisReady) {
-		callback();
-	  } else {
-		_YTcallbacks.push(callback);
-	  }
+		if (_YTisReady) {
+			callback();
+		} else {
+			_YTcallbacks.push(callback);
+		}
 	}
-  
+
 	window.onYouTubeIframeAPIReady = function () {
 		_YTisReady = true;
-	  _YTcallbacks.forEach(function (callback) {
-		callback();
-	  });
-	  _YTcallbacks.splice(0);
+		_YTcallbacks.forEach(function (callback) {
+			callback();
+		});
+		_YTcallbacks.splice(0);
 	}
 
 
@@ -56,7 +56,7 @@
 			controlFullscreen: 'prezzideo-control-fullscreen',
 			displayTime: 'prezzideo-display-time'
 		},
-		loadedScripts:{},
+		loadedScripts: {},
 		autoplay: false,
 		callbackInit: null,
 		callbackDistroy: null,
@@ -65,9 +65,9 @@
 		smallScreenPositionDef: 'bottom-right',
 		smallScreenPositions: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
 
-	
+
 		resolution: {
-			small: { width: '100%', height: 'auto', controlbar:{bottom:'-40px'} },
+			small: { width: '100%', height: 'auto', controlbar: { bottom: '-40px' } },
 			full: { width: '180%', height: '310px' },
 		}
 
@@ -132,7 +132,7 @@
 	}
 
 	// A generic function which create and element and appends to given element
-	const _createElement = (type, parent, attributes={}, content={}) => {
+	const _createElement = (type, parent, attributes = {}, content = {}) => {
 		const element = document.createElement(type);
 		parent.appendChild(element);
 		for (const attr in attributes) {
@@ -140,6 +140,7 @@
 		}
 		for (const item in content) {
 			element[item] = content[item];
+			console.log(content[item])
 		}
 		return element;
 	}
@@ -167,14 +168,14 @@
 
 	// A generic function to append script
 	var _appendScript = function (src) {
-		if(!config.loadedScripts[src]){
+		if (!config.loadedScripts[src]) {
 			var tag = document.createElement('script');
 			tag.src = src;
-			config.loadedScripts[src]= true;
+			config.loadedScripts[src] = true;
 			var firstScriptTag = document.getElementsByTagName('script')[0];
 			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 		}
-	
+
 	}
 
 	// A crossbrowser function to add or remove class to/from an element
@@ -194,7 +195,7 @@
 
 	// A generic crossbrowser funciton to handle events addition
 	var _addEvent = function (obj, type, fn) {
-	
+
 		if (obj.addEventListener) {
 			obj.addEventListener(type, fn, false);
 		} else if (obj.attachEvent) {
@@ -334,15 +335,20 @@
 
 	// a function that creates container element for prezzideo player
 	const _createPrezzideoContainer = (parent, options) => {
-		return _createElement('div', parent, { 'data-id':options.id, id:`player-container_${options.id}`, class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,
-		'size-screen':options['size-screen'] });
+		return _createElement('div', parent, {
+			'data-id': options.id, id: `player-container_${options.id}`, class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,
+			'size-screen': options['size-screen']
+		});
 	}
 	// a function that creates slide image elements
 	const _createPrezzideoSlides = (parent, options) => {
-		const slidesContainer = _createElement('div', parent, { id:`slides-container_${options.id}`, class: 'prezzideo-slides' });
-		options.slides.map((item,i) => _createElement('img', slidesContainer,
+		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: 'prezzideo-slides', 'data-total-time': options.totalTime, });
+
+
+
+		options.slides.map((item, i) => _createElement('img', slidesContainer,
 			{
-				id:`slide-${i}_${item.id}`,
+				id: `slide-${i}_${item.id}`,
 				class: 'prezzideo-slides-item',
 				'src': item.image,
 				'data-time': `${item.time[0]}:${item.time[1]}:${item.time[2]}`
@@ -350,27 +356,36 @@
 
 		return slidesContainer;
 	}
-
+	const _calculateTotalSlidesTime = (container) => {
+		[...container.children].map((stamp) => {
+			const time = stamp.getAttribute('data-time').split(':');
+			const seconds = (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2]);
+			stamp.setAttribute('data-time-in-seconds', seconds);
+		});
+	}
 	const _createPrezzideoView = (parent, options, settings) => {
-		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'size-screen': settings.screen.screenSize, id:options.id });
-		_createPrezzideoSlides(container, options);
+		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'size-screen': settings.screen.screenSize, id: options.id });
+		const slidersContainer = _createPrezzideoSlides(container, options);
+		_calculateTotalSlidesTime(slidersContainer);
+
+
 		return container;
 	}
-// a function that returns a selection for every element in an Prezzidio container
-// Depricated - adding ids instead
-const _selectPrezzideoElements = (element) =>{
-	const children = element.children;
-	const dom = {
-		container:element,
-		slidesContainer:children[0],
-		slidesItems:children[0].children,
-		// videoContainer:children[1],
-		// controlSwap:children[2],
-		// controlBar:children[3],
-		controlFullscreen:children[4],
+	// a function that returns a selection for every element in an Prezzidio container
+	// Depricated - adding ids instead
+	const _selectPrezzideoElements = (element) => {
+		const children = element.children;
+		const dom = {
+			container: element,
+			slidesContainer: children[0],
+			slidesItems: children[0].children,
+			// videoContainer:children[1],
+			// controlSwap:children[2],
+			// controlBar:children[3],
+			controlFullscreen: children[4],
+		}
+		return dom;
 	}
-	return dom;
-}
 	// PLAYER CLASS
 	function Prezzideo(element, id) {
 
@@ -430,12 +445,12 @@ const _selectPrezzideoElements = (element) =>{
 		// Attaches all events to the controls
 		var _addEvents = function (id) {
 
-			const buttonSwap =document.getElementById('controlSwap' + '_'+id);
-			const buttonPP = document.getElementById('controlPlayPause' + '_'+id); 
-			const buttonStop =  document.getElementById('controlStop' + '_'+id);
-			const timeline =document.getElementById('controlTimeline' + '_'+id); 
-			const slider = document.getElementById('controlSlider' + '_'+id); 
-			const buttonFullScreen = document.getElementById('controlFullscreen' + '_'+id); 
+			const buttonSwap = document.getElementById('controlSwap' + '_' + id);
+			const buttonPP = document.getElementById('controlPlayPause' + '_' + id);
+			const buttonStop = document.getElementById('controlStop' + '_' + id);
+			const timeline = document.getElementById('controlTimeline' + '_' + id);
+			const slider = document.getElementById('controlSlider' + '_' + id);
+			const buttonFullScreen = document.getElementById('controlFullscreen' + '_' + id);
 
 
 			_addEvent(buttonFullScreen, 'click', _changeScreenSize);
@@ -485,27 +500,29 @@ const _selectPrezzideoElements = (element) =>{
 		}
 
 		// A funtion to insert controls to the player
-		var _insertControls = function (id=0) {
+		var _insertControls = function (id = 0) {
 			// inserting the button over the small screen for swapping
 			// _appendElement(self.element, 'div', config.dom.controlSwap, '');
 			_createElement(
 				'div',
-				self.element,{id:`controlSwap_${id}`, class: config.dom.controlSwap});
+				self.element, { id: `controlSwap_${id}`, class: config.dom.controlSwap });
 
 			// inserting the control bar at the bottom
 			const bar = _createElement(
 				'div',
-				self.element,{id:`controlBar_${id}`, class: config.dom.controlBar});
-			const timeline = _createElement('div',bar,{id:`controlTimeline_${id}`, class: config.dom.controlTimeline});
-			_createElement('div',bar,{id:`controlSlider_${id}`, class: config.dom.controlSlider});
-			_createElement('div',bar,{id:`controlPlayPause_${id}`, class:  config.dom.controlPlayPause +
-				' ' + config.dom.controlPlay});
-			_createElement('div',bar,{id:`controlStop_${id}`, class: config.dom.controlStop});
-			_createElement('div',bar,{id:`controlFullscreen_${id}`, class: config.dom.controlFullscreen});
-			_createElement('div',bar,{id:`displayTime_${id}`, class: config.dom.displayTime}, {textContent:'0:00 / 0:00'});
+				self.element, { id: `controlBar_${id}`, class: config.dom.controlBar });
+			const timeline = _createElement('div', bar, { id: `controlTimeline_${id}`, class: config.dom.controlTimeline });
+			_createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
+			_createElement('div', bar, {
+				id: `controlPlayPause_${id}`, class: config.dom.controlPlayPause +
+					' ' + config.dom.controlPlay
+			});
+			_createElement('div', bar, { id: `controlStop_${id}`, class: config.dom.controlStop });
+			_createElement('div', bar, { id: `controlFullscreen_${id}`, class: config.dom.controlFullscreen });
+			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
-				
-			_addTimeStamps(timeline,id)
+
+			_addTimeStamps(timeline, id)
 		}
 
 		// Sets the slider position, by passing value for x
@@ -593,49 +610,66 @@ const _selectPrezzideoElements = (element) =>{
 
 
 		var _changeScreenSize = function () {
-			
+
 			const controlbar = this.parentElement;
 			const container = controlbar.parentElement;
 			const id = container.getAttribute('data-id');
-	
-			const video = document.getElementById('prezzideo-video'+id);
-			const presentation =document.getElementById('slides-container_'+id);
 
-			const screenSize =  container.getAttribute('size-screen');
-		
+			const video = document.getElementById('prezzideo-video' + id);
+			const presentation = document.getElementById('slides-container_' + id);
+
+			const screenSize = container.getAttribute('size-screen');
+
 			// _selectPrezzideoElements(container);
 			if (screenSize === 'full') {
 				controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
-				container.setAttribute('size-screen','small')
+				container.setAttribute('size-screen', 'small')
 			} else {
 				if (container.requestFullscreen) {
 					container.requestFullscreen();
-				  } else if (container.mozRequestFullScreen) { /* Firefox */
+				} else if (container.mozRequestFullScreen) { /* Firefox */
 					container.mozRequestFullScreen();
-				  } else if (container.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+				} else if (container.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
 					container.webkitRequestFullscreen();
-				  } else if (container.msRequestFullscreen) { /* IE/Edge */
+				} else if (container.msRequestFullscreen) { /* IE/Edge */
 					container.msRequestFullscreen();
-				  }
-				  controlbar.style.bottom = 0;
-				  video.style.bottom = '3.3%';
-				  presentation.style.bottom = '3.3%';
-				container.setAttribute('size-screen','full')
+				}
+				controlbar.style.bottom = 0;
+				video.style.bottom = '3.3%';
+				presentation.style.bottom = '3.3%';
+				container.setAttribute('size-screen', 'full')
 			}
 			_setSlidesPositions();
 		}
 
-		const _addTimeStamps = (timeline,id) =>{
-		
-			const timestamps = [...document.getElementById('slides-container_'+id).children]
-		
+
+		const _remap = (t, tMin, tMax, value1, value2) => {
+			return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
+		};
+
+		const _addTimeStamps = (timeline, id) => {
+
+			const slidesContainer = document.getElementById('slides-container_' + id);
+			// const videoTimeStamp = document.getElementById('displayTime_' + id).textContent.split('/')[1].split(':');
+			// const videoTotalTime = (+videoTimeStamp[0]) * 60 * 60 + (+videoTimeStamp[1]) * 60 + (+videoTimeStamp[2]);
+			const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
+			const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
+			console.log(videoTotalTime)
+
+
+			// slidesContainer.setAttribute('data-total-time-seconds', videoTotalTime);
+
+			const timestamps = [...slidesContainer.children]
+			const totalTime = videoTotalTime;
 			timeline.innerHTML = '';
-			timestamps.map((stamp)=>{
-			const time = stamp.getAttribute('data-time').split(':');
-			const seconds =  (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2]); 
-		
-			_createElement('div',timeline,{class:'time-stamp'},{style:`left:${seconds}px`})
-				// timeline.innerHTML += `<div style="position:absolute;left:${stamp}px;background:red;height:5px;width:5px;"></div>`
+			timestamps.map((stamp) => {
+				const time = +stamp.getAttribute('data-time-in-seconds');
+
+				const stampLoc = _remap(time, 0, totalTime, 0, 97.5);
+
+				console.log(stampLoc)
+				const elem = _createElement('div', timeline, { class: 'time-stamp' }, { style: `left:${stampLoc}%` });
+
 			});
 
 		}
@@ -682,43 +716,44 @@ const _selectPrezzideoElements = (element) =>{
 		}
 
 		//hack window.onYoutubeIframeAPIReady
-		
+
 		// Adds the video markup to the container, depending on the provider
 		var _addVideo = function (id) {
 			// (type, parent, attributes = {})
-		
-		//	_appendElement = function (container, type, className, content, id) 
-	
-		var videoContainer = _createElement(
+
+			//	_appendElement = function (container, type, className, content, id) 
+
+			var videoContainer = _createElement(
 				'div',
 				self.element,
 				{
-					class:	config.dom.videoContainer
-					.substr(1, config.dom.videoContainer.length - 1),
-					id:self.videoContainerId
+					class: config.dom.videoContainer
+						.substr(1, config.dom.videoContainer.length - 1),
+					id: self.videoContainerId
 				}
-					)
-				
+			)
+
 
 			switch (config.videoProvider) {
-			
+
 				case 'youtube':
-			
+
 					if (typeof YT === 'object') {
 						_initYoutube(videoContainer);
-					
+
 					} else {
 						_appendScript("https://www.youtube.com/iframe_api");
-					
-				
-							
-						
-						enqueueOnYoutubeIframeAPIReady(function () {
-									_initYoutube(videoContainer);
-								  })
 
-					
-					
+
+
+
+						enqueueOnYoutubeIframeAPIReady(function () {
+							_initYoutube(videoContainer);
+
+						})
+
+
+
 					}
 					break;
 				default:
@@ -735,9 +770,9 @@ const _selectPrezzideoElements = (element) =>{
 				{
 					id: self.videoContainerId + '-youtube'
 				}
-					)
-		
-				
+			)
+
+
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
 				playerVars: {
@@ -870,11 +905,11 @@ const _selectPrezzideoElements = (element) =>{
 							_setDisplayTime(t, d);
 						}
 					});
-					const playerID = self.element.getAttribute('data-id')
+				const playerID = self.element.getAttribute('data-id')
 				// Adds the video scripts
 				_addVideo(playerID);
 				// Inserst the dom elements for controling the video
-			
+
 				_insertControls(playerID);
 				// Makes one of the screens to appear big, depending on setting
 				_initScreensPositions(playerID);
@@ -915,19 +950,19 @@ const _selectPrezzideoElements = (element) =>{
 	// @param presentations - settings provided by the user
 	// @param options - settings provided by the user
 	api.init = function (presentations, options) {
-	
+
 		// Takes into consideration the user's settings
 
 
 		config = _extendConfig(defaults, options);
 		// Get the players 
-		const elements  = presentations.map((presentation) => {
-			
-			const view =  _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings);
-			
+		const elements = presentations.map((presentation) => {
+
+			const view = _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings);
+
 			// console.log(view)
 			// const controlParent = _selectPrezzideoElements(presentation.stage).controlFullscreen;
-		
+
 			return view;
 		});
 		var players = [];
@@ -941,8 +976,8 @@ const _selectPrezzideoElements = (element) =>{
 				var prezzideo = new Prezzideo(elements[i], i);
 
 				// Set prezzideo to false if setup failed
-				elements[i].prezzideo = 
-				 	(Object.keys(prezzideo).length ? prezzideo : false);
+				elements[i].prezzideo =
+					(Object.keys(prezzideo).length ? prezzideo : false);
 				// elements[i].prezzideo = prezzideo
 				// Callback
 				if (typeof config.callbackInit === "function") {

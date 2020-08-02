@@ -107,8 +107,8 @@
 }
 
 .prezzideo-control-timeline {
-	margin-left: 10px;
-	margin-right: 10px;
+	/* margin-left: 10px; */
+	/* margin-right: 10px; */
 	height: 5px;
 	background: #ccc;
 	cursor: pointer;
@@ -180,9 +180,10 @@
 }
 
 .time-stamp{
-	position:absolute;
+	position:relative;
+	display:inline-block;
+	margin-bottom:20px;
 	background:red;
-	left:0px;
 	height:5px;
 	width:5px;
 	pointer-events: none;
