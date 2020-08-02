@@ -67,8 +67,8 @@
 
 	
 		resolution: {
-			small: { width: '100%', height: 'auto', marginTop: '0' },
-			medium: { width: '180%', height: '310px', marginTop: '-20%' },
+			small: { width: '100%', height: 'auto', controlbar:{bottom:'-40px'} },
+			full: { width: '180%', height: '310px' },
 		}
 
 
@@ -155,15 +155,15 @@
 	}
 
 	// A generic function to append element to another dom element
-	var _appendElement = function (container, type, className, content, id) {
-		var node = document.createElement(type);
-		var textnode = document.createTextNode(content);
-		if (typeof id !== 'undefined') node.setAttribute('id', id);
-		node.appendChild(textnode);
-		node.className = className;
-		container.appendChild(node);
-		return node;
-	}
+	// var _appendElement = function (container, type, className, content, id) {
+	// 	var node = document.createElement(type);
+	// 	var textnode = document.createTextNode(content);
+	// 	if (typeof id !== 'undefined') node.setAttribute('id', id);
+	// 	node.appendChild(textnode);
+	// 	node.className = className;
+	// 	container.appendChild(node);
+	// 	return node;
+	// }
 
 	// A generic function to append script
 	var _appendScript = function (src) {
@@ -591,23 +591,34 @@ const _selectPrezzideoElements = (element) =>{
 
 		var _changeScreenSize = function () {
 			
-		
-			const container = this.parentElement.parentElement;
+			const controlbar = this.parentElement;
+			const container = controlbar.parentElement;
+			const id = container.getAttribute('data-id');
 	
-			const screenSize =  container.getAttribute('size-screen');
-			
-			// _selectPrezzideoElements(container);
-			if (screenSize === 'medium') {
-				container.style.width = defaults.resolution.small.width;
-				container.style.height = defaults.resolution.small.height;
-				container.style.top = defaults.resolution.small.marginTop;
-				container.setAttribute('size-screen','small')
+			const video = document.getElementById('prezzideo-video'+id);
+			const presentation =document.getElementById('slides-container_'+id);
 
+			const screenSize =  container.getAttribute('size-screen');
+		
+			// _selectPrezzideoElements(container);
+			if (screenSize === 'full') {
+				controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
+				container.setAttribute('size-screen','small')
 			} else {
-				container.style.width = defaults.resolution.medium.width;
-				container.style.height = defaults.resolution.medium.height;
-				container.style.top = defaults.resolution.medium.marginTop;
-				container.setAttribute('size-screen','medium')
+				if (container.requestFullscreen) {
+					container.requestFullscreen();
+				  } else if (container.mozRequestFullScreen) { /* Firefox */
+					container.mozRequestFullScreen();
+				  } else if (container.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+					container.webkitRequestFullscreen();
+				  } else if (container.msRequestFullscreen) { /* IE/Edge */
+					container.msRequestFullscreen();
+				  }
+				  controlbar.style.bottom = 0;
+				  video.style.bottom = '3.3%';
+				  presentation.style.bottom = '3.3%';
+				  
+				container.setAttribute('size-screen','full')
 
 			}
 			_setSlidesPositions();
