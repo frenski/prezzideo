@@ -355,8 +355,9 @@
 	}
 	const _calculateTotalSlidesTime = (container) => {
 		[...container.children].map((stamp) => {
-			const time = stamp.getAttribute('data-time').split(':');
-			const seconds = (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2]);
+			// const time = stamp.getAttribute('data-time').split(':');
+			// (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2])
+			const seconds = _stringToSeconds(stamp.getAttribute('data-time'));
 			stamp.setAttribute('data-time-in-seconds', seconds);
 		});
 	}
@@ -655,9 +656,9 @@
 		const _addTimeStamps = (timeline, id) => {
 
 			const slidesContainer = document.getElementById('slides-container_' + id);
-			const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
-			const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
-
+			// const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
+			// const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
+			const videoTotalTime = _stringToSeconds(slidesContainer.getAttribute('data-total-time'));
 			const timestamps = [...slidesContainer.children];
 			const totalTime = videoTotalTime;
 			timeline.innerHTML = '';
