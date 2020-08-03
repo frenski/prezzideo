@@ -74,7 +74,6 @@
             assets: {
                 id:0,
                 urlid: 'KpXP_MU0uws',
-                totalTime:'00:22:57',
                 slides:
                     [
                         {
@@ -105,7 +104,6 @@
             assets: {
                 id:1,
                 urlid: 'mk0qTPqaFcw',
-                totalTime:'00:09:46',
                 slides:
                     [
                         {
@@ -150,7 +148,6 @@
             assets: {
                 id:2,
                 urlid: 'keCwRdbwNQY',
-                totalTime:'00:07:00',
                 slides:
                     [
                         {
@@ -180,9 +177,9 @@
 
     // get the players array after all videos are loaded;
     let prezzideos;
-    prezzideo.init(presentations).then(data=>{
-        prezzideos=data;
-    })
+    prezzideo.init(presentations,{showTimeStamps:true}).then(players=>{
+         prezzideos=players;
+    });
         
 
     </script>

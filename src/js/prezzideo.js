@@ -35,6 +35,7 @@
 			controlFullscreen: 'prezzideo-control-fullscreen',
 			displayTime: 'prezzideo-display-time'
 		},
+		showTimeStamps:true,
 		loadedScripts: {},
 		loadedAllVideos:false,
 		autoplay: false,
@@ -506,7 +507,7 @@
 			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
 
-			_addTimeStamps(timeline, id)
+			// _addTimeStamps(timeline, id)
 		}
 
 		// Sets the slider position, by passing value for x
@@ -653,15 +654,17 @@
 			return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 		};
 
-		const _addTimeStamps = (timeline, id) => {
+		const _addTimeStamps = (timeline, id, duration) => {
 
 			const slidesContainer = document.getElementById('slides-container_' + id);
 			// const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
 			// const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
-			const videoTotalTime = _stringToSeconds(slidesContainer.getAttribute('data-total-time'));
+			// const videoTotalTime = _stringToSeconds(slidesContainer.getAttribute('data-total-time'));
+			const videoTotalTime = duration;
+
 			const timestamps = [...slidesContainer.children];
 			const totalTime = videoTotalTime;
-			timeline.innerHTML = '';
+		
 			timestamps.map((stamp) => {
 				const time = +stamp.getAttribute('data-time-in-seconds');
 				const stampLoc = _remap(time, 0, totalTime, 0, 97.5);
@@ -755,6 +758,14 @@
 		}
 
 
+		const _timestamps =  (show = config.showTimeStamps) =>{
+			const id = self.element.getAttribute('data-id');
+			 const timeline = document.getElementById('controlTimeline_'+id);
+			 timeline.innerHTML = '';
+			 if(show){
+				_addTimeStamps(timeline, id, self.player.getDuration());
+			 }
+		}
 		// Videos initializers
 		var _initYoutube = function (videoContainer) {
 			_createElement(
@@ -787,6 +798,7 @@
 							var timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
 						}
+						_timestamps();
 					},
 					'onStateChange': function (event) {
 
@@ -917,6 +929,7 @@
 
 		}
 
+		
 		// Inits or returns empty object if init fails
 		_init();
 		// if (!self.init) {
@@ -930,6 +943,7 @@
 			goto: _goToTime,
 			swap: _swapScreens,
 			smallScreenPosition: _changeSmallScreenPosition,
+			timestamps: _timestamps,
 		}
 
 	}
@@ -968,7 +982,6 @@
 			// adds the player to the array of players
 			players.push(item.prezzideo);
 		})
-
 		await defaults.loadedAllVideos;
 		return players;
 	}
