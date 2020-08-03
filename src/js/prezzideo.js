@@ -591,9 +591,24 @@
 				self.bigScreen = 'video';
 			}
 		}
+	// when exiting full screen with escape add escape callback
+	const _exitFullScreen = () => {
+		if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+			const bars = document.getElementsByClassName('prezzideo-control-bar');
+			[...bars].forEach((bar,index) => {
+				bar.style = null;
+				console.log(bar.parentElement)
+				bar.parentElement.setAttribute('size-screen', 'small')
+				document.getElementById('slides-container_'+index).style =null;
+				document.getElementById('prezzideo-video'+index).style = null;
+			  });
+	
+			  _setSlidesPositions();
 
+		}
+	}
 
-		var _changeScreenSize = async function () {
+		const _changeScreenSize = async function () {
 
 			const controlbar = this.parentElement;
 			const container = controlbar.parentElement;
@@ -605,10 +620,11 @@
 			const screenSize = container.getAttribute('size-screen');
 
 			// _selectPrezzideoElements(container);
-		//	if (screenSize === 'full') {
+			if (screenSize === 'full') {
 				// controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
-				// container.setAttribute('size-screen', 'small')
-		//	} else {
+				container.setAttribute('size-screen', 'small')
+				_exitFullScreen();
+			} else {
 				if (container.requestFullscreen) {
 					await container.requestFullscreen();
 					_setSlidesPositions();
@@ -623,24 +639,12 @@
 					_setSlidesPositions();
 				}
 				controlbar.style.bottom = 0;
-				video.style.bottom = '3.3%';
-				presentation.style.bottom = '3.3%';
+				video.style.bottom = '3.8%';
+				presentation.style.bottom = '3.8%';
 				container.setAttribute('size-screen', 'full')
-			// }
-		}
-		// when exiting full screen with escape add escape callback
-		const _exitFullScreen = () => {
-			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-				const bars = document.getElementsByClassName('prezzideo-control-bar');
-				[...bars].forEach((bar,index) => {
-					bar.style = ''
-					document.getElementById('slides-container_'+index).style ='';
-					document.getElementById('prezzideo-video'+index).style = '';
-				  });
-
-				  _setSlidesPositions();
 			}
 		}
+	
 		document.addEventListener('fullscreenchange', _exitFullScreen);
 		document.addEventListener('webkitfullscreenchange', _exitFullScreen);
 		document.addEventListener('mozfullscreenchange', _exitFullScreen);
