@@ -36,7 +36,7 @@
 			displayTime: 'prezzideo-display-time'
 		},
 		loadedScripts: {},
-		loadedAllVideos:{ ready:false},
+		loadedAllVideos:false,
 		autoplay: false,
 		callbackInit: null,
 		callbackDistroy: null,
@@ -61,14 +61,16 @@
 		}
 	
 		window.onYouTubeIframeAPIReady = function () {
+			
 			_YTisReady = true;
 			_YTcallbacks.forEach(function (callback) {
 				callback();
 			});
 			_YTcallbacks.splice(0);
 			if(_YTcallbacks.length===0){
-				defaults.loadedAllVideos.ready = true;
+				defaults.loadedAllVideos= true;
 			}
+	
 		}
 	
 		
@@ -341,14 +343,12 @@
 	const _createPrezzideoSlides = (parent, options) => {
 		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: 'prezzideo-slides', 'data-total-time': options.totalTime, });
 
-
-
 		options.slides.map((item, i) => _createElement('img', slidesContainer,
 			{
 				id: `slide-${i}_${item.id}`,
 				class: 'prezzideo-slides-item',
 				'src': item.image,
-				'data-time': `${item.time[0]}:${item.time[1]}:${item.time[2]}`
+				'data-time': item.time
 			}));
 
 		return slidesContainer;
@@ -929,7 +929,6 @@
 			goto: _goToTime,
 			swap: _swapScreens,
 			smallScreenPosition: _changeSmallScreenPosition,
-			loaded: defaults.loadedAllVideos
 		}
 
 	}
@@ -969,7 +968,7 @@
 			players.push(item.prezzideo);
 		})
 
-		await players.loaded;
+		await defaults.loadedAllVideos;
 		return players;
 	}
 
