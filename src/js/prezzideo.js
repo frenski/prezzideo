@@ -37,7 +37,6 @@
 		},
 		showTimeStamps:true,
 		loadedScripts: {},
-		loadedAllVideos:false,
 		autoplay: false,
 		callbackInit: null,
 		callbackDistroy: null,
@@ -68,9 +67,6 @@
 				callback();
 			});
 			_YTcallbacks.splice(0);
-			if(_YTcallbacks.length===0){
-				defaults.loadedAllVideos= true;
-			}
 	
 		}
 	
@@ -956,7 +952,7 @@
 	// The prezzideo player class
 	// @param presentations - settings provided by the user
 	// @param options - settings provided by the user
-	api.init = async function (presentations, options) {
+	api.init =  function (presentations, options) {
 
 		// Takes into consideration the user's settings
 
@@ -982,7 +978,6 @@
 			// adds the player to the array of players
 			players.push(item.prezzideo);
 		})
-		await defaults.loadedAllVideos;
 		return players;
 	}
 

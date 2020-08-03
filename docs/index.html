@@ -172,15 +172,8 @@
             }
         }
     ]
-
-    //prezzideo.init(presentations) // init without saving the players array 
-
-    // get the players array after all videos are loaded;
-    let prezzideos;
-    prezzideo.init(presentations,{showTimeStamps:true}).then(players=>{
-         prezzideos=players;
-    });
-        
+  
+ prezzideo.init(presentations,{showTimeStamps:false});
 
     </script>
 
