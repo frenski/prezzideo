@@ -186,5 +186,5 @@
 	background:red;
 	height:5px;
 	width:5px;
-	pointer-events: none;
+	/* pointer-events: none; */
 }

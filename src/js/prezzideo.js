@@ -5,8 +5,8 @@
 // License: The MIT License (MIT)
 // ============================================================================
 
-(function (api, undefined) {
-
+(function (api	) {
+	
 	//hack youtubeAPIReady to work for mutlitple instances
 	let _YTisReady = false;
 	const _YTcallbacks = [];
@@ -25,7 +25,6 @@
 		});
 		_YTcallbacks.splice(0);
 	}
-
 
 
 
@@ -87,8 +86,8 @@
 	// Extending the defaults config
 	// Using Deep extend two objects. Legacy:
 	// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
-	var _extendConfig = function (destination, source) {
-		for (var property in source) {
+	const _extendConfig =  (destination, source) => {
+		for (const property in source) {
 			if (source[property] && source[property].constructor
 				&& source[property].constructor === Object) {
 				destination[property] = destination[property] || {};
@@ -140,7 +139,6 @@
 		}
 		for (const item in content) {
 			element[item] = content[item];
-			console.log(content[item])
 		}
 		return element;
 	}
@@ -371,21 +369,7 @@
 
 		return container;
 	}
-	// a function that returns a selection for every element in an Prezzidio container
-	// Depricated - adding ids instead
-	const _selectPrezzideoElements = (element) => {
-		const children = element.children;
-		const dom = {
-			container: element,
-			slidesContainer: children[0],
-			slidesItems: children[0].children,
-			// videoContainer:children[1],
-			// controlSwap:children[2],
-			// controlBar:children[3],
-			controlFullscreen: children[4],
-		}
-		return dom;
-	}
+
 	// PLAYER CLASS
 	function Prezzideo(element, id) {
 
@@ -609,7 +593,7 @@
 		}
 
 
-		var _changeScreenSize = function () {
+		var _changeScreenSize = async function () {
 
 			const controlbar = this.parentElement;
 			const container = controlbar.parentElement;
@@ -622,27 +606,40 @@
 
 			// _selectPrezzideoElements(container);
 			if (screenSize === 'full') {
-				controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
-				container.setAttribute('size-screen', 'small')
+				// controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
+				// container.setAttribute('size-screen', 'small')
 			} else {
 				if (container.requestFullscreen) {
-					container.requestFullscreen();
+					await container.requestFullscreen();
+					_setSlidesPositions();
 				} else if (container.mozRequestFullScreen) { /* Firefox */
-					container.mozRequestFullScreen();
+					await container.mozRequestFullScreen();
+					_setSlidesPositions();
 				} else if (container.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-					container.webkitRequestFullscreen();
+					await container.webkitRequestFullscreen();
+					_setSlidesPositions();
 				} else if (container.msRequestFullscreen) { /* IE/Edge */
-					container.msRequestFullscreen();
+					await container.msRequestFullscreen();
+					_setSlidesPositions();
 				}
-				controlbar.style.bottom = 0;
-				video.style.bottom = '3.3%';
-				presentation.style.bottom = '3.3%';
-				container.setAttribute('size-screen', 'full')
+				// controlbar.style.bottom = 0;
+				// video.style.bottom = '3.3%';
+				// presentation.style.bottom = '3.3%';
+				// container.setAttribute('size-screen', 'full')
 			}
-			_setSlidesPositions();
 		}
-
-
+		// when exiting full screen with escape add escape callback
+		const _exitFullScreen = () => {
+			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+				_setSlidesPositions();
+			}
+		}
+		document.addEventListener('fullscreenchange', _exitFullScreen);
+		document.addEventListener('webkitfullscreenchange', _exitFullScreen);
+		document.addEventListener('mozfullscreenchange', _exitFullScreen);
+		document.addEventListener('MSFullscreenChange', _exitFullScreen);
+		
+	
 		const _remap = (t, tMin, tMax, value1, value2) => {
 			return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 		};
@@ -654,22 +651,19 @@
 			// const videoTotalTime = (+videoTimeStamp[0]) * 60 * 60 + (+videoTimeStamp[1]) * 60 + (+videoTimeStamp[2]);
 			const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
 			const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
-			console.log(videoTotalTime)
-
 
 			// slidesContainer.setAttribute('data-total-time-seconds', videoTotalTime);
 
-			const timestamps = [...slidesContainer.children]
+			const timestamps = [...slidesContainer.children];
 			const totalTime = videoTotalTime;
 			timeline.innerHTML = '';
 			timestamps.map((stamp) => {
 				const time = +stamp.getAttribute('data-time-in-seconds');
-
 				const stampLoc = _remap(time, 0, totalTime, 0, 97.5);
-
-				console.log(stampLoc)
-				const elem = _createElement('div', timeline, { class: 'time-stamp' }, { style: `left:${stampLoc}%` });
-
+				const marker = _createElement('div', timeline, { class: 'time-stamp' }, { style: `left:${stampLoc}%` });
+				// marker.addEventListener('click',()=>{
+				// 	_goToTime(time);
+				// })
 			});
 
 		}
@@ -743,16 +737,10 @@
 
 					} else {
 						_appendScript("https://www.youtube.com/iframe_api");
-
-
-
-
-						enqueueOnYoutubeIframeAPIReady(function () {
-							_initYoutube(videoContainer);
+						enqueueOnYoutubeIframeAPIReady(  function () {
+							 _initYoutube(videoContainer);
 
 						})
-
-
 
 					}
 					break;
@@ -953,43 +941,30 @@
 
 		// Takes into consideration the user's settings
 
-
 		config = _extendConfig(defaults, options);
 		// Get the players 
 		const elements = presentations.map((presentation) => {
-
-			const view = _createPrezzideoView(presentation.stage, presentation.assets, presentation.settings);
-
-			// console.log(view)
-			// const controlParent = _selectPrezzideoElements(presentation.stage).controlFullscreen;
-
-			return view;
+			return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
 		});
-		var players = [];
-
+		const players = [];
 		// Initializing Prezzideo instance for each DOM element
-		for (var i = 0; i < elements.length; i++) {
-
+		elements.map(async (item, index)=>{
 			// Setup a player instance and add to the element
-			if (typeof elements[i].prezzideo === "undefined") {
+			if(typeof  item.prezzideo==='undefined'){
 				// Create new Prezzideo instance
-				var prezzideo = new Prezzideo(elements[i], i);
-
+				const prezzideo = new Prezzideo(item, index);
 				// Set prezzideo to false if setup failed
-				elements[i].prezzideo =
-					(Object.keys(prezzideo).length ? prezzideo : false);
-				// elements[i].prezzideo = prezzideo
+				item.prezzideo = (Object.keys(prezzideo).length ? prezzideo : false);
 				// Callback
 				if (typeof config.callbackInit === "function") {
-					config.callbackInit(elements[i].prezzideo);
+					config.callbackInit(item.prezzideo);
 				}
 			}
-
 			// adds the player to the array of players
-			players.push(elements[i].prezzideo);
+			players.push(item.prezzideo);
+		})
 
-		}
-		// console.log(players)
+		console.log(players)
 		return players;
 	}
 
