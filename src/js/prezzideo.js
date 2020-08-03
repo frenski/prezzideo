@@ -605,10 +605,10 @@
 			const screenSize = container.getAttribute('size-screen');
 
 			// _selectPrezzideoElements(container);
-			if (screenSize === 'full') {
+		//	if (screenSize === 'full') {
 				// controlbar.style.bottom = defaults.resolution.small.controlbar.bottom;
 				// container.setAttribute('size-screen', 'small')
-			} else {
+		//	} else {
 				if (container.requestFullscreen) {
 					await container.requestFullscreen();
 					_setSlidesPositions();
@@ -622,16 +622,23 @@
 					await container.msRequestFullscreen();
 					_setSlidesPositions();
 				}
-				// controlbar.style.bottom = 0;
-				// video.style.bottom = '3.3%';
-				// presentation.style.bottom = '3.3%';
-				// container.setAttribute('size-screen', 'full')
-			}
+				controlbar.style.bottom = 0;
+				video.style.bottom = '3.3%';
+				presentation.style.bottom = '3.3%';
+				container.setAttribute('size-screen', 'full')
+			// }
 		}
 		// when exiting full screen with escape add escape callback
 		const _exitFullScreen = () => {
 			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-				_setSlidesPositions();
+				const bars = document.getElementsByClassName('prezzideo-control-bar');
+				[...bars].forEach((bar,index) => {
+					bar.style = ''
+					document.getElementById('slides-container_'+index).style ='';
+					document.getElementById('prezzideo-video'+index).style = '';
+				  });
+
+				  _setSlidesPositions();
 			}
 		}
 		document.addEventListener('fullscreenchange', _exitFullScreen);
@@ -647,12 +654,8 @@
 		const _addTimeStamps = (timeline, id) => {
 
 			const slidesContainer = document.getElementById('slides-container_' + id);
-			// const videoTimeStamp = document.getElementById('displayTime_' + id).textContent.split('/')[1].split(':');
-			// const videoTotalTime = (+videoTimeStamp[0]) * 60 * 60 + (+videoTimeStamp[1]) * 60 + (+videoTimeStamp[2]);
 			const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
 			const videoTotalTime = Number(videoTimeStamp[0]) * 60 + Number(videoTimeStamp[1]);
-
-			// slidesContainer.setAttribute('data-total-time-seconds', videoTotalTime);
 
 			const timestamps = [...slidesContainer.children];
 			const totalTime = videoTotalTime;
