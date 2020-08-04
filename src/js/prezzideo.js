@@ -351,6 +351,8 @@
 				'data-time': item.time
 			}));
 
+	
+
 		return slidesContainer;
 	}
 	const _calculateTotalSlidesTime = (container) => {
@@ -499,16 +501,27 @@
 				'div',
 				self.element, { id: `controlBar_${id}`, class: config.dom.controlBar });
 			const timeline = _createElement('div', bar, { id: `controlTimeline_${id}`, class: config.dom.controlTimeline });
-			_createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
+			const slider =	_createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
 			_createElement('div', bar, {
 				id: `controlPlayPause_${id}`, class: config.dom.controlPlayPause +
 					' ' + config.dom.controlPlay
 			});
 			_createElement('div', bar, { id: `controlStop_${id}`, class: config.dom.controlStop });
 			_createElement('div', bar, { id: `controlFullscreen_${id}`, class: config.dom.controlFullscreen });
-			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
+		 _createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
+			const tooltip = _createElement('div', slider, { id: `slides-tooltip_${id}`, class: 'tooltip' });
 
+				// const tooltipContent = _createElement('span', tooltip, { id: `slides-tooltiptext_${id}`, class: 'tooltiptext' }, {textContent:'Tooltip text'});
+				const slidesContainer = document.getElementById('slides-container_'+id);
+				const slidesContainerChildren = slidesContainer.children;
+				console.log(slidesContainerChildren)
+
+				const tooltipContent = _createElement('img', tooltip, { id: `slides-tooltiptext_${id}`, class: 'tooltiptext', src:`${slidesContainerChildren[0].src}` });
+
+		// 	<div class="tooltip">Hover over me
+		// 	<span class="tooltiptext">Tooltip text</span>
+		//   </div>
 			// _addSlideTimeIndicators(timeline, id)
 		}
 
@@ -830,16 +843,19 @@
 			}
 		
 			self.player.getDuration = () => video.duration;
-			if (!self.timer.getDuration()) {
+			if (!self.timer.getDuration() ) {
 				const duration = video.duration;
 				self.timer.addEndPoint(duration);
 				self.timer.setDuration(duration);
 			}
 			self.timer.setPlaying(function () {
-				self.timer.updateTime(
-					video.currentTime,
-					video.duration
-				);
+				if(self.playing){
+					self.timer.updateTime(
+						video.currentTime,
+						video.duration
+					);
+				}
+			
 			});
 	
 			return video;
