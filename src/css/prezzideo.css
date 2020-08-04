@@ -60,6 +60,9 @@
 	position: absolute;
 	width: 25%;
 	height: 33%;
+
+	/* width: 25%;
+	height: 33%; */
 	z-index: 2;
 	cursor: pointer;
 }

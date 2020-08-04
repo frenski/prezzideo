@@ -5,8 +5,8 @@
 // License: The MIT License (MIT)
 // ============================================================================
 
-(function (api	) {
-	
+(function (api) {
+
 
 	/* 
 		Private Properties ----------------------------------------------------
@@ -35,7 +35,7 @@
 			controlFullscreen: 'prezzideo-control-fullscreen',
 			displayTime: 'prezzideo-display-time'
 		},
-		showTimeStamps:true,
+		showSlideTimeIndicators: true,
 		loadedScripts: {},
 		autoplay: false,
 		callbackInit: null,
@@ -48,30 +48,30 @@
 	};
 
 
-		//hack youtubeAPIReady to work for mutlitple instances
-		let _YTisReady = false;
-		const _YTcallbacks = [];
-		window.enqueueOnYoutubeIframeAPIReady = function (callback) {
-		
-			if (_YTisReady) {
-				callback();
-			} else {
-				_YTcallbacks.push(callback);
-			}
+	//hack youtubeAPIReady to work for mutlitple instances
+	let _YTisReady = false;
+	const _YTcallbacks = [];
+	window.enqueueOnYoutubeIframeAPIReady = function (callback) {
+
+		if (_YTisReady) {
+			callback();
+		} else {
+			_YTcallbacks.push(callback);
 		}
-	
-		window.onYouTubeIframeAPIReady = function () {
-			
-			_YTisReady = true;
-			_YTcallbacks.forEach(function (callback) {
-				callback();
-			});
-			_YTcallbacks.splice(0);
-	
-		}
-	
-		
-	
+	}
+
+	window.onYouTubeIframeAPIReady = function () {
+
+		_YTisReady = true;
+		_YTcallbacks.forEach(function (callback) {
+			callback();
+		});
+		_YTcallbacks.splice(0);
+
+	}
+
+
+
 	var vProvidersEmbedCode = {
 		'youtube': '<iframe src="https://www.youtube.com/embed/{{id}}?autoplay={{auto}}&controls=0&modestbranding=1&showinfo=0" frameborder="0"></iframe>'
 	}
@@ -84,7 +84,7 @@
 	// Extending the defaults config
 	// Using Deep extend two objects. Legacy:
 	// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
-	const _extendConfig =  (destination, source) => {
+	const _extendConfig = (destination, source) => {
 		for (const property in source) {
 			if (source[property] && source[property].constructor
 				&& source[property].constructor === Object) {
@@ -331,15 +331,18 @@
 
 	// a function that creates container element for prezzideo player
 	const _createPrezzideoContainer = (parent, options) => {
-		return _createElement('div', parent, {
-			'data-id': options.id, id: `player-container_${options.id}`, class: 'prezzideo', width: '100%', 'data-urlid': options.urlid,
+		console.log(options)
+		const data = {
+			'data-id': options.id, id: `player-container_${options.id}`, class: 'prezzideo', width: '100%',
 			'size-screen': options['size-screen']
-		});
+		}
+		data['data-' + options.videotype] = options.videosource;
+		console.log(data)
+		return _createElement('div', parent, data);
 	}
 	// a function that creates slide image elements
 	const _createPrezzideoSlides = (parent, options) => {
-		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: 'prezzideo-slides', 'data-total-time': options.totalTime, });
-
+		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: 'prezzideo-slides' });
 		options.slides.map((item, i) => _createElement('img', slidesContainer,
 			{
 				id: `slide-${i}_${item.id}`,
@@ -359,7 +362,9 @@
 		});
 	}
 	const _createPrezzideoView = (parent, options, settings) => {
-		const container = _createPrezzideoContainer(parent, { urlid: options.urlid, 'size-screen': settings.screen.screenSize, id: options.id });
+		const data = { 'size-screen': settings.screen.screenSize, id: options.id, videotype: options.video.type, videosource: options.video.source };
+
+		const container = _createPrezzideoContainer(parent, data);
 		const slidersContainer = _createPrezzideoSlides(container, options);
 		_calculateTotalSlidesTime(slidersContainer);
 
@@ -464,6 +469,7 @@
 			var sliderMove = function (e) {
 				var posSl = positionSlider(e);
 				var duration = self.timer.getDuration();
+			
 				if (duration) {
 					_setDisplayTime(posSl.relW * duration, duration);
 				}
@@ -503,7 +509,7 @@
 			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
 
-			// _addTimeStamps(timeline, id)
+			// _addSlideTimeIndicators(timeline, id)
 		}
 
 		// Sets the slider position, by passing value for x
@@ -588,21 +594,21 @@
 				self.bigScreen = 'video';
 			}
 		}
-	// when exiting full screen with escape add escape callback
-	const _exitFullScreen = () => {
-		if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-			const bars = document.getElementsByClassName('prezzideo-control-bar');
-			[...bars].forEach((bar,index) => {
-				bar.style = null;
-				bar.parentElement.setAttribute('size-screen', 'small')
-				document.getElementById('slides-container_'+index).style =null;
-				document.getElementById('prezzideo-video'+index).style = null;
-			  });
-	
-			  _setSlidesPositions();
+		// when exiting full screen with escape add escape callback
+		const _exitFullScreen = () => {
+			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+				const bars = document.getElementsByClassName('prezzideo-control-bar');
+				[...bars].forEach((bar, index) => {
+					bar.style = null;
+					bar.parentElement.setAttribute('size-screen', 'small')
+					document.getElementById('slides-container_' + index).style = null;
+					document.getElementById('prezzideo-video' + index).style = null;
+				});
 
+				_setSlidesPositions();
+
+			}
 		}
-	}
 
 		const _changeScreenSize = async function () {
 
@@ -639,18 +645,18 @@
 				container.setAttribute('size-screen', 'full')
 			}
 		}
-	
+
 		document.addEventListener('fullscreenchange', _exitFullScreen);
 		document.addEventListener('webkitfullscreenchange', _exitFullScreen);
 		document.addEventListener('mozfullscreenchange', _exitFullScreen);
 		document.addEventListener('MSFullscreenChange', _exitFullScreen);
-		
-	
+
+
 		const _remap = (t, tMin, tMax, value1, value2) => {
 			return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 		};
 
-		const _addTimeStamps = (timeline, id, duration) => {
+		const _addSlideTimeIndicators = (timeline, id, duration) => {
 
 			const slidesContainer = document.getElementById('slides-container_' + id);
 			// const videoTimeStamp = slidesContainer.getAttribute('data-total-time').split(':');
@@ -658,10 +664,10 @@
 			// const videoTotalTime = _stringToSeconds(slidesContainer.getAttribute('data-total-time'));
 			const videoTotalTime = duration;
 
-			const timestamps = [...slidesContainer.children];
+			const SlideTimeIndicators = [...slidesContainer.children];
 			const totalTime = videoTotalTime;
-		
-			timestamps.map((stamp) => {
+
+			SlideTimeIndicators.map((stamp) => {
 				const time = +stamp.getAttribute('data-time-in-seconds');
 				const stampLoc = _remap(time, 0, totalTime, 0, 97.5);
 				const marker = _createElement('div', timeline, { class: 'time-stamp' }, { style: `left:${stampLoc}%` });
@@ -700,10 +706,10 @@
 
 		// Gets the slides depending on the attributes and sends the array
 		// for loading
-		var _getSlides = function (loadCallback) {
-			var images = [];
-			var slides = _selectChildren(config.dom.slideItem);
-			for (var i = 0; i < slides.length; i++) {
+		const _getSlides = function (loadCallback) {
+			const images = [];
+			const slides = _selectChildren(config.dom.slideItem);
+			for (let i = 0; i < slides.length; i++) {
 				if (slides[i] != null) {
 					if (slides[i].getAttribute('data-time')) {
 						images.push(slides[i]);
@@ -713,21 +719,20 @@
 			_loadImages(images, self.slides, self.slideTimes, loadCallback);
 		}
 
-		//hack window.onYoutubeIframeAPIReady
 
 		// Adds the video markup to the container, depending on the provider
-		var _addVideo = function (id) {
+		const _addVideo = function (id) {
 			// (type, parent, attributes = {})
 
 			//	_appendElement = function (container, type, className, content, id) 
 
-			var videoContainer = _createElement(
+			const videoContainer = _createElement(
 				'div',
 				self.element,
 				{
 					class: config.dom.videoContainer
 						.substr(1, config.dom.videoContainer.length - 1),
-					id: self.videoContainerId
+					id: 'prezzideo-video' + id
 				}
 			)
 
@@ -741,29 +746,109 @@
 
 					} else {
 						_appendScript("https://www.youtube.com/iframe_api");
-						enqueueOnYoutubeIframeAPIReady(  function () {
-							 _initYoutube(videoContainer);
+						//hack window.onYoutubeIframeAPIReady
+						enqueueOnYoutubeIframeAPIReady(function () {
+							_initYoutube(videoContainer);
 
 						})
 
 					}
 					break;
+				case 'html5-video':
+					const container = document.getElementById('player-container_' + id);
+					const videoElement = _initHtmlVideo(videoContainer, container.getAttribute('data-path'));
+					videoElement.addEventListener('loadeddata', (e) => {
+						if (videoElement.readyState >= 3) {
+							_slidesTimeIndicators();
+						}
+					})
+
+					break
+
 				default:
 					break;
 			}
 		}
 
 
-		const _timestamps =  (show = config.showTimeStamps) =>{
+		const _slidesTimeIndicators = (show = config.showSlideTimeIndicators) => {
 			const id = self.element.getAttribute('data-id');
-			 const timeline = document.getElementById('controlTimeline_'+id);
-			 timeline.innerHTML = '';
-			 if(show){
-				_addTimeStamps(timeline, id, self.player.getDuration());
-			 }
+			// if(self.element.getAttribute('data-path')){
+
+			// }
+			const timeline = document.getElementById('controlTimeline_' + id);
+			timeline.innerHTML = '';
+			if (show) {
+				_addSlideTimeIndicators(timeline, id, self.player.getDuration());
+			}
 		}
+
+		const _initHtmlVideo = (videoContainer, src) => {
+
+			const video = _createElement(
+				'video',
+				videoContainer,
+				{
+					id: self.videoContainerId + '-html5_video',
+					width: "100%"
+				})
+			const dotsplit = src.split('.');
+			const memetype = dotsplit[dotsplit.length - 1];
+
+			const source = _createElement('source', video, { src: src, type: 'video/' + memetype })
+
+
+
+			self.actions = {
+				play: () => {
+					video.play();
+					self.playing = true;
+					_setPPButtonStatus();
+				},
+				pause: () => {
+					video.pause()
+					self.playing = false;
+					_setPPButtonStatus();
+				},
+				stop: () => {
+
+					video.pause();
+					video.currentTime = 0;
+					self.playing = false;
+					_setSliderPosition(0)
+					_setPPButtonStatus();
+				
+				},
+				goToTime: (time) => {
+					const timeInSec = time * video.duration;
+					video.currentTime = timeInSec;
+					video.play();
+					self.playing = true;
+					_setPPButtonStatus();
+
+				}
+			}
+		
+			self.player.getDuration = () => video.duration;
+			if (!self.timer.getDuration()) {
+				const duration = video.duration;
+				self.timer.addEndPoint(duration);
+				self.timer.setDuration(duration);
+			}
+			self.timer.setPlaying(function () {
+				self.timer.updateTime(
+					video.currentTime,
+					video.duration
+				);
+			});
+	
+			return video;
+		}
+
+
+
 		// Videos initializers
-		var _initYoutube = function (videoContainer) {
+		const _initYoutube = (videoContainer) => {
 			_createElement(
 				'div',
 				videoContainer,
@@ -794,7 +879,7 @@
 							var timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
 						}
-						_timestamps();
+						data - source();
 					},
 					'onStateChange': function (event) {
 
@@ -906,6 +991,7 @@
 							_setDisplayTime(t, d);
 						}
 					});
+
 				const playerID = self.element.getAttribute('data-id')
 				// Adds the video scripts
 				_addVideo(playerID);
@@ -925,7 +1011,7 @@
 
 		}
 
-		
+
 		// Inits or returns empty object if init fails
 		_init();
 		// if (!self.init) {
@@ -939,7 +1025,7 @@
 			goto: _goToTime,
 			swap: _swapScreens,
 			smallScreenPosition: _changeSmallScreenPosition,
-			timestamps: _timestamps,
+			SlideTimeIndicators: _slidesTimeIndicators,
 		}
 
 	}
@@ -952,20 +1038,47 @@
 	// The prezzideo player class
 	// @param presentations - settings provided by the user
 	// @param options - settings provided by the user
-	api.init =  function (presentations, options) {
+	api.init = function (presentations, options) {
 
 		// Takes into consideration the user's settings
-
 		config = _extendConfig(defaults, options);
+
+		let elements;
 		// Get the players 
-		const elements = presentations.map((presentation) => {
-			return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
-		});
+		if (options.source === 'html') {
+
+			if (typeof presentations === 'string') {
+				const container = document.getElementById(presentations);
+				const ID = container.getAttribute('data-id');
+
+				elements = [container];
+				const slidesContainer = document.getElementById('slides-container_' + ID);
+
+				_calculateTotalSlidesTime(slidesContainer);
+			} else if (Array.isArray(presentations)) {
+				elements = presentations.map((item) => {
+
+					const container = document.getElementById(item);
+					const ID = container.getAttribute('data-id');
+
+					const slidesContainer = document.getElementById('slides-container_' + ID);
+
+					_calculateTotalSlidesTime(slidesContainer);
+					return container;
+				})
+			}
+
+		} else if (options.source === 'json') {
+			elements = presentations.map((presentation) => {
+				return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
+			});
+		}
+
 		const players = [];
 		// Initializing Prezzideo instance for each DOM element
-		elements.map(async (item, index)=>{
+		elements.map(async (item, index) => {
 			// Setup a player instance and add to the element
-			if(typeof  item.prezzideo==='undefined'){
+			if (typeof item.prezzideo === 'undefined') {
 				// Create new Prezzideo instance
 				const prezzideo = new Prezzideo(item, index);
 				// Set prezzideo to false if setup failed
