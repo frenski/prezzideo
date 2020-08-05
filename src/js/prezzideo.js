@@ -128,6 +128,9 @@
 
 	}
 
+	const _remap = (t, tMin, tMax, value1, value2) => {
+		return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
+	};
 	// A generic function which create and element and appends to given element
 	const _createElement = (type, parent, attributes = {}, content = {}) => {
 		const element = document.createElement(type);
@@ -351,7 +354,7 @@
 				'data-time': item.time
 			}));
 
-	
+
 
 		return slidesContainer;
 	}
@@ -439,7 +442,12 @@
 			const timeline = document.getElementById('controlTimeline' + '_' + id);
 			const slider = document.getElementById('controlSlider' + '_' + id);
 			const buttonFullScreen = document.getElementById('controlFullscreen' + '_' + id);
+			// const tooltip = document.getElementById('slides-tooltip' + '_' + id);
 
+
+
+			_addEvent(timeline, 'mouseover', _showToolTip);
+			_addEvent(timeline, 'mouseleave', _hideToolTip);
 
 			_addEvent(buttonFullScreen, 'click', _changeScreenSize);
 			_addEvent(buttonSwap, 'click', _swapScreens);
@@ -471,7 +479,7 @@
 			var sliderMove = function (e) {
 				var posSl = positionSlider(e);
 				var duration = self.timer.getDuration();
-			
+
 				if (duration) {
 					_setDisplayTime(posSl.relW * duration, duration);
 				}
@@ -501,28 +509,21 @@
 				'div',
 				self.element, { id: `controlBar_${id}`, class: config.dom.controlBar });
 			const timeline = _createElement('div', bar, { id: `controlTimeline_${id}`, class: config.dom.controlTimeline });
-			const slider =	_createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
+			const slider = _createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
 			_createElement('div', bar, {
 				id: `controlPlayPause_${id}`, class: config.dom.controlPlayPause +
 					' ' + config.dom.controlPlay
 			});
 			_createElement('div', bar, { id: `controlStop_${id}`, class: config.dom.controlStop });
 			_createElement('div', bar, { id: `controlFullscreen_${id}`, class: config.dom.controlFullscreen });
-		 _createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
+			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
-			const tooltip = _createElement('div', slider, { id: `slides-tooltip_${id}`, class: 'tooltip' });
+			const tooltip = _createElement('div', bar, { id: `slides-tooltip_${id}`, class: 'tooltip' });
 
-				// const tooltipContent = _createElement('span', tooltip, { id: `slides-tooltiptext_${id}`, class: 'tooltiptext' }, {textContent:'Tooltip text'});
-				const slidesContainer = document.getElementById('slides-container_'+id);
-				const slidesContainerChildren = slidesContainer.children;
-				console.log(slidesContainerChildren)
+			const slidesContainer = document.getElementById('slides-container_' + id);
+			const slidesContainerChildren = slidesContainer.children;
 
-				const tooltipContent = _createElement('img', tooltip, { id: `slides-tooltiptext_${id}`, class: 'tooltiptext', src:`${slidesContainerChildren[0].src}` });
-
-		// 	<div class="tooltip">Hover over me
-		// 	<span class="tooltiptext">Tooltip text</span>
-		//   </div>
-			// _addSlideTimeIndicators(timeline, id)
+			const tooltipContent = _createElement('img', tooltip, { id: `slides-tooltip-content_${id}`, class: 'tooltip-content', src: `${slidesContainerChildren[0].src}` });
 		}
 
 		// Sets the slider position, by passing value for x
@@ -590,7 +591,52 @@
 			_toggleClass(buttonSwap,
 				config.dom.screenPositionClass + position, true);
 		}
+		const _showToolTip = (e) =>{
+			
+			const id = self.element.getAttribute('data-id');
+			const tooltipContent = document.getElementById('slides-tooltip-content_'+id);
+			const timeline =  document.getElementById('controlTimeline_'+id);
+			const slidesContainerChildren = document.getElementById('slides-container_'+id).children;
 
+
+			tooltipContent.style.visibility = 'visible';
+			const mouseX = _getMouseCoords(e).x;
+		
+			const timelineX = timeline.getBoundingClientRect().left;
+			const width = timeline.getBoundingClientRect().width
+
+			const relativeX = mouseX - timelineX;
+
+			let image;
+
+			const totalTime = self.player.getDuration();
+			
+			 [...slidesContainerChildren].forEach((item,index,array)=>{
+				const timeInSec =+item.getAttribute('data-time-in-seconds');
+				const nextTimeInSec = array[index+1] ? +array[index+1].getAttribute('data-time-in-seconds') : 100;
+				const timestamp = _remap(timeInSec, 0, totalTime, 0, 97.5);
+				const nextstamp = _remap(nextTimeInSec, 0, totalTime, 0, 97.5);
+				const relx = _remap(relativeX, 0, width, 0, 97.5);
+				if(relx>=timestamp && relx<nextstamp){
+					image = item.src;
+				}
+				
+				
+			})
+	
+			tooltipContent.src = image || './assets/empty.png';
+
+			tooltipContent.style.left = (relativeX- 60) + "px";
+	
+		
+		}
+		const _hideToolTip = () =>{
+			setTimeout(() => {
+			const id = self.element.getAttribute('data-id');
+			const tooltipContent = document.getElementById('slides-tooltip-content_'+id)
+			tooltipContent.style.visibility = 'hidden';
+		}, 1000);
+		}
 		// swaps screens
 		var _swapScreens = function () {
 			var slideC = _selectChild(config.dom.slidesContainer);
@@ -665,9 +711,6 @@
 		document.addEventListener('MSFullscreenChange', _exitFullScreen);
 
 
-		const _remap = (t, tMin, tMax, value1, value2) => {
-			return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
-		};
 
 		const _addSlideTimeIndicators = (timeline, id, duration) => {
 
@@ -830,7 +873,7 @@
 					self.playing = false;
 					_setSliderPosition(0)
 					_setPPButtonStatus();
-				
+
 				},
 				goToTime: (time) => {
 					const timeInSec = time * video.duration;
@@ -841,23 +884,23 @@
 
 				}
 			}
-		
+
 			self.player.getDuration = () => video.duration;
-			if (!self.timer.getDuration() ) {
+			if (!self.timer.getDuration()) {
 				const duration = video.duration;
 				self.timer.addEndPoint(duration);
 				self.timer.setDuration(duration);
 			}
 			self.timer.setPlaying(function () {
-				if(self.playing){
+				if (self.playing) {
 					self.timer.updateTime(
 						video.currentTime,
 						video.duration
 					);
 				}
-			
+
 			});
-	
+
 			return video;
 		}
 

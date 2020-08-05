@@ -190,6 +190,7 @@
 	background:red;
 	height:5px;
 	width:5px;
+	z-index: ;
 	/* pointer-events: none; */
 }
 
@@ -210,11 +211,11 @@
 .tooltip {
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+  border-bottom: 5px dotted black; 
 }
 
 /* Tooltip text */
-.tooltip .tooltiptext {
+.tooltip .tooltip-content {
   visibility: hidden;
   width: 120px;
   background-color: black;
@@ -223,23 +224,21 @@
   padding: 5px 0;
   border-radius: 6px;
  
-  /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
 }
 
-/* Show the tooltip text when you mouse over the tooltip container */
-.prezzideo-control-slider:hover .tooltiptext {
+/* .prezzideo-control-bar:hover .tooltip-content {
   visibility: visible;
-}
+} */
 
 
 
-.tooltip .tooltiptext {
+.tooltip .tooltip-content {
 	width: 120px;
 	bottom: 25px;
 	left: 50%;
-	margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+	margin-left: -60px; 
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10+ and Edge */
 	user-select: none; /* Standard syntax */
