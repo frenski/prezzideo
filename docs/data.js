@@ -1,9 +1,9 @@
 
 // add transcript - on the side or below optional, scrolling based on slides 
 // create from already existing html - done
-// html video 
-// popups of the slides on the slidestamps
-// preload slides - 
+// html video - done
+// popups of the slides on the slidestamps - done
+// preload slides 
 
 {
     stage: 'player-containers',

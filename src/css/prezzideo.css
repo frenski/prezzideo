@@ -190,14 +190,27 @@
 	background:red;
 	height:5px;
 	width:5px;
-	z-index: ;
+
 	/* pointer-events: none; */
 }
 
 
 
+.prezzideo-transcript {
+	position:relative;
+	overflow:hidden;
+	background-color:white;
+	margin-top:8%;
 
 
+}
+.transcript-mq {
+	position:absolute;
+	right:5250px;
+	top:400px;
+
+	font-size:10px;
+}
 
 
 

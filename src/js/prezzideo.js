@@ -5,6 +5,8 @@
 // License: The MIT License (MIT)
 // ============================================================================
 
+
+
 (function (api) {
 
 
@@ -36,6 +38,9 @@
 			displayTime: 'prezzideo-display-time'
 		},
 		showSlideTimeIndicators: true,
+		showTranscript: true,
+		transcript_SpeedUP: true,
+		transcript_cps: 1,
 		loadedScripts: {},
 		autoplay: false,
 		callbackInit: null,
@@ -127,6 +132,107 @@
 		}
 
 	}
+
+
+	const _movingText = (container, dataText) => {
+		
+	
+		let lifetime;
+
+		createMarquee = function (dataText, speed = 1) {
+
+			const id = container.getAttribute('data-id');
+			if(!dataText && document.getElementById('transcript_' +id)){
+				dataText = document.getElementById('transcript_' +id).textContent;   
+				document.getElementById('marquee_'+id).innerHTML = '';
+			}
+			let tWidth = '99%';
+			let tHeight = 200;
+
+			let moStop = true;
+			let fontfamily = 'Calibri';
+			let tSpeed = speed;
+	
+			config.transcript_cps = -tSpeed;
+
+			let aw, mq;
+			// let fsz = parseInt(tHeight) - 5;
+			const fsz = 15;
+			function scrollticker() {
+				//(parseInt(mq.style.top) > (-tHeight - aw)) ?
+				mq.style.top = mq.style.top = parseInt(mq.style.top) + config.transcript_cps + "px"
+
+				// : parseInt(document.body.clientHeight) + 10 + "px";
+
+			}
+
+			function startticker() {
+				if (document.getElementById) {
+				
+					let tick = '<div class="prezzideo-transcript" id="transcript_' + id + '" style="border:black solid 2px;width:' + tWidth + ';height:' + tHeight + 'px;"';
+					// if (moStop) tick +=;
+				
+					tick += '><div id="mq_' + id + '" class="transcript-mq" style="position:absolute;right:0px;top:' + tHeight + 'px;"><\/div><\/div>';
+					document.getElementById('marquee_' + id).innerHTML = tick;
+					mq = document.getElementById("mq_" + id);
+					mq.setAttribute('draggable', true);
+					mq.className = 'unselected';
+
+					mq.innerHTML = '<pre id="tx_' + id + '" style="white-space:pre-wrap;word-wrap: break-word;  text-align: justify;">' + dataText + '<\/pre>';
+					mq.style.left = 5 + "px";
+					mq.style.right = 5 + "px";
+					aw = document.getElementById("tx_" + id).offsetWidth;
+
+					if (lifetime) {
+						clearInterval(lifetime);
+						mq.style.top = (parseInt(mq.style.top) > (-10 - aw)) ? mq.style.top = parseInt(mq.style.top) + config.transcript_cps + "px" : parseInt(document.body.clientHeight) + 10 + "px"
+					}
+					lifetime = setInterval(scrollticker, 25);
+
+					document.getElementById('transcript_' + id).addEventListener('click', () => {
+						if (config.transcript_SpeedUp) {
+							config.transcript_cps = -10;
+							config.transcript_SpeedUp = false;
+						} else {
+							config.transcript_SpeedUp = true;
+							config.transcript_cps = 0;
+						}
+					})
+					document.getElementById('transcript_' + id).addEventListener('dblclick', () => {
+
+						config.transcript_cps = 10;
+						config.transcript_SpeedUp = false;
+
+					})
+
+
+					document.getElementById('transcript_' + id).addEventListener('mouseover', () => {
+						config.transcript_cps = 0;
+					})
+
+
+					document.getElementById('transcript_' + id).addEventListener('mouseout', () => {
+						config.transcript_cps = -tSpeed;
+						config.transcript_SpeedUp = true;
+					})
+
+
+
+				}
+			}
+			startticker();
+
+
+
+
+		}
+
+		createMarquee(dataText);
+	}
+
+
+
+
 
 	const _remap = (t, tMin, tMax, value1, value2) => {
 		return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
@@ -372,7 +478,10 @@
 		const container = _createPrezzideoContainer(parent, data);
 		const slidersContainer = _createPrezzideoSlides(container, options);
 		_calculateTotalSlidesTime(slidersContainer);
-
+		if (config.showTranscript) {
+			_createElement('div',parent,{id:'marquee_'+options.id})
+			_movingText(container,options.transcript);
+		}
 
 		return container;
 	}
@@ -591,17 +700,17 @@
 			_toggleClass(buttonSwap,
 				config.dom.screenPositionClass + position, true);
 		}
-		const _showToolTip = (e) =>{
-			
+		const _showToolTip = (e) => {
+
 			const id = self.element.getAttribute('data-id');
-			const tooltipContent = document.getElementById('slides-tooltip-content_'+id);
-			const timeline =  document.getElementById('controlTimeline_'+id);
-			const slidesContainerChildren = document.getElementById('slides-container_'+id).children;
+			const tooltipContent = document.getElementById('slides-tooltip-content_' + id);
+			const timeline = document.getElementById('controlTimeline_' + id);
+			const slidesContainerChildren = document.getElementById('slides-container_' + id).children;
 
 
 			tooltipContent.style.visibility = 'visible';
 			const mouseX = _getMouseCoords(e).x;
-		
+
 			const timelineX = timeline.getBoundingClientRect().left;
 			const width = timeline.getBoundingClientRect().width
 
@@ -610,32 +719,32 @@
 			let image;
 
 			const totalTime = self.player.getDuration();
-			
-			 [...slidesContainerChildren].forEach((item,index,array)=>{
-				const timeInSec =+item.getAttribute('data-time-in-seconds');
-				const nextTimeInSec = array[index+1] ? +array[index+1].getAttribute('data-time-in-seconds') : 100;
+
+			[...slidesContainerChildren].forEach((item, index, array) => {
+				const timeInSec = +item.getAttribute('data-time-in-seconds');
+				const nextTimeInSec = array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : 100;
 				const timestamp = _remap(timeInSec, 0, totalTime, 0, 97.5);
 				const nextstamp = _remap(nextTimeInSec, 0, totalTime, 0, 97.5);
 				const relx = _remap(relativeX, 0, width, 0, 97.5);
-				if(relx>=timestamp && relx<nextstamp){
+				if (relx >= timestamp && relx < nextstamp) {
 					image = item.src;
 				}
-				
-				
+
+
 			})
-	
+
 			tooltipContent.src = image || './assets/empty.png';
 
-			tooltipContent.style.left = (relativeX- 60) + "px";
-	
-		
+			tooltipContent.style.left = (relativeX - 60) + "px";
+
+
 		}
-		const _hideToolTip = () =>{
+		const _hideToolTip = () => {
 			setTimeout(() => {
-			const id = self.element.getAttribute('data-id');
-			const tooltipContent = document.getElementById('slides-tooltip-content_'+id)
-			tooltipContent.style.visibility = 'hidden';
-		}, 1000);
+				const id = self.element.getAttribute('data-id');
+				const tooltipContent = document.getElementById('slides-tooltip-content_' + id)
+				tooltipContent.style.visibility = 'hidden';
+			}, 1000);
 		}
 		// swaps screens
 		var _swapScreens = function () {
@@ -805,7 +914,6 @@
 						//hack window.onYoutubeIframeAPIReady
 						enqueueOnYoutubeIframeAPIReady(function () {
 							_initYoutube(videoContainer);
-
 						})
 
 					}
@@ -938,7 +1046,9 @@
 							var timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
 						}
-						data - source();
+						_slidesTimeIndicators();
+
+						// data - source();
 					},
 					'onStateChange': function (event) {
 
@@ -1084,7 +1194,7 @@
 			goto: _goToTime,
 			swap: _swapScreens,
 			smallScreenPosition: _changeSmallScreenPosition,
-			SlideTimeIndicators: _slidesTimeIndicators,
+			slidesTimeIndicators: _slidesTimeIndicators,
 		}
 
 	}
@@ -1100,6 +1210,7 @@
 	api.init = function (presentations, options) {
 
 		// Takes into consideration the user's settings
+
 		config = _extendConfig(defaults, options);
 
 		let elements;
@@ -1114,6 +1225,12 @@
 				const slidesContainer = document.getElementById('slides-container_' + ID);
 
 				_calculateTotalSlidesTime(slidesContainer);
+
+				if (config.showTranscript) {
+
+					_movingText(container);
+				}
+
 			} else if (Array.isArray(presentations)) {
 				elements = presentations.map((item) => {
 
@@ -1129,6 +1246,7 @@
 
 		} else if (options.source === 'json') {
 			elements = presentations.map((presentation) => {
+			
 				return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
 			});
 		}
