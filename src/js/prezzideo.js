@@ -135,7 +135,6 @@
 
 
 	const _movingText = (container, dataText) => {
-		
 	
 		let lifetime;
 
@@ -146,11 +145,11 @@
 				dataText = document.getElementById('transcript_' +id).textContent;   
 				document.getElementById('marquee_'+id).innerHTML = '';
 			}
-			let tWidth = '99%';
+			let tWidth = 99;
 			let tHeight = 200;
 
-			let moStop = true;
-			let fontfamily = 'Calibri';
+			// let moStop = true;
+			// let fontfamily = 'Calibri';
 			let tSpeed = speed;
 	
 			config.transcript_cps = -tSpeed;
@@ -161,15 +160,13 @@
 			function scrollticker() {
 				//(parseInt(mq.style.top) > (-tHeight - aw)) ?
 				mq.style.top = mq.style.top = parseInt(mq.style.top) + config.transcript_cps + "px"
-
 				// : parseInt(document.body.clientHeight) + 10 + "px";
-
 			}
 
 			function startticker() {
 				if (document.getElementById) {
 				
-					let tick = '<div class="prezzideo-transcript" id="transcript_' + id + '" style="border:black solid 2px;width:' + tWidth + ';height:' + tHeight + 'px;"';
+					let tick = '<div class="prezzideo-transcript" id="transcript_' + id + '" style="border:black solid 2px;width:' + tWidth + '%;height:' + tHeight + 'px;"';
 					// if (moStop) tick +=;
 				
 					tick += '><div id="mq_' + id + '" class="transcript-mq" style="position:absolute;right:0px;top:' + tHeight + 'px;"><\/div><\/div>';
@@ -178,7 +175,7 @@
 					mq.setAttribute('draggable', true);
 					mq.className = 'unselected';
 
-					mq.innerHTML = '<pre id="tx_' + id + '" style="white-space:pre-wrap;word-wrap: break-word;  text-align: justify;">' + dataText + '<\/pre>';
+					mq.innerHTML = '<pre id="tx_' + id + '" style="white-space:pre-wrap;word-wrap: break-word;text-align: justify;">' + dataText + '<\/pre>';
 					mq.style.left = 5 + "px";
 					mq.style.right = 5 + "px";
 					aw = document.getElementById("tx_" + id).offsetWidth;
@@ -199,17 +196,13 @@
 						}
 					})
 					document.getElementById('transcript_' + id).addEventListener('dblclick', () => {
-
 						config.transcript_cps = 10;
 						config.transcript_SpeedUp = false;
-
 					})
-
 
 					document.getElementById('transcript_' + id).addEventListener('mouseover', () => {
 						config.transcript_cps = 0;
 					})
-
 
 					document.getElementById('transcript_' + id).addEventListener('mouseout', () => {
 						config.transcript_cps = -tSpeed;
@@ -228,6 +221,7 @@
 		}
 
 		createMarquee(dataText);
+		config.transcript_cps=0;
 	}
 
 
@@ -440,7 +434,7 @@
 
 	// a function that creates container element for prezzideo player
 	const _createPrezzideoContainer = (parent, options) => {
-		console.log(options)
+	
 		const data = {
 			'data-id': options.id, id: `player-container_${options.id}`, class: 'prezzideo', width: '100%',
 			'size-screen': options['size-screen']
@@ -764,15 +758,19 @@
 		}
 		// when exiting full screen with escape add escape callback
 		const _exitFullScreen = () => {
+		const containers = document.getElementsByClassName('prezzideo');
+	
 			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
 				const bars = document.getElementsByClassName('prezzideo-control-bar');
 				[...bars].forEach((bar, index) => {
 					bar.style = null;
-					bar.parentElement.setAttribute('size-screen', 'small')
-					document.getElementById('slides-container_' + index).style = null;
-					document.getElementById('prezzideo-video' + index).style = null;
-				});
+					bar.parentElement.setAttribute('size-screen', 'small');
+					const id = containers[index].getAttribute('data-id');
+					document.getElementById('slides-container_' + id).style = null;
+					document.getElementById('prezzideo-video' +  id).style = null;
 
+				});
+			
 				_setSlidesPositions();
 
 			}
@@ -921,10 +919,32 @@
 				case 'html5-video':
 					const container = document.getElementById('player-container_' + id);
 					const videoElement = _initHtmlVideo(videoContainer, container.getAttribute('data-path'));
+				
 					videoElement.addEventListener('loadeddata', (e) => {
 						if (videoElement.readyState >= 3) {
 							_slidesTimeIndicators();
+							
 						}
+						const track =_createElement('track',videoElement,  {id:'text-track_'+id,default:'',kind:'captions', srclang:'en', src:'./videos/test.vtt'});
+					const showTrack=_createElement('p',document.getElementById('text_'+id),{id:'display-track_'+id, style:'color:black'},{textContent:'\xa0'});
+					
+						track.addEventListener("load", function() {
+							this.mode = "hidden";
+							videoElement.textTracks[0].mode = "hidden";
+						 });
+						 const videoTrack = videoElement.textTracks[0];
+						 videoTrack.addEventListener("cuechange", () => {
+							if (videoTrack.activeCues != null) {
+								const cue = videoTrack.activeCues[0];
+								if (cue !== undefined) {
+							     showTrack.textContent = videoTrack.activeCues[0].text;
+								}else{
+									showTrack.textContent ='\xa0';
+								}
+							  }
+							
+						 });
+					
 					})
 
 					break
@@ -1116,6 +1136,7 @@
 		var _play = function () {
 			if (typeof self.actions.play === 'function') {
 				self.actions.play();
+				config.transcript_cps = -1;
 			}
 		}
 
@@ -1123,6 +1144,7 @@
 		var _stop = function () {
 			if (typeof self.actions.stop === 'function') {
 				self.actions.stop();
+				// config.transcript_cps = 0;
 			}
 		}
 
@@ -1130,6 +1152,7 @@
 		var _pause = function () {
 			if (typeof self.actions.pause === 'function') {
 				self.actions.pause();
+				config.transcript_cps = 0;
 			}
 		}
 
@@ -1227,7 +1250,6 @@
 				_calculateTotalSlidesTime(slidesContainer);
 
 				if (config.showTranscript) {
-
 					_movingText(container);
 				}
 

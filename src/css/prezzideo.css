@@ -196,29 +196,6 @@
 
 
 
-.prezzideo-transcript {
-	position:relative;
-	overflow:hidden;
-	background-color:white;
-	margin-top:8%;
-
-
-}
-.transcript-mq {
-	position:absolute;
-	right:5250px;
-	top:400px;
-
-	font-size:10px;
-}
-
-
-
-
-
-
-
-
 
 /* Tooltip container */
 .tooltip {
@@ -256,3 +233,21 @@
 	-ms-user-select: none; /* IE 10+ and Edge */
 	user-select: none; /* Standard syntax */
   }
+
+
+  
+.prezzideo-transcript {
+	position:relative;
+	overflow:hidden;
+	background-color:white;
+	margin-top:8%;
+
+}
+.transcript-mq {
+	position:absolute;
+
+	top:400px;
+	font-size:10px;
+}
+
+
