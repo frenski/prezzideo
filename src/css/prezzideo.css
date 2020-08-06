@@ -234,20 +234,23 @@
 	user-select: none; /* Standard syntax */
   }
 
-
   
-.prezzideo-transcript {
-	position:relative;
-	overflow:hidden;
-	background-color:white;
+  .prezzideo-textbox{
+
+	border:black solid 2px;
+	padding:2%;
 	margin-top:8%;
+	height: 300px;
+	overflow-y: scroll;
+}
+  
+.prezzideo-transcript{
+	white-space:pre-wrap;
+	word-wrap: break-word;
+	text-align: justify;
+	
 
 }
-.transcript-mq {
-	position:absolute;
-
-	top:400px;
-	font-size:10px;
+.prezzideo-transcript-container{
+	display:none;
 }
-
-
