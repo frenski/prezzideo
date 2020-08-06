@@ -166,8 +166,8 @@
 	// 	node.className = className;
 	// 	container.appendChild(node);
 	// 	return node;
-	// }
-
+	// } 
+	
 	// A generic function to append script
 	var _appendScript = function (src) {
 		if (!config.loadedScripts[src]) {
@@ -343,7 +343,7 @@
 			'size-screen': options['size-screen']
 		}
 		data['data-' + options.videotype] = options.videosource;
-		console.log(data)
+
 		return _createElement('div', parent, data);
 	}
 	// a function that creates slide image elements
@@ -357,7 +357,7 @@
 				'data-time': item.time
 			}));
 
-
+				
 
 		return slidesContainer;
 	}
@@ -811,9 +811,9 @@
 						//hack window.onYoutubeIframeAPIReady
 						enqueueOnYoutubeIframeAPIReady(function () {
 							_initYoutube(videoContainer);
-							
+
 						})
-					
+
 					}
 					break;
 				case 'html5-video':
@@ -846,24 +846,77 @@
 			if (show) {
 				_addSlideTimeIndicators(timeline, id, self.player.getDuration());
 			}
-		}
-		const _formatTranscriptText = (id) =>{
-			const slideNodes = [...document.getElementById('slides-container_'+id).children];
-			const textNodes = [...document.getElementById('transcript-container_'+id).children];
-			return textContent = slideNodes.map((node,index,array)=>{
+		} 
+		const _formatTranscriptText = (id) => {
+			const slideNodes = [...document.getElementById('slides-container_' + id).children];
+			const textNodes = [...document.getElementById('transcript-container_' + id).children];
+			return textContent = slideNodes.map((node, index, array) => {
 				return {
-					start:+node.getAttribute('data-time-in-seconds'),
-					end:array[index+1] ? +array[index+1] .getAttribute('data-time-in-seconds') : self.player.getDuration(),
-					content:textNodes[index] ? textNodes[index].textContent.trim().replace(/\s\s+/g,'@@\n').split('@@\n').join('\n\n') : ''};
-				})
+					start: +node.getAttribute('data-time-in-seconds'),
+					end: array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : self.player.getDuration(),
+					content: textNodes[index] ? textNodes[index].textContent.trim().replace(/\s\s+/g, '@@\n').split('@@\n').join('\n\n') : '',
+					lastIndex: Math.max(index-1,0) 
+				};
+			})
 		}
-		const _createTranscript = (videoElement, id = 0, textContent=[]) =>{
-			const track = videoElement.addTextTrack("captions", "English", "en");
+
+		
+		const _createCustomTranscript = (videoElement, id = 0, textContent = []) => {
 			const showTrack = _createElement('pre', document.getElementById('textbox_' + id), { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+			// const textTrack = textContent.reduce((acc,text) =>{
+			// 	acc[`${text.start}`]={content:text.content,end:text.end};
+			// 	return acc;
+			// },{});
 
+			// console.log(textTrack)
+			const displayText = document.getElementById('textbox_'+id);
+			const copyActions = { ...self.actions };
+	
+			const getTrackedText = () => {
+				const time = self.player.getCurrentTime();
+				textContent.map((item, index,array)=>{
+					if(time >= item.start  && item.end < time && index >= item.lastIndex){
+						item.lastIndex = index-1; 
+						displayText.innerHTML = item.content;
+					}
+				})
+			}
+			self.actions.goToTime= (timepoint) => {
+				copyActions.goToTime(timepoint);
+				getTrackedText();
+			}
+
+
+			self.actions.play = () => {
+				getTrackedText();
+				copyActions.play();
+			}
+		
+			self.actions.updateTrackedText = () =>{
+				copyActions.updateTrackedText();
+				getTrackedText();
+			}
+			// setInterval(() => {
+				
+			// }, 1000);
+			// videoTrack.addEventListener("cuechange", () => {
+			// 	if (videoTrack.activeCues != null) {
+			// 		const cue = videoTrack.activeCues[0];
+			// 		if (cue !== undefined) {
+			// 			showTrack.textContent = videoTrack.activeCues[0].text;
+			// 		} else {
+			// 			showTrack.textContent = '\xa0';
+			// 		}
+			// 	}
+			// });
+		}
+
+		const _createTranscript = (videoElement, id = 0, textContent = []) => {
+
+			const track = videoElement.addTextTrack("captions", "English", "en")
+			const showTrack = _createElement('pre', document.getElementById('textbox_' + id), { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
 			track.mode = "hidden";
-			textContent.map((text)=>track.addCue(new VTTCue(text.start, text.end, text.content)));
-
+			textContent.map((text) => track.addCue(new VTTCue(text.start, text.end, text.content)));
 			const videoTrack = videoElement.textTracks[0];
 			videoTrack.addEventListener("cuechange", () => {
 				if (videoTrack.activeCues != null) {
@@ -877,7 +930,71 @@
 			});
 
 		}
+
+
+
 		
+				
+
+		
+
+
+		const _createDummyMedia = (videoContainer, actions, id) => {
+			
+			const copyActions = { ...actions };
+			const video = _createElement(
+				'audio',
+				videoContainer,
+				{
+					style: 'display:none'
+				})
+
+
+				// const mediaSource = new MediaSource();
+				// const url = URL.createObjectURL(mediaSource);
+	
+			const source = _createElement('source', video, { src: "./videos/bh.mp4", type: 'video/mp4' })
+			_createTranscript(video, id, _formatTranscriptText(id));
+		
+			// mediaSource.addEventListener('sourceopen', function(){
+			// 	 console.log(video)
+			// 	 setTimeout(() => {
+			// 		source.src = url;
+			// 		const sourceBuffer = this.addSourceBuffer( 'audio/mpeg' );
+			// 	 mediaSource.duration =  copyActions.getDuration();
+			// 	 console.log(video.duration)
+			// 	}, 1000);
+			// 	  });
+		
+			
+			video.addEventListener('loadedmetadata', ()=> {
+				
+					  
+				self.actions = {
+					play: () => {
+						video.play();
+						copyActions.play();
+					},
+					pause: () => {
+						video.pause()
+						copyActions.pause();
+					},
+					stop: () => {
+						video.pause();
+						video.currentTime = 0;
+						copyActions.stop();
+					},
+					goToTime: (time) => {
+						const timeInSec = time * copyActions.getDuration();
+						video.currentTime = timeInSec;
+						video.pause();
+						copyActions.goToTime(time);
+					}
+				}
+			});
+
+			return video;
+		}
 
 		const _initHtmlVideo = (videoContainer, src) => {
 
@@ -933,10 +1050,12 @@
 			}
 			self.timer.setPlaying(function () {
 				if (self.playing) {
+				
 					self.timer.updateTime(
 						video.currentTime,
 						video.duration
 					);
+				
 				}
 
 			});
@@ -948,7 +1067,7 @@
 
 		// Videos initializers
 		const _initYoutube = (videoContainer) => {
-			_createElement(
+			const container = _createElement(
 				'div',
 				videoContainer,
 				{
@@ -967,9 +1086,11 @@
 					iv_load_policy: 3,
 					modestbranding: 1,
 					disablekb: 1
+
 				},
 				events: {
 					'onReady': function (event) {
+				
 						var obj = event.target;
 						self.actions.play = function () { obj.playVideo(); }
 						self.actions.stop = function () { obj.stopVideo(); }
@@ -978,9 +1099,19 @@
 							var timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
 						}
+						self.actions.updateTrackedText = ()=>{}
 						_slidesTimeIndicators();
-
 						// data - source();
+
+						self.actions.getDuration = () => {
+							return obj.getDuration();
+						}
+							  const id = self.element.getAttribute('data-id');
+							//   _createDummyMedia(videoContainer, self.actions,id)
+							  _createCustomTranscript(videoContainer, id, _formatTranscriptText(id));
+
+					
+
 					},
 					'onStateChange': function (event) {
 
@@ -1002,12 +1133,16 @@
 									var duration = obj.getDuration()
 									self.timer.addEndPoint(duration);
 									self.timer.setDuration(duration);
+
+
 								}
 								self.timer.setPlaying(function () {
 									self.timer.updateTime(
 										obj.getCurrentTime(),
 										obj.getDuration()
 									);
+								self.actions.updateTrackedText();
+
 								});
 								self.playing = true;
 								break;
