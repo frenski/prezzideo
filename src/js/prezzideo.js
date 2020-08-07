@@ -380,8 +380,8 @@
 	}
 
 	// PLAYER CLASS
-	function Prezzideo(element, id) {
-
+	function Prezzideo(element, id, videoProvider) {
+	
 		// Properties ---------------------------------------------------------
 
 		// keeps the self of the current instance
@@ -394,9 +394,11 @@
 		self.playerId = id;
 
 		// keeps the ide of the container, for ie 'prezzideo-video1'
-		self.videoContainerId = config.dom.videoContainer.substr(
-			1, config.dom.videoContainer.length - 1) + id;
+		// self.videoContainerId = config.dom.videoContainer.substr(
+		// 	1, config.dom.videoContainer.length - 1) + "_" + id;
 
+		self.videoContainerId = "prezzideo-"+ videoProvider + "_" + id;
+			
 		// keeps the slides dom elements in an array
 		self.slides = [];
 
@@ -798,8 +800,8 @@
 				}
 			)
 
-
-			switch (config.videoProvider) {
+				//config.videoProvider
+			switch (videoProvider) {
 
 				case 'youtube':
 
@@ -817,7 +819,8 @@
 					}
 					break;
 				case 'html5-video':
-					const container = document.getElementById('player-container_' + id);
+					const container = self.element;
+				
 					const videoElement = _initHtmlVideo(videoContainer, container.getAttribute('data-path'));
 
 					videoElement.addEventListener('loadeddata', (e) => {
@@ -1005,6 +1008,7 @@
 					id: self.videoContainerId + '-html5_video',
 					width: "100%"
 				})
+			
 			const dotsplit = src.split('.');
 			const memetype = dotsplit[dotsplit.length - 1];
 
@@ -1277,49 +1281,40 @@
 	api.init = function (presentations, options) {
 
 		// Takes into consideration the user's settings
-
+	
 		config = _extendConfig(defaults, options);
-
+	
 		let elements;
 		// Get the players 
 		if (options.source === 'html') {
-
 			if (typeof presentations === 'string') {
 				const container = document.getElementById(presentations);
 				const ID = container.getAttribute('data-id');
-
 				elements = [container];
 				const slidesContainer = document.getElementById('slides-container_' + ID);
-
 				_calculateTotalSlidesTime(slidesContainer);
-
 			} else if (Array.isArray(presentations)) {
 				elements = presentations.map((item) => {
-
 					const container = document.getElementById(item);
 					const ID = container.getAttribute('data-id');
-
 					const slidesContainer = document.getElementById('slides-container_' + ID);
-
 					_calculateTotalSlidesTime(slidesContainer);
 					return container;
 				})
 			}
-
 		} else if (options.source === 'json') {
 			elements = presentations.map((presentation) => {
-
-				return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
+		return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
 			});
 		}
 
 		const players = [];
 		// Initializing Prezzideo instance for each DOM element
-		elements.map(async (item, index) => {
+		elements.map((item, index) => {
 			// Setup a player instance and add to the element
 			if (typeof item.prezzideo === 'undefined') {
 				// Create new Prezzideo instance
-				const prezzideo = new Prezzideo(item, index);
+				const prezzideo = new Prezzideo(item, item.getAttribute('data-id'), options.videoProvider);
 				// Set prezzideo to false if setup failed
 				item.prezzideo = (Object.keys(prezzideo).length ? prezzideo : false);
 				// Callback
