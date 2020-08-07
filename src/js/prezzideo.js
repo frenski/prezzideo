@@ -37,6 +37,7 @@
 			controlFullscreen: 'prezzideo-control-fullscreen',
 			displayTime: 'prezzideo-display-time'
 		},
+		source:'html',
 		showSlideTimeIndicators: true,
 		showTranscript: true,
 		loadedScripts: {},
@@ -150,7 +151,10 @@
 	}
 
 	const _setContainersID = (element, id) => {
-		element.querySelector('.prezzideo-slides').id = "slides-container_" + id;
+		
+		const slidesContainer = element.querySelector(config.dom.slidesContainer) 
+		slidesContainer.id = "slides-container_" + id;
+		[...slidesContainer.children].map((child)=>child.className = config.dom.slideItem.split('.')[1])
 		const transcriptContainer = document.getElementById('transcript-container_' + id);
 		transcriptContainer.className = 'prezzideo-transcript-textbox';
 		[...transcriptContainer.children].map((child) => child.style.display = "none")
@@ -349,7 +353,7 @@
 	const _createPrezzideoContainer = (parent, options) => {
 
 		const data = {
-			'data-id': options.id, id: `player-container_${options.id}`, class: 'prezzideo', width: '100%',
+			'data-id': options.id, id: `player-container_${options.id}`, class:config.dom.container.split('.')[1], width: '100%',
 			'size-screen': options['size-screen']
 		}
 		data['data-' + options.videotype] = options.videosource;
@@ -358,11 +362,11 @@
 	}
 	// a function that creates slide image elements
 	const _createPrezzideoSlides = (parent, options) => {
-		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: 'prezzideo-slides' });
+		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: config.dom.slidesContainer.split('.')[1] });
 		options.slides.map((item, i) => _createElement('img', slidesContainer,
 			{
 				id: `slide-${i}_${item.id}`,
-				class: 'prezzideo-slides-item',
+				class: config.dom.slideItem.split('.')[1],
 				'src': item.image,
 				'data-time': item.time
 			}));
@@ -606,42 +610,41 @@
 				config.dom.screenPositionClass + position, true);
 		}
 		const _showToolTip = (e) => {
-
-			const id = self.element.getAttribute('data-id');
-			const tooltipContent = document.getElementById('slides-tooltip-content_' + id);
-			const timeline = document.getElementById('controlTimeline_' + id);
-			const slidesContainerChildren = document.getElementById('slides-container_' + id).children;
-
-
-			tooltipContent.style.visibility = 'visible';
-			const mouseX = _getMouseCoords(e).x;
-
-			const timelineX = timeline.getBoundingClientRect().left;
-			const width = timeline.getBoundingClientRect().width
-
-			const relativeX = mouseX - timelineX;
-
-			let image;
-
-			const totalTime = self.player.getDuration();
-
-			[...slidesContainerChildren].forEach((item, index, array) => {
-				const timeInSec = +item.getAttribute('data-time-in-seconds');
-				const nextTimeInSec = array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : 100;
-				const timestamp = _remap(timeInSec, 0, totalTime, 0, 97.5);
-				const nextstamp = _remap(nextTimeInSec, 0, totalTime, 0, 97.5);
-				const relx = _remap(relativeX, 0, width, 0, 97.5);
-				if (relx >= timestamp && relx < nextstamp) {
-					image = item.src;
-				}
-
-
-			})
-
-			tooltipContent.src = image || './assets/empty.png';
-
-			tooltipContent.style.left = (relativeX - 60) + "px";
-
+			if(self.player &&  self.player.getDuration){
+				const id = self.element.getAttribute('data-id');
+				const tooltipContent = document.getElementById('slides-tooltip-content_' + id);
+				const timeline = document.getElementById('controlTimeline_' + id);
+				const slidesContainerChildren = document.getElementById('slides-container_' + id).children;
+	
+	
+				tooltipContent.style.visibility = 'visible';
+				const mouseX = _getMouseCoords(e).x;
+	
+				const timelineX = timeline.getBoundingClientRect().left;
+				const width = timeline.getBoundingClientRect().width
+	
+				const relativeX = mouseX - timelineX;
+	
+				let image;
+	
+				const totalTime = self.player.getDuration();
+	
+				[...slidesContainerChildren].forEach((item, index, array) => {
+					const timeInSec = +item.getAttribute('data-time-in-seconds');
+					const nextTimeInSec = array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : 100;
+					const timestamp = _remap(timeInSec, 0, totalTime, 0, 97.5);
+					const nextstamp = _remap(nextTimeInSec, 0, totalTime, 0, 97.5);
+					const relx = _remap(relativeX, 0, width, 0, 97.5);
+					if (relx >= timestamp && relx < nextstamp) {
+						image = item.src;
+					}
+	
+				})
+	
+				tooltipContent.src = image || './assets/empty.png';
+	
+				tooltipContent.style.left = (relativeX - 60) + "px";
+			}
 
 		}
 		const _hideToolTip = () => {
@@ -851,9 +854,6 @@
 
 		const _slidesTimeIndicators = (show = config.showSlideTimeIndicators) => {
 			const id = self.element.getAttribute('data-id');
-			// if(self.element.getAttribute('data-path')){
-
-			// }
 			const timeline = document.getElementById('controlTimeline_' + id);
 			timeline.innerHTML = '';
 			if (show) {
@@ -872,21 +872,17 @@
 			})
 		}
 
-		const _displayCustomTranscriptTrack = (element, track,next) => {
-			element.innerHTML = `<span>${track}</span><span style="color:lightgray"> ${next.join(' ')}</span>`;
-		}
+	
 		const _createCustomTranscript = ( id = 0, textContent = []) => {
 			const transcriptContainer = document.getElementById('transcript-container_' + id)
 			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
-			// const textTrack = textContent.reduce((acc,text) =>{
-			// 	acc[`${text.start}`]={content:text.content,end:text.end};
-			// 	return acc;
-			// },{});
+			const _displayCustomTranscriptTrack = (element, track,next) => {
+				element.innerHTML = `<span class="current-transcript">${track}</span><span class="unread-transcript"> ${next.join(' ')}</span>`;
+			}
 			const displayText = document.getElementById('transcript-container_' + id);
-			const copyActions = { ...self.actions };
 			const contentArr = textContent.map((item)=>item.content);
 			self.actions.trackUpdate = true;
-			const getTrackedText = () => {
+			const _getTrackedText = () => {
 				const time = self.player.getCurrentTime();
 				
 				if( self.actions.trackUpdate){
@@ -897,21 +893,24 @@
 							_displayCustomTranscriptTrack(displayText,textContent[index].content, contentArr.slice(index+1));
 						}
 					})
-				
 				}
 			}
+
+			transcriptContainer.innerHTML = '';
+
+			const copyActions = { ...self.actions };
 
 			self.actions.goToTime = (timepoint) => {
 				copyActions.goToTime(timepoint);
 				self.actions.trackUpdate = true;
-				getTrackedText();
+				_getTrackedText();
 			}
 			
 			self.actions.updateTrackedText = () => {
-				getTrackedText();
+				_getTrackedText();
 				copyActions.updateTrackedText();
 			}
-			transcriptContainer.innerHTML = ''
+			
 		}
 
 		const _createTranscript = (videoElement, id = 0, textContent = []) => {
@@ -1278,10 +1277,20 @@
 		API Methods -----------------------------------------------------------
 	*/
 
+	const _setupMainContainer =(item)=>{
+		const container = document.getElementById(item);
+		container.className = 'prezzideo';
+		container.setAttribute('size-screen','small');
+		const ID = container.getAttribute('data-id');
+
+		_setContainersID(container, ID);
+		const slidesContainer = document.getElementById('slides-container_' + ID);
+		_calculateTotalSlidesTime(slidesContainer);
+		return container;
+	}
+
 	// The prezzideo player class
-	// @param presentations - settings provided by the user
-	// @param options - settings provided by the user
-	api.init = function (presentations, options) {
+	api.init = function (presentationData, options) {
 
 		// Takes into consideration the user's settings
 
@@ -1289,29 +1298,20 @@
 
 		let elements;
 		// Get the players 
-		if (options.source === 'html') {
-			if (typeof presentations === 'string') {
-				const container = document.getElementById(presentations);
-				const ID = container.getAttribute('data-id');
-				elements = [container];
-				// give IDs of containers
-				_setContainersID(container, ID)
-				const slidesContainer = document.getElementById('slides-container_' + ID);
-				_calculateTotalSlidesTime(slidesContainer);
+		if (config.source === 'html') {
+			if (typeof presentationData === 'string') {
+				elements = [_setupMainContainer(presentationData)];
 
-			} else if (Array.isArray(presentations)) {
-				elements = presentations.map((item) => {
-					const container = document.getElementById(item);
-					const ID = container.getAttribute('data-id');
-					_setContainersID(container, ID)
-					const slidesContainer = document.getElementById('slides-container_' + ID);
-					_calculateTotalSlidesTime(slidesContainer);
-					return container;
-				})
-			}
+			} 
+			
+			// else if (Array.isArray(presentationData)) {
+			// 	elements = presentationData.map((item) => {
+			// 		return _setupMainContainer(item);
+			// 	})
+			// }
 		}
 
-		// else if (options.source === 'json') {
+		// else if (config.source === 'json') {
 		// 	elements = presentations.map((presentation) => {
 		// 		return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
 		// 	});

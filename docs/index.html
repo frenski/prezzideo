@@ -46,113 +46,146 @@
                     <h2>Example 1</h2>
 
 
-                    <div id="player-containers-json">
-                    </div>
+
+                    <!-- data-urlid="9U4Ha9HQvMo" data-path="./videos/bh.mp4"-->
                     <div id="player-containers-html">
 
-                        <!-- data-urlid="9U4Ha9HQvMo" data-path="./videos/bh.mp4"-->
-                        <div class="prezzideo" data-id="6" id="player-container_6" data-urlid="9U4Ha9HQvMo"
-                            size-screen="small">
-                            <div class="prezzideo-slides" id="slides-container_6">
-                                <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                                    data-time="00:00:00">
-                                <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:00:02">
-                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
-                                    data-time="00:00:10">
-                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="00:00:18">
-                            </div>
-                            <div id="transcript-container_6" class="prezzideo-transcript-container">
-                              
-                                <text>
-                                    In the past I have written on how the track element can be used to add captions and subtitles to HTML5 video, but this, and many other examples around the web, used a static example. But what if you need to load this information dynamically? This is what I’m going to take a quick look at here.
+                        <div data-id="1" id="player-container" data-urlid="9U4Ha9HQvMo">
+                            <div class="prezzideo-slides">
 
-                                </text>
-                                <text>
-                                  
-                                    One ring to rule them all.
-                                    
-                                    One by one, the free lands of Middle-Earth fell to the power of the Ring, but there were some who resisted. A last alliance of men and elves marched against the armies of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of Middle-Earth. Victory was near, but the power of the ring could not be undone. It was in this moment, when all hope had faded, that Isildur, son of the king, took up his father’s sword.
-                                    
-                                  
-                                </text>
-                                <text>
-                             some text at the end
-                                </text>
-                            </div>
-                        </div>
-                        <div id="textbox_6" class="prezzideo-textbox">
-                          
-                        </div>
-                        
+                                <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
+                                <img src="img/Presentation1/Slide2.png" data-time="00:00:10">
+                                <img src="img/Presentation1/Slide3.png" data-time="00:00:35">
 
-
-                        </div>
-                        <div class="prezzideo" data-id="7" id="player-container_7" data-path="./videos/bh.mp4"
-                            width="100%" size-screen="small">
-                            <div class="prezzideo-slides" id="slides-container_7">
-                                <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                                    data-time="00:00:00">
-                                <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:00:02">
-                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
-                                    data-time="00:00:10">
-                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="00:00:15">
+                                <img src="img/Presentation1/Slide1.png" data-time="00:00:50">
+                                <img src="img/Presentation1/Slide2.png" data-time="00:01:10">
+                                <img src="img/Presentation1/Slide3.png" data-time="00:01:40">
                             </div>
 
-
                         </div>
-                       
+                        <div id="transcript-container_1">
+                            <text>
+                                In the past I have written on how the track element can be used to add captions and
+                                subtitles to HTML5 video, but this, and many other examples around the web, used a
+                                static example. But what if you need to load this information dynamically? This is
+                                what I’m going to take a quick look at here.
+                            </text>
+                            <text>
+                                One ring to rule them all.
+
+                                One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
+                                were some who resisted. A last alliance of men and elves marched against the armies
+                                of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of
+                                Middle-Earth. Victory was near, but the power of the ring could not be undone. It
+                                was in this moment, when all hope had faded, that Isildur, son of the king, took up
+                                his father’s sword.
+                            </text>
+                            <text>
+                                The slice() method returns a shallow copy of a portion of an array into a new array
+                                object selected from start to end (end not included) where start and end represent
+                                the index of items in that array. The original array will not be modified.
+                            </text>
+
+                            <text>
+                                Update a caption track
+                                The API supports the ability to change a caption track's draft status, upload a new
+                                caption track for a file, or both.
+
+                                You can use the APIs Explorer to test the ability to change a track's draft status.
+                                However, you cannot use the APIs Explorer to update the actual caption track because
+                                tool does not support the ability to upload files.
+
+                                The request below retrieves a list of captions for a video on the Google Stories YouTube
+                                channel:
+
+                                The request updates the draft status of a caption track to true, which means the track
+                                will not be publicly visible. To complete the request in the APIs Explorer, you need to
+                                set the id property's value to identify a caption track.
+                            </text>
+                            <text>
+                                Delete a caption track
+                                This example shows how to delete a caption track. The example has the following steps:
+
+                                Step 1: Retrieve the caption track ID
+
+                                Follow the steps above to retrieve a list of caption tracks for a video. The list could
+                                be used to display a list of caption tracks, using each track's ID as a key.
+
+                                Step 2: Delete the track
+
+                                Call the captions.delete method to delete a specific video. In the request, the id
+                                parameter specifies the caption track ID of the track that you are deleting. The request
+                                must be authorized using OAuth 2.0. If you are testing this query in the APIs Explorer,
+                                you will need to substitute a valid caption track ID for the id parameter value.
+                            </text>
+                            <text>
+                                You can use the API's captions.insert method to upload a new caption track for a video.
+                                When uploading a track, you must specify a value for the following caption resource
+                                properties:
+
+                                snippet.videoId - This identifies the video to which the caption track is being added.
+                                snippet.language - The language of the caption track.
+                                snippet.name - The name of the caption track.
+                                The following additional options are available when uploading a caption track:
+
+                                If you set the sync parameter to true, YouTube will disregard any time codes that are in
+                                the uploaded caption file and generate new time codes for the captions.
+
+                                You should set the sync parameter to true if you are uploading a transcript, which has
+                                no time codes, or if you suspect the time codes in your file are incorrect and want
+                                YouTube to try to fix them.
+
+                                If you set the caption resource's snippet.isDraft property to true, the track will not
+                                be publicly visible.
+
+                                See the captions.insert method's documentation for code samples.
+                            </text>
+                        </div>
 
 
-                        <div class="prezzideo" data-id="4" id="player-container_4" data-urlid="o6g3DJYdK9Y" width="100%"
-                            size-screen="small">
-                            <div class="prezzideo-slides" id="slides-container_4">
-                                <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                                    data-time="00:00:00">
-                                <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:00:10">
-                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
-                                    data-time="00:00:30">
-                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="00:03:02">
+
+
+                        <div  data-id="2" id="other-player-container" data-path="./videos/bh.mp4">
+                            <div class="prezzideo-slides">
+                                <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
+                                <img src="img/Presentation1/Slide2.png" data-time="00:00:10">
+                                <img src="img/Presentation1/Slide3.png" data-time="00:00:18">
                             </div>
                         </div>
+                        <div id="transcript-container_2">
 
-                        <div class="prezzideo" data-id="5" id="player-container_5" data-urlid="R1CaRZvI79M" width="100%"
-                            size-screen="small">
-                            <div class="prezzideo-slides" id="slides-container_5">
-                                <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                                    data-time="00:00:00">
-                                <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:00:05">
-                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
-                                    data-time="00:10:10">
-                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="00:23:02">
-                                <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:34:00">
-                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
-                                    data-time="00:55:10">
-                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="01:16:02">
-                            </div>
+                            <text>
+                                In the past I have written on how the track element can be used to add captions and
+                                subtitles to HTML5 video, but this, and many other examples around the web, used a
+                                static example. But what if you need to load this information dynamically? This is
+                                what I’m going to take a quick look at here.
+                            </text>
+                            <text>
+                                One ring to rule them all.
+
+                                One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
+                                were some who resisted. A last alliance of men and elves marched against the armies
+                                of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of
+                                Middle-Earth. Victory was near, but the power of the ring could not be undone. It
+                                was in this moment, when all hope had faded, that Isildur, son of the king, took up
+                                his father’s sword.
+                            </text>
+                            <text>
+                                some text at the end
+                            </text>
+
                         </div>
 
 
-                    </div>
 
-        </div>
-        </section>
-        <footer>
-            <h3>Check out the Github source here:</h3>
-            <p><a href="https://github.com/frenski/prezzideo"></a></p>
-        </footer>
-        </article>
+                </section>
+                <footer>
+                    <h3>Check out the Github source here:</h3>
+                    <p><a href="https://github.com/frenski/prezzideo"></a></p>
+                </footer>
+            </article>
 
-    </div> <!-- #main -->
+        </div> <!-- #main -->
     </div> <!-- #main-container -->
     <button id="test"></button>
     <div class="footer-container">
@@ -165,133 +198,8 @@
 
     <script>
 
-
-
-
-        const presentations = [
-            {
-                stage: 'player-containers-json',
-                assets: {
-                    id: 0,
-                    video: { type: 'urlid', source: 'KpXP_MU0uws' },
-                    slides:
-                        [
-                            {
-                                id: 0,
-                                image: 'img/Presentation1/Slide1.png',
-                                time: '00:00:00'
-                            },
-                            {
-                                id: 1,
-                                image: 'img/Presentation1/Slide2.png',
-                                time: '00:00:10'
-                            },
-                            {
-                                id: 2,
-                                image: 'img/Presentation1/Slide3.png',
-                                time: '00:03:02'
-                            }
-                        ],
-                    transcript: 'no transcript'
-                },
-                settings: {
-                    screen: { screenSize: 'small' },
-
-                }
-            }
-
-            , {
-                stage: 'player-containers-json',
-                assets: {
-                    id: 1,
-                    video: { type: 'urlid', source: 'mk0qTPqaFcw' },
-                    slides:
-                        [
-                            {
-                                id: 0,
-                                image: 'img/Presentation1/Slide1.png',
-                                time: '00:00:00'
-                            },
-                            {
-                                id: 1,
-                                image: 'img/Presentation1/Slide2.png',
-                                time: '00:02:10'
-                            },
-                            {
-                                id: 2,
-                                image: 'img/Presentation1/Slide3.png',
-                                time: '00:03:02'
-                            },
-                            {
-                                id: 3,
-                                image: 'img/Presentation1/Slide1.png',
-                                time: '00:04:30'
-                            },
-                            {
-                                id: 4,
-                                image: 'img/Presentation1/Slide2.png',
-                                time: '00:05:10'
-                            },
-                            {
-                                id: 5,
-                                image: 'img/Presentation1/Slide3.png',
-                                time: '00:05:32'
-                            },
-
-                        ],
-                    transcript: 'no transcript'
-                },
-                settings: {
-                    screen: { screenSize: 'small' },
-                }
-            },
-            {
-                stage: 'player-containers-json',
-                assets: {
-                    id: 2,
-                    video: { type: 'urlid', source: 'keCwRdbwNQY' },
-                    slides:
-                        [
-                            {
-                                id: 0,
-                                image: 'img/Presentation1/Slide1.png',
-                                time: '00:00:00'
-                            },
-                            {
-                                id: 1,
-                                image: 'img/Presentation1/Slide2.png',
-                                time: '00:03:50'
-                            },
-                            {
-                                id: 2,
-                                image: 'img/Presentation1/Slide3.png',
-                                time: '00:06:30'
-                            }
-                        ],
-                    transcript:
-                        `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada. Sapien faucibus et molestie ac feugiat sed. Ut faucibus pulvinar elementum integer enim neque. Dignissim cras tincidunt lobortis feugiat vivamus at augue eget. Sagittis purus sit amet volutpat. Ridiculus mus mauris vitae ultricies. Integer quis auctor elit sed vulputate mi. Volutpat consequat mauris nunc congue nisi. Diam ut venenatis tellus in. Feugiat in ante metus dictum at tempor commodo. Tincidunt dui ut ornare lectus sit amet est placerat in. Feugiat vivamus at augue eget arcu dictum. Ultricies lacus sed turpis tincidunt id. Dignissim cras tincidunt lobortis feugiat. Nunc sed blandit libero volutpat sed cras ornare.
-
-Semper risus in hendrerit gravida rutrum quisque non tellus orci. Morbi tristique senectus et netus et malesuada. Eget lorem dolor sed viverra ipsum nunc aliquet. Sed risus pretium quam vulputate dignissim suspendisse in est. Cras semper auctor neque vitae tempus quam pellentesque nec. Tristique risus nec feugiat in fermentum posuere urna nec tincidunt. Eu mi bibendum neque egestas congue quisque egestas. At urna condimentum mattis pellentesque id nibh tortor id. Elementum nibh tellus molestie nunc non blandit. Pellentesque habitant morbi tristique senectus et netus. Ut sem viverra aliquet eget sit amet tellus cras.
-
-Suscipit adipiscing bibendum est ultricies. Ullamcorper a lacus vestibulum sed arcu non odio euismod. Risus sed vulputate odio ut. Commodo odio aenean sed adipiscing diam donec adipiscing tristique risus. Porttitor lacus luctus accumsan tortor posuere. Maecenas accumsan lacus vel facilisis volutpat. Aenean et tortor at risus viverra adipiscing at in tellus. Quis vel eros donec ac odio tempor. Tincidunt arcu non sodales neque. Donec adipiscing tristique risus nec feugiat.
-
-Arcu risus quis varius quam quisque id diam vel. Bibendum at varius vel pharetra vel turpis nunc eget. Volutpat est velit egestas dui id ornare arcu odio ut. Viverra ipsum nunc aliquet bibendum enim. Senectus et netus et malesuada fames ac turpis. Dui vivamus arcu felis bibendum ut tristique et egestas. Nisi lacus sed viverra tellus in hac habitasse platea dictumst. Id semper risus in hendrerit gravida rutrum quisque. Arcu risus quis varius quam. Id neque aliquam vestibulum morbi blandit cursus risus. Tempor orci dapibus ultrices in iaculis nunc. Nibh sit amet commodo nulla facilisi nullam. Dolor sit amet consectetur adipiscing elit duis tristique sollicitudin. Quam vulputate dignissim suspendisse in est ante in nibh mauris. Accumsan lacus vel facilisis volutpat est velit egestas dui id. Ut tortor pretium viverra suspendisse potenti. Morbi blandit cursus risus at ultrices mi tempus imperdiet. Ut porttitor leo a diam. Imperdiet sed euismod nisi porta lorem. Quis auctor elit sed vulputate mi sit amet mauris commodo.
-
-Viverra adipiscing at in tellus. Nunc eget lorem dolor sed. Dolor sed viverra ipsum nunc aliquet `
-                },
-                settings: {
-                    screen: { screenSize: 'small' },
-                }
-            }
-
-        ]
-        // const videos =
-        //     prezzideo.init(presentations, { source: 'json', videoProvider: 'youtube', showSlideTimeIndicators: true });
-        //    prezzideo.init('player-container_4', { source: 'html',  videoProvider:'youtube',  showSlideTimeIndicators: true });
-        // prezzideo.init(['player-container_5', 'player-container_6','player-container_7'], { source: 'html', videoProvider:'html5-video',  videoProvider:'youtube',  showSlideTimeIndicators: true });
-      prezzideo.init('player-container_6', { source: 'html', videoProvider: 'youtube', showSlideTimeIndicators: true });
-      
-    // prezzideo.init('player-container_7', { source: 'html', videoProvider:'html5-video', showSlideTimeIndicators: true });
+        prezzideo.init('player-container', {  videoProvider: 'youtube' });
+        prezzideo.init('other-player-container', { videoProvider: 'html5-video' });
 
     </script>
 
