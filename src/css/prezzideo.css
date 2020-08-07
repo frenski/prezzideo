@@ -235,9 +235,9 @@
   }
 
   
-  .prezzideo-textbox{
+  .prezzideo-transcript-textbox{
 
-	border:black solid 2px;
+	border:black solid 1px;
 	padding:2%;
 	margin-top:8%;
 	height: 300px;
@@ -250,7 +250,4 @@
 	text-align: justify;
 	
 
-}
-.prezzideo-transcript-container{
-	display:none;
 }

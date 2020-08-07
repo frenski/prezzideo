@@ -134,6 +134,8 @@
 	const _remap = (t, tMin, tMax, value1, value2) => {
 		return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 	};
+
+
 	// A generic function which create and element and appends to given element
 	const _createElement = (type, parent, attributes = {}, content = {}) => {
 		const element = document.createElement(type);
@@ -145,6 +147,14 @@
 			element[item] = content[item];
 		}
 		return element;
+	}
+
+	const _setContainersID = (element, id) => {
+		element.querySelector('.prezzideo-slides').id = "slides-container_" + id;
+		const transcriptContainer = document.getElementById('transcript-container_' + id);
+		transcriptContainer.className = 'prezzideo-transcript-textbox';
+		[...transcriptContainer.children].map((child) => child.style.display = "none")
+
 	}
 
 	// A generic function to append html markup to a dom element
@@ -167,7 +177,7 @@
 	// 	container.appendChild(node);
 	// 	return node;
 	// } 
-	
+
 	// A generic function to append script
 	var _appendScript = function (src) {
 		if (!config.loadedScripts[src]) {
@@ -357,7 +367,7 @@
 				'data-time': item.time
 			}));
 
-				
+
 
 		return slidesContainer;
 	}
@@ -381,7 +391,7 @@
 
 	// PLAYER CLASS
 	function Prezzideo(element, id, videoProvider) {
-	
+
 		// Properties ---------------------------------------------------------
 
 		// keeps the self of the current instance
@@ -397,8 +407,8 @@
 		// self.videoContainerId = config.dom.videoContainer.substr(
 		// 	1, config.dom.videoContainer.length - 1) + "_" + id;
 
-		self.videoContainerId = "prezzideo-"+ videoProvider + "_" + id;
-			
+		self.videoContainerId = "prezzideo-" + videoProvider + "_" + id;
+
 		// keeps the slides dom elements in an array
 		self.slides = [];
 
@@ -800,7 +810,7 @@
 				}
 			)
 
-				//config.videoProvider
+			//config.videoProvider
 			switch (videoProvider) {
 
 				case 'youtube':
@@ -820,15 +830,15 @@
 					break;
 				case 'html5-video':
 					const container = self.element;
-				
+
 					const videoElement = _initHtmlVideo(videoContainer, container.getAttribute('data-path'));
 
 					videoElement.addEventListener('loadeddata', (e) => {
 						if (videoElement.readyState >= 3) {
 							_slidesTimeIndicators();
-
+							_createCustomTranscript(id, _formatTranscriptText(id));
+							// _createTranscript(videoElement, id, _formatTranscriptText(id));
 						}
-						_createTranscript(videoElement, id, _formatTranscriptText(id));
 					})
 
 					break
@@ -849,7 +859,7 @@
 			if (show) {
 				_addSlideTimeIndicators(timeline, id, self.player.getDuration());
 			}
-		} 
+		}
 		const _formatTranscriptText = (id) => {
 			const slideNodes = [...document.getElementById('slides-container_' + id).children];
 			const textNodes = [...document.getElementById('transcript-container_' + id).children];
@@ -858,146 +868,134 @@
 					start: +node.getAttribute('data-time-in-seconds'),
 					end: array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : self.player.getDuration(),
 					content: textNodes[index] ? textNodes[index].textContent.trim().replace(/\s\s+/g, '@@\n').split('@@\n').join('\n\n') : '',
-					lastIndex: Math.max(index-1,0) 
 				};
 			})
 		}
 
-		
-		const _createCustomTranscript = (videoElement, id = 0, textContent = []) => {
-			const showTrack = _createElement('pre', document.getElementById('textbox_' + id), { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+		const _displayCustomTranscriptTrack = (element, track,next) => {
+			element.innerHTML = `<span>${track}</span><span style="color:lightgray"> ${next.join(' ')}</span>`;
+		}
+		const _createCustomTranscript = ( id = 0, textContent = []) => {
+			const transcriptContainer = document.getElementById('transcript-container_' + id)
+			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
 			// const textTrack = textContent.reduce((acc,text) =>{
 			// 	acc[`${text.start}`]={content:text.content,end:text.end};
 			// 	return acc;
 			// },{});
-
-			// console.log(textTrack)
-			const displayText = document.getElementById('textbox_'+id);
+			const displayText = document.getElementById('transcript-container_' + id);
 			const copyActions = { ...self.actions };
-	
+			const contentArr = textContent.map((item)=>item.content);
+			self.actions.trackUpdate = true;
 			const getTrackedText = () => {
 				const time = self.player.getCurrentTime();
-				textContent.map((item, index,array)=>{
-					if(time >= item.start  && item.end < time && index >= item.lastIndex){
-						item.lastIndex = index-1; 
-						displayText.innerHTML = item.content;
-					}
-				})
-			}
-			self.actions.goToTime= (timepoint) => {
-				copyActions.goToTime(timepoint);
-				getTrackedText();
-			}
-
-
-			self.actions.play = () => {
-				getTrackedText();
-				copyActions.play();
-			}
-		
-			self.actions.updateTrackedText = () =>{
-				copyActions.updateTrackedText();
-				getTrackedText();
-			}
-			// setInterval(() => {
 				
-			// }, 1000);
-			// videoTrack.addEventListener("cuechange", () => {
-			// 	if (videoTrack.activeCues != null) {
-			// 		const cue = videoTrack.activeCues[0];
-			// 		if (cue !== undefined) {
-			// 			showTrack.textContent = videoTrack.activeCues[0].text;
-			// 		} else {
-			// 			showTrack.textContent = '\xa0';
-			// 		}
-			// 	}
-			// });
+				if( self.actions.trackUpdate){
+					self.actions.trackUpdate = false;
+					setTimeout(() => self.actions.trackUpdate = true, 2000);
+					textContent.map((item, index) => {
+						if (time >= item.start && time < item.end) {
+							_displayCustomTranscriptTrack(displayText,textContent[index].content, contentArr.slice(index+1));
+						}
+					})
+				
+				}
+			}
+
+			self.actions.goToTime = (timepoint) => {
+				copyActions.goToTime(timepoint);
+				self.actions.trackUpdate = true;
+				getTrackedText();
+			}
+			
+			self.actions.updateTrackedText = () => {
+				getTrackedText();
+				copyActions.updateTrackedText();
+			}
+			transcriptContainer.innerHTML = ''
 		}
 
 		const _createTranscript = (videoElement, id = 0, textContent = []) => {
-
-			const track = videoElement.addTextTrack("captions", "English", "en")
-			const showTrack = _createElement('pre', document.getElementById('textbox_' + id), { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+		
+			const transcriptContainer = document.getElementById('transcript-container_' + id);
+			const track = videoElement.addTextTrack("captions", "English", "en");
 			track.mode = "hidden";
 			textContent.map((text) => track.addCue(new VTTCue(text.start, text.end, text.content)));
+
+			transcriptContainer.innerHTML = '';
+			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+
 			const videoTrack = videoElement.textTracks[0];
+			// const cuesArr = [...videoTrack.cues].reduce((acc,item)=>{
+			// 	acc.push(item.text);
+			// 	return acc;
+			// },[]);
 			videoTrack.addEventListener("cuechange", () => {
 				if (videoTrack.activeCues != null) {
 					const cue = videoTrack.activeCues[0];
-					if (cue !== undefined) {
-						showTrack.textContent = videoTrack.activeCues[0].text;
-					} else {
-						showTrack.textContent = '\xa0';
-					}
+					showTrack.textContent = videoTrack.activeCues[0].text;
+				
+					//showTrack.innerHTML = `<span>${cue.text}</span><span style="color:lightgray"> ${cuesArr}</span>`;
 				}
 			});
 
 		}
 
+		// const _createDummyMedia = (videoContainer, actions, id) => {
+
+		// 	const copyActions = { ...actions };
+		// 	const video = _createElement(
+		// 		'audio',
+		// 		videoContainer,
+		// 		{
+		// 			style: 'display:none'
+		// 		})
 
 
-		
-				
+		// 	// const mediaSource = new MediaSource();
+		// 	// const url = URL.createObjectURL(mediaSource);
 
-		
+		// 	const source = _createElement('source', video, { src: "./videos/bh.mp4", type: 'video/mp4' })
+		// 	_createTranscript(video, id, _formatTranscriptText(id));
+
+		// 	// mediaSource.addEventListener('sourceopen', function(){
+		// 	// 	 console.log(video)
+		// 	// 	 setTimeout(() => {
+		// 	// 		source.src = url;
+		// 	// 		const sourceBuffer = this.addSourceBuffer( 'audio/mpeg' );
+		// 	// 	 mediaSource.duration =  copyActions.getDuration();
+		// 	// 	 console.log(video.duration)
+		// 	// 	}, 1000);
+		// 	// 	  });
 
 
-		const _createDummyMedia = (videoContainer, actions, id) => {
-			
-			const copyActions = { ...actions };
-			const video = _createElement(
-				'audio',
-				videoContainer,
-				{
-					style: 'display:none'
-				})
+		// 	video.addEventListener('loadedmetadata', () => {
 
 
-				// const mediaSource = new MediaSource();
-				// const url = URL.createObjectURL(mediaSource);
-	
-			const source = _createElement('source', video, { src: "./videos/bh.mp4", type: 'video/mp4' })
-			_createTranscript(video, id, _formatTranscriptText(id));
-		
-			// mediaSource.addEventListener('sourceopen', function(){
-			// 	 console.log(video)
-			// 	 setTimeout(() => {
-			// 		source.src = url;
-			// 		const sourceBuffer = this.addSourceBuffer( 'audio/mpeg' );
-			// 	 mediaSource.duration =  copyActions.getDuration();
-			// 	 console.log(video.duration)
-			// 	}, 1000);
-			// 	  });
-		
-			
-			video.addEventListener('loadedmetadata', ()=> {
-				
-					  
-				self.actions = {
-					play: () => {
-						video.play();
-						copyActions.play();
-					},
-					pause: () => {
-						video.pause()
-						copyActions.pause();
-					},
-					stop: () => {
-						video.pause();
-						video.currentTime = 0;
-						copyActions.stop();
-					},
-					goToTime: (time) => {
-						const timeInSec = time * copyActions.getDuration();
-						video.currentTime = timeInSec;
-						video.pause();
-						copyActions.goToTime(time);
-					}
-				}
-			});
+		// 		self.actions = {
+		// 			play: () => {
+		// 				video.play();
+		// 				copyActions.play();
+		// 			},
+		// 			pause: () => {
+		// 				video.pause()
+		// 				copyActions.pause();
+		// 			},
+		// 			stop: () => {
+		// 				video.pause();
+		// 				video.currentTime = 0;
+		// 				copyActions.stop();
+		// 			},
+		// 			goToTime: (time) => {
+		// 				const timeInSec = time * copyActions.getDuration();
+		// 				video.currentTime = timeInSec;
+		// 				video.pause();
+		// 				copyActions.goToTime(time);
+		// 			}
+		// 		}
+		// 	});
 
-			return video;
-		}
+		// 	return video;
+		// }
 
 		const _initHtmlVideo = (videoContainer, src) => {
 
@@ -1008,12 +1006,11 @@
 					id: self.videoContainerId + '-html5_video',
 					width: "100%"
 				})
-			
+
 			const dotsplit = src.split('.');
 			const memetype = dotsplit[dotsplit.length - 1];
 
 			const source = _createElement('source', video, { src: src, type: 'video/' + memetype })
-
 
 
 			self.actions = {
@@ -1042,8 +1039,11 @@
 					video.play();
 					self.playing = true;
 					_setPPButtonStatus();
-
-				}
+				},
+				updateTrackedText:() => {}
+			}
+			self.player.getCurrentTime = () =>{
+				return video.currentTime; 
 			}
 
 			self.player.getDuration = () => video.duration;
@@ -1054,19 +1054,18 @@
 			}
 			self.timer.setPlaying(function () {
 				if (self.playing) {
-				
+
 					self.timer.updateTime(
 						video.currentTime,
 						video.duration
 					);
-				
+					self.actions.updateTrackedText();
 				}
 
 			});
 
 			return video;
 		}
-
 
 
 		// Videos initializers
@@ -1094,27 +1093,30 @@
 				},
 				events: {
 					'onReady': function (event) {
-				
+
 						var obj = event.target;
 						self.actions.play = function () { obj.playVideo(); }
-						self.actions.stop = function () { obj.stopVideo(); }
+						self.actions.stop = function () {
+							self.actions.goToTime(0);
+							obj.pauseVideo();
+							_setSliderPosition(0)
+							_setPPButtonStatus();
+						}
 						self.actions.pause = function () { obj.pauseVideo(); }
 						self.actions.goToTime = function (time) {
 							var timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
 						}
-						self.actions.updateTrackedText = ()=>{}
+						self.actions.updateTrackedText = () => {}
 						_slidesTimeIndicators();
 						// data - source();
 
 						self.actions.getDuration = () => {
 							return obj.getDuration();
 						}
-							  const id = self.element.getAttribute('data-id');
-							//   _createDummyMedia(videoContainer, self.actions,id)
-							  _createCustomTranscript(videoContainer, id, _formatTranscriptText(id));
-
-					
+						const id = self.element.getAttribute('data-id');
+						//   _createDummyMedia(videoContainer, self.actions,id)
+						_createCustomTranscript( id, _formatTranscriptText(id));
 
 					},
 					'onStateChange': function (event) {
@@ -1145,7 +1147,7 @@
 										obj.getCurrentTime(),
 										obj.getDuration()
 									);
-								self.actions.updateTrackedText();
+									self.actions.updateTrackedText();
 
 								});
 								self.playing = true;
@@ -1232,16 +1234,17 @@
 						}
 					});
 
-				const playerID = self.element.getAttribute('data-id')
+				// const playerID = self.element.getAttribute('data-id');
+
 				// Adds the video scripts
-				_addVideo(playerID);
+				_addVideo(id);
 				// Inserst the dom elements for controling the video
 
-				_insertControls(playerID);
+				_insertControls(id);
 				// Makes one of the screens to appear big, depending on setting
-				_initScreensPositions(playerID);
+				_initScreensPositions(id);
 				// Adds the event handlers
-				_addEvents(playerID);
+				_addEvents(id);
 			});
 
 		}
@@ -1281,9 +1284,9 @@
 	api.init = function (presentations, options) {
 
 		// Takes into consideration the user's settings
-	
+
 		config = _extendConfig(defaults, options);
-	
+
 		let elements;
 		// Get the players 
 		if (options.source === 'html') {
@@ -1291,22 +1294,28 @@
 				const container = document.getElementById(presentations);
 				const ID = container.getAttribute('data-id');
 				elements = [container];
+				// give IDs of containers
+				_setContainersID(container, ID)
 				const slidesContainer = document.getElementById('slides-container_' + ID);
 				_calculateTotalSlidesTime(slidesContainer);
+
 			} else if (Array.isArray(presentations)) {
 				elements = presentations.map((item) => {
 					const container = document.getElementById(item);
 					const ID = container.getAttribute('data-id');
+					_setContainersID(container, ID)
 					const slidesContainer = document.getElementById('slides-container_' + ID);
 					_calculateTotalSlidesTime(slidesContainer);
 					return container;
 				})
 			}
-		} else if (options.source === 'json') {
-			elements = presentations.map((presentation) => {
-		return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
-			});
 		}
+
+		// else if (options.source === 'json') {
+		// 	elements = presentations.map((presentation) => {
+		// 		return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
+		// 	});
+		// }
 
 		const players = [];
 		// Initializing Prezzideo instance for each DOM element

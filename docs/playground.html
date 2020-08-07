@@ -52,17 +52,25 @@
 
                         <div class="prezzideo" data-id="1" id="player-container" data-urlid="9U4Ha9HQvMo"
                             size-screen="small">
-                            <div class="prezzideo-slides" id="slides-container_1">
-                                <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                                    data-time="00:00:00">
+                            <div class="prezzideo-slides" >
+
                                 <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                                    data-time="00:00:02">
+                                    data-time="00:00:00">
                                 <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
                                     data-time="00:00:10">
                                 <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
-                                    data-time="00:00:18">
+                                    data-time="00:00:35">
+
+                                    <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
+                                    data-time="00:00:50">
+                                <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
+                                    data-time="00:01:10">
+                                <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
+                                    data-time="00:01:40">
                             </div>
-                            <div id="transcript-container_1" class="prezzideo-transcript-container">
+                         
+                        </div>
+                        <div id="transcript-container_1">
                                 <text>
                                     In the past I have written on how the track element can be used to add captions and
                                     subtitles to HTML5 video, but this, and many other examples around the web, used a
@@ -80,50 +88,92 @@
                                     his father’s sword.
                                 </text>
                                 <text>
-                                    some text at the end
+                                    The slice() method returns a shallow copy of a portion of an array into a new array 
+                                    object selected from start to end (end not included) where start and end represent 
+                                    the index of items in that array. The original array will not be modified.
                                 </text>
-                            </div>
+
+                                <text>
+                                    Update a caption track
+                                    The API supports the ability to change a caption track's draft status, upload a new caption track for a file, or both.
+                                    
+                                    You can use the APIs Explorer to test the ability to change a track's draft status. However, you cannot use the APIs Explorer to update the actual caption track because tool does not support the ability to upload files.
+                                    
+                                    The request below retrieves a list of captions for a video on the Google Stories YouTube channel:
+                                    
+                                    The request updates the draft status of a caption track to true, which means the track will not be publicly visible. To complete the request in the APIs Explorer, you need to set the id property's value to identify a caption track.
+                                </text>
+                                <text>
+                                    Delete a caption track
+This example shows how to delete a caption track. The example has the following steps:
+
+Step 1: Retrieve the caption track ID
+
+Follow the steps above to retrieve a list of caption tracks for a video. The list could be used to display a list of caption tracks, using each track's ID as a key.
+
+Step 2: Delete the track
+
+Call the captions.delete method to delete a specific video. In the request, the id parameter specifies the caption track ID of the track that you are deleting. The request must be authorized using OAuth 2.0. If you are testing this query in the APIs Explorer, 
+you will need to substitute a valid caption track ID for the id parameter value.
+                                </text>
+                                <text>
+                                    You can use the API's captions.insert method to upload a new caption track for a video. When uploading a track, you must specify a value for the following caption resource properties:
+
+                                    snippet.videoId - This identifies the video to which the caption track is being added.
+                                    snippet.language - The language of the caption track.
+                                    snippet.name - The name of the caption track.
+                                    The following additional options are available when uploading a caption track:
+                                    
+                                    If you set the sync parameter to true, YouTube will disregard any time codes that are in the uploaded caption file and generate new time codes for the captions.
+                                    
+                                    You should set the sync parameter to true if you are uploading a transcript, which has no time codes, or if you suspect the time codes in your file are incorrect and want YouTube to try to fix them.
+                                    
+                                    If you set the caption resource's snippet.isDraft property to true, the track will not be publicly visible.
+                                    
+                                    See the captions.insert method's documentation for code samples.
+                                </text>
                         </div>
-                        <div id="textbox_1" class="prezzideo-textbox"> </div>
-                      </div>
+
+                   
 
 
                       <div class="prezzideo" data-id="2" id="player-containerbla" data-path="./videos/bh.mp4"
                       size-screen="small">
                       <div class="prezzideo-slides" id="slides-container_2">
-                          <img src="img/Presentation1/empty.png" class="prezzideo-slides-item"
-                              data-time="00:00:00">
+                
+
                           <img src="img/Presentation1/Slide1.png" class="prezzideo-slides-item"
-                              data-time="00:00:02">
+                              data-time="00:00:00">
                           <img src="img/Presentation1/Slide2.png" class="prezzideo-slides-item"
                               data-time="00:00:10">
                           <img src="img/Presentation1/Slide3.png" class="prezzideo-slides-item"
                               data-time="00:00:18">
                       </div>
-                      <div id="transcript-container_2" class="prezzideo-transcript-container">
-                          <text>
-                              In the past I have written on how the track element can be used to add captions and
-                              subtitles to HTML5 video, but this, and many other examples around the web, used a
-                              static example. But what if you need to load this information dynamically? This is
-                              what I’m going to take a quick look at here.
-                          </text>
-                          <text>
-                              One ring to rule them all.
-
-                              One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
-                              were some who resisted. A last alliance of men and elves marched against the armies
-                              of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of
-                              Middle-Earth. Victory was near, but the power of the ring could not be undone. It
-                              was in this moment, when all hope had faded, that Isildur, son of the king, took up
-                              his father’s sword.
-                          </text>
-                          <text>
-                              some text at the end
-                          </text>
-                      </div>
                   </div>
-                  <div id="textbox_2" class="prezzideo-textbox"> </div>
-                </div>
+                  <div id="transcript-container_2" >
+                
+                        <text>
+                            In the past I have written on how the track element can be used to add captions and
+                            subtitles to HTML5 video, but this, and many other examples around the web, used a
+                            static example. But what if you need to load this information dynamically? This is
+                            what I’m going to take a quick look at here.
+                        </text>
+                        <text>
+                            One ring to rule them all.
+
+                            One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
+                            were some who resisted. A last alliance of men and elves marched against the armies
+                            of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of
+                            Middle-Earth. Victory was near, but the power of the ring could not be undone. It
+                            was in this moment, when all hope had faded, that Isildur, son of the king, took up
+                            his father’s sword.
+                        </text>
+                        <text>
+                            some text at the end
+                        </text>
+                 
+                  </div>
+
 
 
                 </section>
