@@ -241,6 +241,7 @@
 	margin-top:8%;
 	height: 300px;
 	overflow-y: scroll;
+	scroll-behavior: smooth;
 }
   
 .prezzideo-transcript{

@@ -873,13 +873,15 @@
 		const _createCustomTranscript = (id = 0, textContent = []) => {
 			const transcriptContainer = document.getElementById('transcript-container_' + id)
 			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
-	
-			const _displayCustomTranscriptTrack = (element, track, next) => {
-			
-				element.innerHTML = `<span class="current-transcript">${track}</span><span class="unread-transcript"> ${next.join(' ')}</span>`;
+			const contentArr = textContent.map((item) => item.content);
+
+			const _displayCustomTranscriptTrack = (element, track) => {
+				const next = contentArr.slice(track.index + 1).join(' ');
+				const prev = contentArr.slice(0,track.index).join(' ');
+				element.scroll(0,(prev.length-1)*0.33);
+				element.innerHTML = `<span class="unread-transcript"> ${prev}</span><span class="current-transcript">${track.content}</span><span class="unread-transcript"> ${next}</span>`;
 			}
 			const displayText = document.getElementById('transcript-container_' + id);
-			const contentArr = textContent.map((item) => item.content);
 
 			self.actions.currentTrack = textContent[0];
 			self.actions.trackUpdate = true;
@@ -890,10 +892,8 @@
 				if (current.next !== current.index) {
 					const time = self.player.getCurrentTime();
 					if (time >= current.end) {
-						
-						_displayCustomTranscriptTrack(displayText,
-							textContent[self.actions.currentTrack.next].content,
-							contentArr.slice(self.actions.currentTrack.next + 1));
+
+						_displayCustomTranscriptTrack(displayText,textContent[self.actions.currentTrack.next]);
 
 						self.actions.currentTrack = textContent[current.next];
 					}
@@ -904,13 +904,13 @@
 				textContent.map((item, index) => {
 					if ( time >= item.start && time < item.end) {
 						self.actions.currentTrack = item;
-						_displayCustomTranscriptTrack(displayText, textContent[index].content, contentArr.slice(index + 1));
+						_displayCustomTranscriptTrack(displayText, textContent[index]);
 					}
 				})
 			}
 
 			transcriptContainer.innerHTML = '';
-			_displayCustomTranscriptTrack(displayText,textContent[0].content,contentArr.slice(1));
+			_displayCustomTranscriptTrack(displayText,textContent[0]);
 
 			const copyActions = { ...self.actions };
 
