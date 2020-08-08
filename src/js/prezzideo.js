@@ -890,12 +890,15 @@
 				if (current.next !== current.index) {
 					const time = self.player.getCurrentTime();
 					if (time >= current.end) {
-						self.actions.currentTrack = textContent[current.next];
+						
 						_displayCustomTranscriptTrack(displayText,
 							textContent[self.actions.currentTrack.next].content,
 							contentArr.slice(self.actions.currentTrack.next + 1));
+
+						self.actions.currentTrack = textContent[current.next];
 					}
 				}
+			
 			}
 			const _getTrackedText = (time) => {
 				textContent.map((item, index) => {
@@ -958,7 +961,7 @@
 			const dotsplit = src.split('.');
 			const memetype = dotsplit[dotsplit.length - 1];
 
-			const source = _createElement('source', video, { src: src, type: 'video/' + memetype })
+			_createElement('source', video, { src: src, type: 'video/' + memetype })
 
 
 			self.actions = {
