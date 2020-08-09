@@ -9,13 +9,12 @@
 
 (function (api) {
 
-
 	/* 
 		Private Properties ----------------------------------------------------
 	*/
-	var config;
+	let config;
 
-	var defaults = {
+	const defaults = {
 		dom: {
 			container: '.prezzideo',
 			slidesContainer: '.prezzideo-slides',
@@ -76,7 +75,7 @@
 
 
 
-	var vProvidersEmbedCode = {
+	const vProvidersEmbedCode = {
 		'youtube': '<iframe src="https://www.youtube.com/embed/{{id}}?autoplay={{auto}}&controls=0&modestbranding=1&showinfo=0" frameborder="0"></iframe>'
 	}
 
@@ -104,10 +103,10 @@
 	}
 
 	// A function which allows for image preloading
-	var _loadImages = function (imgs, imgsReturn, timesArr, loadCallback) {
+	const _loadImages = function (imgs, imgsReturn, timesArr, loadCallback) {
 
 		// Creates a new image object with src of the dom image
-		var img = new Image();
+		const img = new Image();
 		img.src = imgs[0].getAttribute('src');
 		// shifts the array until it's empty
 		if (imgs.length > 1) {
@@ -162,33 +161,23 @@
 	}
 
 	// A generic function to append html markup to a dom element
-	var _appendHTML = function (el, html) {
+	const _appendHTML = function (el, html) {
 		el.innerHTML = el.innerHTML + html;
 	}
 
 	// A generic function to prepend html markup to a dom element
-	var _prependHTML = function (el, html) {
+	const _prependHTML = function (el, html) {
 		el.innerHTML = html + el.innerHTML;
 	}
 
-	// A generic function to append element to another dom element
-	// var _appendElement = function (container, type, className, content, id) {
-	// 	var node = document.createElement(type);
-	// 	var textnode = document.createTextNode(content);
-	// 	if (typeof id !== 'undefined') node.setAttribute('id', id);
-	// 	node.appendChild(textnode);
-	// 	node.className = className;
-	// 	container.appendChild(node);
-	// 	return node;
-	// } 
 
 	// A generic function to append script
-	var _appendScript = function (src) {
+	const _appendScript = function (src) {
 		if (!config.loadedScripts[src]) {
-			var tag = document.createElement('script');
+			const tag = document.createElement('script');
 			tag.src = src;
 			config.loadedScripts[src] = true;
-			var firstScriptTag = document.getElementsByTagName('script')[0];
+			const firstScriptTag = document.getElementsByTagName('script')[0];
 			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 		}
 
@@ -201,7 +190,7 @@
 				el.classList[add ? "add" : "remove"](className);
 			}
 			else {
-				var classList = (" " + el.className + " ")
+				const classList = (" " + el.className + " ")
 					.replace(/\s+/g, " ")
 					.replace(" " + className + " ", "");
 				el.className = classList + (add ? " " + className : "");
@@ -210,7 +199,7 @@
 	}
 
 	// A generic crossbrowser funciton to handle events addition
-	var _addEvent = function (obj, type, fn) {
+	const _addEvent = function (obj, type, fn) {
 
 		if (obj.addEventListener) {
 			obj.addEventListener(type, fn, false);
@@ -220,7 +209,7 @@
 	}
 
 	// A generic crossbrowser funciton to handle events removal
-	var _removeEvent = function (obj, type, fn) {
+	const _removeEvent = function (obj, type, fn) {
 		if (obj.removeEventListener) {
 			obj.removeEventListener(type, fn, false);
 		} else if (obj.detachEvent) {
@@ -229,25 +218,25 @@
 	}
 
 	// Converts string time to seconts
-	var _stringToSeconds = function (str) {
-		var units = str.split(':')
+	const _stringToSeconds = function (str) {
+		const units = str.split(':')
 		return parseFloat(units[0]) * 3600
 			+ parseFloat(units[1]) * 60
 			+ parseFloat(units[2]);
 	}
 
-	var _secondsToString = function (secondsTotal) {
-		var hours = Math.floor(secondsTotal / 3600);
-		var minutes = Math.floor((secondsTotal % 3600) / 60);
-		var seconds = Math.floor((secondsTotal % 3600) % 60);
+	const _secondsToString = function (secondsTotal) {
+		let hours = Math.floor(secondsTotal / 3600);
+		let minutes = Math.floor((secondsTotal % 3600) / 60);
+		let seconds = Math.floor((secondsTotal % 3600) % 60);
 		if (seconds < 10) seconds = '0' + seconds;
-		var stringTime = minutes + ':' + seconds;
+		const stringTime = minutes + ':' + seconds;
 		if (hours) stringTime = hours + ':' + stringTime;
 		return stringTime;
 	}
 
 	// Gets mouse coordinates on an event
-	var _getMouseCoords = function (e) {
+	const _getMouseCoords = function (e) {
 		if (e.pageX || e.pageY) {
 			return { x: e.pageX, y: e.pageY };
 		}
@@ -264,7 +253,7 @@
 		// Properties ---------------------------------------------------------
 
 		// keeps the self of the current instance
-		var self = this;
+		const self = this;
 
 		// keeps the times, where actions are required
 		self.triggerPoints = trigger_points;
@@ -291,7 +280,7 @@
 		// Methods ------------------------------------------------------------
 
 		// updates the current time
-		var _updateTime = function (time, duration) {
+		const _updateTime = function (time, duration) {
 			self.currentTime = time;
 			_updateCurrentPoint();
 			if (typeof delegate.onTimeUpdate === 'function' && duration) {
@@ -300,9 +289,9 @@
 		}
 
 		// Finds the closest trigger point based on the current time
-		var _findPoint = function () {
-			var point = null;
-			for (var i = self.triggerPoints.length - 2; i >= 0; i--) {
+		const _findPoint = function () {
+			let point = null;
+			for (let i = self.triggerPoints.length - 2; i >= 0; i--) {
 				if (self.currentTime >= self.triggerPoints[i]) {
 					point = i;
 					break;
@@ -312,7 +301,7 @@
 		}
 
 		// Updates the current trigger point if necessary
-		var _updateCurrentPoint = function () {
+		const _updateCurrentPoint = function () {
 			if (!(self.currentTime >= self.triggerPoints[self.currentPoint]
 				&& self.currentTime < self.triggerPoints[self.currentPoint + 1])) {
 				self.currentPoint = _findPoint();
@@ -349,32 +338,8 @@
 
 	}
 
-	// a function that creates container element for prezzideo player
-	const _createPrezzideoContainer = (parent, options) => {
-
-		const data = {
-			'data-id': options.id, id: `player-container_${options.id}`, class: config.dom.container.split('.')[1], width: '100%',
-			'size-screen': options['size-screen']
-		}
-		data['data-' + options.videotype] = options.videosource;
-
-		return _createElement('div', parent, data);
-	}
-	// a function that creates slide image elements
-	const _createPrezzideoSlides = (parent, options) => {
-		const slidesContainer = _createElement('div', parent, { id: `slides-container_${options.id}`, class: config.dom.slidesContainer.split('.')[1] });
-		options.slides.map((item, i) => _createElement('img', slidesContainer,
-			{
-				id: `slide-${i}_${item.id}`,
-				class: config.dom.slideItem.split('.')[1],
-				'src': item.image,
-				'data-time': item.time
-			}));
 
 
-
-		return slidesContainer;
-	}
 	const _calculateTotalSlidesTime = (container) => {
 		[...container.children].map((stamp) => {
 			// const time = stamp.getAttribute('data-time').split(':');
@@ -383,15 +348,7 @@
 			stamp.setAttribute('data-time-in-seconds', seconds);
 		});
 	}
-	const _createPrezzideoView = (parent, options, settings) => {
-		const data = { 'size-screen': settings.screen.screenSize, id: options.id, videotype: options.video.type, videosource: options.video.source };
 
-		const container = _createPrezzideoContainer(parent, data);
-		const slidersContainer = _createPrezzideoSlides(container, options);
-		_calculateTotalSlidesTime(slidersContainer);
-
-		return container;
-	}
 
 	// PLAYER CLASS
 	function Prezzideo(element, id, videoProvider) {
@@ -399,7 +356,7 @@
 		// Properties ---------------------------------------------------------
 
 		// keeps the self of the current instance
-		var self = this;
+		const self = this;
 
 		// keeps the dom element objects
 		self.element = element;
@@ -438,21 +395,23 @@
 		// keeps the time of each slide in seconds
 		self.slideTimes = [];
 
+		// An object to hold the transcript data
+		self.transcript = {};
 
 		// Methods ------------------------------------------------------------
 
 		// A funciton to select a child dom element by selector
-		var _selectChild = function (selector) {
+		const _selectChild = function (selector) {
 			return _selectChildren(selector)[0];
 		}
 
 		// A funciton to select children dom elements by selector
-		var _selectChildren = function (selector) {
+		const _selectChildren = function (selector) {
 			return self.element.querySelectorAll(selector);
 		}
 
 		// Attaches all events to the controls
-		var _addEvents = function (id) {
+		const _addEvents = function (id) {
 
 			const buttonSwap = document.getElementById('controlSwap' + '_' + id);
 			const buttonPP = document.getElementById('controlPlayPause' + '_' + id);
@@ -478,12 +437,12 @@
 				}
 			});
 
-			var positionSlider = function (e) {
-				var mouseX = _getMouseCoords(e).x;
-				var timelineX = timeline.getBoundingClientRect().left;
-				var relativeX = mouseX - timelineX;
-				var timelineW = timeline.clientWidth;
-				var relativeW = relativeX / timelineW;
+			const positionSlider = function (e) {
+				const mouseX = _getMouseCoords(e).x;
+				const timelineX = timeline.getBoundingClientRect().left;
+				const relativeX = mouseX - timelineX;
+				const timelineW = timeline.clientWidth;
+				const relativeW = relativeX / timelineW;
 				_setSliderPosition(relativeX);
 				_goToTime(relativeW);
 				return { 'relX': relativeX, 'relW': relativeW };
@@ -494,19 +453,19 @@
 				positionSlider(e);
 			});
 			// Slider down, move and up events
-			var sliderMove = function (e) {
-				var posSl = positionSlider(e);
-				var duration = self.timer.getDuration();
+			const sliderMove = function (e) {
+				const posSl = positionSlider(e);
+				const duration = self.timer.getDuration();
 
 				if (duration) {
 					_setDisplayTime(posSl.relW * duration, duration);
 				}
 			}
-			var sliderUp = function () {
+			const sliderUp = function () {
 				_removeEvent(document, 'mousemove', sliderMove);
 				_removeEvent(document, 'mouseup', sliderUp);
 			}
-			var sliderDown = function () {
+			const sliderDown = function () {
 				_addEvent(document, 'mousemove', sliderMove);
 				_addEvent(document, 'mouseup', sliderUp);
 			}
@@ -515,9 +474,8 @@
 		}
 
 		// A funtion to insert controls to the player
-		var _insertControls = function (id = 0) {
+		const _insertControls = function (id = 0) {
 			// inserting the button over the small screen for swapping
-			// _appendElement(self.element, 'div', config.dom.controlSwap, '');
 			_createElement(
 				'div',
 				self.element, { id: `controlSwap_${id}`, class: config.dom.controlSwap });
@@ -545,25 +503,25 @@
 		}
 
 		// Sets the slider position, by passing value for x
-		var _setSliderPosition = function (posX) {
-			var slider = _selectChild('.' + config.dom.controlSlider);
+		const _setSliderPosition = function (posX) {
+			const slider = _selectChild('.' + config.dom.controlSlider);
 			slider.style.left = posX + 'px';
 		}
 
-		var _setDisplayTime = function (timeElapsed, timeTotal) {
-			var displayTime = _selectChild('.' + config.dom.displayTime);
+		const _setDisplayTime = function (timeElapsed, timeTotal) {
+			const displayTime = _selectChild('.' + config.dom.displayTime);
 			displayTime.innerHTML = _secondsToString(timeElapsed) + ' / ' +
 				_secondsToString(timeTotal);
 		}
 
 		// caclilates slider position, by passing a fraction of the time passed
-		var _calcSliderPosition = function (timeFract) {
-			var timeline = _selectChild('.' + config.dom.controlTimeline);
+		const _calcSliderPosition = function (timeFract) {
+			const timeline = _selectChild('.' + config.dom.controlTimeline);
 			return Math.round(timeFract * timeline.clientWidth);
 		}
 
-		var _setPPButtonStatus = function () {
-			var buttonPP = _selectChild('.' + config.dom.controlPlayPause);
+		const _setPPButtonStatus = function () {
+			const buttonPP = _selectChild('.' + config.dom.controlPlayPause);
 			if (!self.playing) {
 				_toggleClass(buttonPP, config.dom.controlPlay, true);
 				_toggleClass(buttonPP, config.dom.controlPause, false);
@@ -575,28 +533,28 @@
 
 		// This function inits which of the screen is on the top and what
 		// is the default position of the each screen: top, right, bottom, left
-		var _initScreensPositions = function (id) {
+		const _initScreensPositions = function (id) {
 
 			_changeSmallScreenPosition(config.smallScreenPositionDef);
 
 			if (config.defaultBigScreen == 'video') {
-				var slideC = _selectChild(config.dom.slidesContainer);
+				const slideC = _selectChild(config.dom.slidesContainer);
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
 			} else if (config.defaultBigScreen == 'slides') {
-				var videoC = _selectChild(config.dom.videoContainer);
+				const videoC = _selectChild(config.dom.videoContainer);
 				_toggleClass(videoC, config.dom.videoShrinkedClass, true)
 			}
 
 		}
 
 		// Changes the position of the small screen
-		var _changeSmallScreenPosition = function (position) {
-			var slideC = _selectChild(config.dom.slidesContainer);
-			var videoC = _selectChild(config.dom.videoContainer);
-			var buttonSwap = _selectChild('.' + config.dom.controlSwap);
+		const _changeSmallScreenPosition = function (position) {
+			const slideC = _selectChild(config.dom.slidesContainer);
+			const videoC = _selectChild(config.dom.videoContainer);
+			const buttonSwap = _selectChild('.' + config.dom.controlSwap);
 			// First removing the old classes if they exist
-			for (var i = 0; i < config.smallScreenPositions.length; i++) {
-				var pos = config.dom.screenPositionClass
+			for (let i = 0; i < config.smallScreenPositions.length; i++) {
+				const pos = config.dom.screenPositionClass
 					+ config.smallScreenPositions[i];
 				_toggleClass(slideC, pos, false);
 				_toggleClass(videoC, pos, false);
@@ -611,7 +569,7 @@
 		}
 		const _showToolTip = (e) => {
 			if (self.player && self.player.getDuration) {
-				const id = self.element.getAttribute('data-id');
+				const id = self.playerId;
 				const tooltipContent = document.getElementById('slides-tooltip-content_' + id);
 				const timeline = document.getElementById('controlTimeline_' + id);
 				const slidesContainerChildren = document.getElementById('slides-container_' + id).children;
@@ -649,15 +607,15 @@
 		}
 		const _hideToolTip = () => {
 			setTimeout(() => {
-				const id = self.element.getAttribute('data-id');
+				const id = self.playerId;
 				const tooltipContent = document.getElementById('slides-tooltip-content_' + id)
 				tooltipContent.style.visibility = 'hidden';
 			}, 1000);
 		}
 		// swaps screens
-		var _swapScreens = function () {
-			var slideC = _selectChild(config.dom.slidesContainer);
-			var videoC = _selectChild(config.dom.videoContainer);
+		const _swapScreens = function () {
+			const slideC = _selectChild(config.dom.slidesContainer);
+			const videoC = _selectChild(config.dom.videoContainer);
 			if (self.bigScreen == 'video') {
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, false);
 				_toggleClass(videoC, config.dom.videoShrinkedClass, true);
@@ -753,23 +711,23 @@
 		// images and place the image depending on that and also make the
 		// latest ones invisible
 		// TODO: add some sorting function    	//.sort((a, b) => b - a)
-		var _setSlidesPositions = function () {
+		const _setSlidesPositions = function () {
 
-			var cRatio = self.element.clientWidth / self.element.clientHeight;
-			for (var i = 0; i < self.slides.length; i++) {
-				var iRatio = self.slides[i].clientWidth /
+			const cRatio = self.element.clientWidth / self.element.clientHeight;
+			for (let i = 0; i < self.slides.length; i++) {
+				const iRatio = self.slides[i].clientWidth /
 					self.slides[i].clientHeight;
 				if (cRatio <= iRatio) {
 					// Adds vertical alignment of the class, since it's wider
 					// than the container
 					_toggleClass(self.slides[i], config.dom.slideVClass, true);
-					var marginTop = - self.slides[i].clientHeight / 2;
+					const marginTop = - self.slides[i].clientHeight / 2;
 					self.slides[i].style.marginTop = marginTop + 'px';
 				} else {
 					// Adds vertical alignment of the class, since it's higher
 					// than the container
 					_toggleClass(self.slides[i], config.dom.slideHClass, true);
-					var marginLeft = - self.slides[i].clientWidth / 2;
+					const marginLeft = - self.slides[i].clientWidth / 2;
 					self.slides[i].style.marginLeft = marginLeft + 'px';
 				}
 			}
@@ -793,10 +751,7 @@
 
 		// Adds the video markup to the container, depending on the provider
 		const _addVideo = function (id) {
-			// (type, parent, attributes = {})
-
-			//	_appendElement = function (container, type, className, content, id) 
-
+		
 			const videoContainer = _createElement(
 				'div',
 				self.element,
@@ -833,8 +788,10 @@
 					videoElement.addEventListener('loadeddata', (e) => {
 						if (videoElement.readyState >= 3) {
 							_slidesTimeIndicators();
-							_createCustomTranscript(id, _formatTranscriptText(id));
-							// _createTranscript(videoElement, id, _formatTranscriptText(id));
+							self.transcript = _createTranscript(id, _formatTranscriptText(id));
+							self.transcript.element.innerHTML = '';
+							_showTranscript(self.transcript.tracks[0]);
+							
 						}
 					})
 
@@ -847,7 +804,7 @@
 
 
 		const _slidesTimeIndicators = (show = config.showSlideTimeIndicators) => {
-			const id = self.element.getAttribute('data-id');
+			const id = self.playerId;
 			const timeline = document.getElementById('controlTimeline_' + id);
 			timeline.innerHTML = '';
 			if (show) {
@@ -868,85 +825,56 @@
 				};
 			})
 		}
-
-
-		const _createCustomTranscript = (id = 0, textContent = []) => {
-			const transcriptContainer = document.getElementById('transcript-container_' + id)
-			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
-			const contentArr = textContent.map((item) => item.content);
-
-			const _displayCustomTranscriptTrack = (element, track) => {
-				const next = contentArr.slice(track.index + 1).join(' ');
-				const prev = contentArr.slice(0,track.index).join(' ');
-				element.scroll(0,(prev.length-1)*0.33);
-				element.innerHTML = `<span class="unread-transcript"> ${prev}</span><span class="current-transcript">${track.content}</span><span class="unread-transcript"> ${next}</span>`;
-			}
-			const displayText = document.getElementById('transcript-container_' + id);
-
-			self.actions.currentTrack = textContent[0];
-			self.actions.trackUpdate = true;
-
-			const _updateCurrentTrackedText = () => {
-				const current = self.actions.currentTrack; 
-				
-				if (current.next !== current.index) {
-					const time = self.player.getCurrentTime();
-					if (time >= current.end) {
-
-						_displayCustomTranscriptTrack(displayText,textContent[self.actions.currentTrack.next]);
-
-						self.actions.currentTrack = textContent[current.next];
-					}
-				}
-			
-			}
-			const _getTrackedText = (time) => {
-				textContent.map((item, index) => {
-					if ( time >= item.start && time < item.end) {
-						self.actions.currentTrack = item;
-						_displayCustomTranscriptTrack(displayText, textContent[index]);
-					}
-				})
-			}
-
-			transcriptContainer.innerHTML = '';
-			_displayCustomTranscriptTrack(displayText,textContent[0]);
-
-			const copyActions = { ...self.actions };
-
-			self.actions.goToTime = (timepoint) => {
-			const time = copyActions.goToTime(timepoint);
-			_getTrackedText(time);
-			}
-
-			self.actions.updateTrackedText = () => {
-				_updateCurrentTrackedText();
-				copyActions.updateTrackedText();
-			}
+		const _showTranscript = ( track) => {
+			const content = self.transcript.transcript;
+			const current = content[track.index];
+			const next = content.slice(track.index + 1).join(' ');
+			const prev = content.slice(0,track.index).join(' ');
+			self.transcript.element.scroll(0,(prev.length-1)*0.33);
+			self.transcript.element.innerHTML = `<span class="passive-transcript"> ${prev}</span><span class="active-transcript">${current}</span><span class="passive-transcript"> ${next}</span>`;
 		}
 
-		// const _createTranscript = (videoElement, id = 0, textContent = []) => {
+		const _updateCurrentTrack = () => {
+			const current = self.transcript.currentTrack; 
+		
+			if (current.next !== current.index) {
+				const time = self.player.getCurrentTime();
+				if (time >= current.end) {
 
-		// 	const transcriptContainer = document.getElementById('transcript-container_' + id);
-		// 	const track = videoElement.addTextTrack("captions", "English", "en");
-		// 	track.mode = "hidden";
-		// 	textContent.map((text) => track.addCue(new VTTCue(text.start, text.end, text.content)));
+					_showTranscript(self.transcript.tracks[self.transcript.currentTrack.next]);
 
-		// 	transcriptContainer.innerHTML = '';
-		// 	const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+					self.transcript.currentTrack = self.transcript.tracks[current.next];
+				
+				}
+			}
+		
+		}
+		const _getCurrentTrack = (time) => {
+			const tracks = self.transcript.tracks;
+			tracks.map((item, index) => {
+				if ( time >= item.start && time < item.end) {
+					self.transcript.currentTrack = item;
+					_showTranscript(  self.transcript.tracks[index]);
+				}
+			})
+		}
 
-		// 	const videoTrack = videoElement.textTracks[0];
-		// 	// const cuesArr = [...videoTrack.cues].reduce((acc,item)=>{
-		// 	// 	acc.push(item.text);
-		// 	// 	return acc;
-		// 	// },[]);
-		// 	videoTrack.addEventListener("cuechange", () => {
-		// 		if (videoTrack.activeCues != null) {
-		// 			const cue = videoTrack.activeCues[0];
-		// 			showTrack.textContent = videoTrack.activeCues[0].text;
-		// 		}
-		// 	});
-		// }
+		const _createTranscript = (id = 0, textContent = []) => {
+			const transcriptContainer = document.getElementById('transcript-container_' + id)
+			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
+			const textsOnly = textContent.map((item) => item.content);
+			const tracksOnly = textContent.reduce((acc,item) => {
+				acc.push({start:item.start,end:item.end,next:item.next,index:item.index});
+				return acc;
+			},[]);
+		
+			return {
+				tracks:tracksOnly, 
+				transcript:textsOnly, 
+				currentTrack:tracksOnly[0], 
+				element:document.getElementById('transcript-container_' + id)
+			};
+		}
 
 		const _initHtmlVideo = (videoContainer, src) => {
 
@@ -990,13 +918,16 @@
 					video.play();
 					self.playing = true;
 					_setPPButtonStatus();
+					_getCurrentTrack(timeInSec);
 					return timeInSec;
 				},
-				updateTrackedText: () => { }
+				updateTrackedText: () => {	_updateCurrentTrack() }
 			}
 			self.player.getCurrentTime = () => {
 				return video.currentTime;
 			}
+
+		
 
 			self.player.getDuration = () => video.duration;
 			if (!self.timer.getDuration()) {
@@ -1033,7 +964,7 @@
 
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
-				playerVars: {
+				playerconsts: {
 					autoplay: 0,
 					controls: 0,
 					rel: 0,
@@ -1044,9 +975,11 @@
 
 				},
 				events: {
+	
+
 					'onReady': function (event) {
 
-						var obj = event.target;
+						const obj = event.target;
 						self.actions.play = function () { obj.playVideo(); }
 						self.actions.stop = function () {
 							self.actions.goToTime(0);
@@ -1058,9 +991,11 @@
 						self.actions.goToTime = function (time) {
 							const timeInSec = time * obj.getDuration();
 							obj.seekTo(timeInSec);
+							_getCurrentTrack(timeInSec)
 							return timeInSec;
 						}
-						self.actions.updateTrackedText = () => { }
+				
+						self.actions.updateTrackedText = () => {_updateCurrentTrack() }
 						_slidesTimeIndicators();
 						// data - source();
 
@@ -1068,16 +1003,17 @@
 							
 							return obj.getDuration();
 						}
-						const id = self.element.getAttribute('data-id');
-				
-						_createCustomTranscript(id, _formatTranscriptText(id));
+						
+						self.transcript = _createTranscript(self.playerId, _formatTranscriptText(id));
+						self.transcript.element.innerHTML = '';
+						_showTranscript(self.transcript.tracks[0]);
 
 					},
 					'onStateChange': function (event) {
 
 						self.timer.resetPlaying();
 
-						var obj = event.target;
+						const obj = event.target;
 
 						switch (event.data) {
 							case -1:
@@ -1090,7 +1026,7 @@
 								// We add the final point (the duration) to the
 								// points array of the timer
 								if (!self.timer.getDuration()) {
-									var duration = obj.getDuration()
+									const duration = obj.getDuration()
 									self.timer.addEndPoint(duration);
 									self.timer.setDuration(duration);
 
@@ -1124,10 +1060,10 @@
 
 
 		// Shows the selected slide
-		var _goToSlide = function (id) {
+		const _goToSlide = function (id) {
 			if (id in self.slides) {
-				var curSlide = self.slides[self.currentSlide];
-				var newSlide = self.slides[id];
+				const curSlide = self.slides[self.currentSlide];
+				const newSlide = self.slides[id];
 				curSlide.style.zIndex = '0';
 				newSlide.style.zIndex = '1';
 				self.currentSlide = id;
@@ -1135,26 +1071,26 @@
 		}
 
 		// Shows the next slide
-		var _nextSlide = function () {
+		const _nextSlide = function () {
 			_goToSlide(self.currentSlide + 1);
 		}
 
 		// A function to play the video
-		var _play = function () {
+		const _play = function () {
 			if (typeof self.actions.play === 'function') {
 				self.actions.play();
 			}
 		}
 
 		// A funtion to stop completely the video
-		var _stop = function () {
+		const _stop = function () {
 			if (typeof self.actions.stop === 'function') {
 				self.actions.stop();
 			}
 		}
 
 		// A funtion to pause the video
-		var _pause = function () {
+		const _pause = function () {
 			if (typeof self.actions.pause === 'function') {
 				self.actions.pause();
 			}
@@ -1162,14 +1098,14 @@
 
 		// A funtion to go to a certain part of the video - time is fraction of
 		// the full time. In Youtube function calculated	
-		var _goToTime = function (time) {
+		const _goToTime = function (time) {
 			if (typeof self.actions.goToTime === 'function') {
 				self.actions.goToTime(time);
 			}
 		}
 
 		// The function to be called on init
-		var _init = function () {
+		const _init = function () {
 
 			_getSlides(function () {
 				// Repositios each slide
@@ -1181,14 +1117,14 @@
 					{
 						onPointChange: _goToSlide,
 						onTimeUpdate: function (t, d) {
-							var frac = t / d;
-							var x = _calcSliderPosition(frac);
+							const frac = t / d;
+							const x = _calcSliderPosition(frac);
 							_setSliderPosition(x);
 							_setDisplayTime(t, d);
 						}
 					});
 
-				// const playerID = self.element.getAttribute('data-id');
+				// const playerID = self.playerId;
 
 				// Adds the video scripts
 				_addVideo(id);
@@ -1204,12 +1140,12 @@
 		}
 
 		// The function to be called on init
-		var _destroy = function () {
+		const _destroy = function () {
 
 		}
 
-
 		// Inits or returns empty object if init fails
+		//Should be async
 		_init();
 		// if (!self.init) {
 		// 	return {};
@@ -1259,18 +1195,8 @@
 
 			}
 
-			// else if (Array.isArray(presentationData)) {
-			// 	elements = presentationData.map((item) => {
-			// 		return _setupMainContainer(item);
-			// 	})
-			// }
 		}
 
-		// else if (config.source === 'json') {
-		// 	elements = presentations.map((presentation) => {
-		// 		return _createPrezzideoView(document.getElementById(presentation.stage), presentation.assets, presentation.settings);
-		// 	});
-		// }
 
 		const players = [];
 		// Initializing Prezzideo instance for each DOM element

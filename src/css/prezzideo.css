@@ -249,11 +249,11 @@
 	word-wrap: break-word;
 	text-align: justify;
 }
-.current-transcript{
+.active-transcript{
 	color:rgb(0, 0, 0);
 	border-bottom:rgba(5, 153, 252, 0.288) 2px dashed;
 	/* background-color:rgba(1, 80, 41, 0.514);  */
 }
-.unread-transcript{
+.passive-transcript{
 	color:rgba(51, 51, 51, 0.281);
 }
