@@ -42,12 +42,14 @@
 	height: 0; 
 	overflow: hidden;
 	z-index: 0;
+
 }
 
 .prezzideo-video-shrinked {
 	width: 25%;
 	padding-bottom: 12%;
 	z-index: 1;
+	pointer-events: none;
 }
 
 .prezzideo-slides-shrinked {
@@ -56,16 +58,15 @@
 	z-index: 1;
 }
 
-.prezzideo-swap-screen-button {
-	position: absolute;
-	width: 25%;
-	height: 33%;
+/* .prezzideo-swap-screen-button {
 
-	/* width: 25%;
-	height: 33%; */
+	width: 10px;
+	height: 10px;
+
+
 	z-index: 2;
 	cursor: pointer;
-}
+} */
 
 .prezzideo-screen-position-top-left { top: 0; left: 0; }
 .prezzideo-screen-position-top-right { top: 0; right: 0; }
@@ -116,7 +117,8 @@
 	background: #ccc;
 	cursor: pointer;
 }
-
+.prezzideo-volume-icon,
+.prezzideo-swap-screen-button,
 .prezzideo-control-fullscreen,
 .prezzideo-control-playpause,
 .prezzideo-control-stop {
@@ -135,6 +137,21 @@
 	margin-left: 5px;
 }
 
+.prezzideo-volume-icon {
+	float: right;
+	margin-left: 5px;
+	background-image: url('img/prezzideo-control-volume.png');
+	background-size: 100% 100%;
+}
+.prezzideo-volume-slider {
+	float: right;
+	width:15%;
+	margin-top: 1.5%; 
+	margin-right: 2%;
+	outline: none; 
+	cursor: pointer;
+	
+}
 .prezzideo-control-stop {
 	float: left;
 	margin-left: 5px;
@@ -146,6 +163,13 @@
 	float: right;
 	margin-right: 5px;
 	background-image: url('img/prezzideo-control-full.png');
+	background-size: 100% 100%;
+	z-index: 1000;
+}
+.prezzideo-swap-screen-button {
+	float: right;
+	margin-right: 5px;
+	background-image: url('img/prezzideo-control-swap.png');
 	background-size: 100% 100%;
 	z-index: 1000;
 }

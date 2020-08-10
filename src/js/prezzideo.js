@@ -6,6 +6,13 @@
 // ============================================================================
 
 
+//TODO
+// drag the window
+// sound control 
+// button for swap
+
+
+
 
 (function (api) {
 
@@ -34,7 +41,10 @@
 			controlPause: 'prezzideo-control-pause',
 			controlStop: 'prezzideo-control-stop',
 			controlFullscreen: 'prezzideo-control-fullscreen',
-			displayTime: 'prezzideo-display-time'
+			displayTime: 'prezzideo-display-time',
+			volumeIcon: 'prezzideo-volume-icon',
+			volumeSlider: 'prezzideo-volume-slider'
+
 		},
 		source: 'html',
 		showSlideTimeIndicators: true,
@@ -130,7 +140,10 @@
 		}
 
 	}
-
+	
+	const _normalize = (t, tMin, tMax) => {
+		return (t - tMin) / (tMax - tMin);
+	};
 	const _remap = (t, tMin, tMax, value1, value2) => {
 		return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 	};
@@ -419,10 +432,14 @@
 			const timeline = document.getElementById('controlTimeline' + '_' + id);
 			const slider = document.getElementById('controlSlider' + '_' + id);
 			const buttonFullScreen = document.getElementById('controlFullscreen' + '_' + id);
+			const sliderControlVolume = document.getElementById('volumeControlSlider' + '_' + id);
+			const muteButton = document.getElementById('volumeControlMute' + '_' + id);
+
 			// const tooltip = document.getElementById('slides-tooltip' + '_' + id);
 
+			_addEvent(muteButton, 'click', _muteVolume)
 
-
+			_addEvent(sliderControlVolume, 'change', _setVolume)
 			_addEvent(timeline, 'mouseover', _showToolTip);
 			_addEvent(timeline, 'mouseleave', _hideToolTip);
 
@@ -475,15 +492,13 @@
 
 		// A funtion to insert controls to the player
 		const _insertControls = function (id = 0) {
-			// inserting the button over the small screen for swapping
-			_createElement(
-				'div',
-				self.element, { id: `controlSwap_${id}`, class: config.dom.controlSwap });
 
 			// inserting the control bar at the bottom
 			const bar = _createElement(
 				'div',
 				self.element, { id: `controlBar_${id}`, class: config.dom.controlBar });
+			// inserting the button over the small screen for swapping
+
 			const timeline = _createElement('div', bar, { id: `controlTimeline_${id}`, class: config.dom.controlTimeline });
 			const slider = _createElement('div', bar, { id: `controlSlider_${id}`, class: config.dom.controlSlider });
 			_createElement('div', bar, {
@@ -492,6 +507,12 @@
 			});
 			_createElement('div', bar, { id: `controlStop_${id}`, class: config.dom.controlStop });
 			_createElement('div', bar, { id: `controlFullscreen_${id}`, class: config.dom.controlFullscreen });
+			_createElement('div', bar, { id: `controlSwap_${id}`, class: config.dom.controlSwap });
+			_createElement('input', bar, { type: 'range', id: `volumeControlSlider_${id}`, class: config.dom.volumeSlider });
+
+			_createElement('div', bar, { id: `volumeControlMute_${id}`, state: 'unmute', class: config.dom.volumeIcon });
+
+
 			_createElement('div', bar, { id: `displayTime_${id}`, class: config.dom.displayTime }, { textContent: '0:00 / 0:00' });
 
 			const tooltip = _createElement('div', bar, { id: `slides-tooltip_${id}`, class: 'tooltip' });
@@ -628,41 +649,73 @@
 				self.bigScreen = 'video';
 			}
 		}
+
+		// const _exitFS =  () => {
+		// 	const container = self.element;
+		// 	container.setAttribute('size-screen', 'small');
+	
+			
+		// 	// const id = self.playerId;
+		// 	// const bar = document.getElementById('controlBar_'+id);
+		// 	// bar.style = null;
+		// 	// container.setAttribute('size-screen', 'small');
+		// 	// document.getElementById('slides-container_' + id).style = null;
+		// 	// document.getElementById('prezzideo-video' + id).style = null;
+		// 	// document.getElementById('volumeControlSlider_' + id).style = null;
+	
+		// }
 		// when exiting full screen with escape add escape callback
-		const _exitFullScreen = () => {
-			const containers = document.getElementsByClassName('prezzideo');
 
+	 _exitFullScreen =  () => {
+			// const containers = document.getElementsByClassName('prezzideo');
+			const container = self.element;
+
+			const id = self.playerId;
+		
+		
+		
 			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-				const bars = document.getElementsByClassName('prezzideo-control-bar');
-				[...bars].forEach((bar, index) => {
-					bar.style = null;
-					bar.parentElement.setAttribute('size-screen', 'small');
-					const id = containers[index].getAttribute('data-id');
-					document.getElementById('slides-container_' + id).style = null;
-					document.getElementById('prezzideo-video' + id).style = null;
-
-				});
-
-				_setSlidesPositions();
-
+				const bar = document.getElementById('controlBar_'+id);
+			
+				bar.style = null;
+				container.setAttribute('size-screen', 'small');
+				document.getElementById('slides-container_' + id).style = null;
+				document.getElementById('prezzideo-video' + id).style = null;
+				document.getElementById('volumeControlSlider_' + id).style = null;
 			}
+
+		
+		
+
+			_setSlidesPositions();
+	
 		}
 
 		const _changeScreenSize = async function () {
 
 			const controlbar = this.parentElement;
 			const container = controlbar.parentElement;
-			const id = container.getAttribute('data-id');
+			const id = self.playerId;
 
 			const video = document.getElementById('prezzideo-video' + id);
 			const presentation = document.getElementById('slides-container_' + id);
-
-			const screenSize = container.getAttribute('size-screen');
+			const volumeSlider= document.getElementById('volumeControlSlider_' + id);
 
 			// _selectPrezzideoElements(container);
-			if (screenSize === 'full') {
-				container.setAttribute('size-screen', 'small')
-				_exitFullScreen();
+			
+		
+			if (container.getAttribute('size-screen') === 'full') {
+				_exitFullScreen()
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				  } else if (document.mozCancelFullScreen) { /* Firefox */
+					document.mozCancelFullScreen();
+				  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+					document.webkitExitFullscreen();
+				  } else if (document.msExitFullscreen) { /* IE/Edge */
+					document.msExitFullscreen();
+				  }
+			
 			} else {
 				if (container.requestFullscreen) {
 					await container.requestFullscreen();
@@ -680,6 +733,7 @@
 				controlbar.style.bottom = 0;
 				video.style.bottom = '3.8%';
 				presentation.style.bottom = '3.8%';
+				volumeSlider.setAttribute('style','margin-top:0.5%')
 				container.setAttribute('size-screen', 'full')
 			}
 		}
@@ -751,7 +805,7 @@
 
 		// Adds the video markup to the container, depending on the provider
 		const _addVideo = function (id) {
-		
+
 			const videoContainer = _createElement(
 				'div',
 				self.element,
@@ -767,18 +821,18 @@
 
 				case 'youtube':
 
-					if (typeof YT === 'object') {
+					// if (typeof YT === 'object') {
+					// 	_initYoutube(videoContainer);
+
+					// } else {
+					_appendScript("https://www.youtube.com/iframe_api");
+					//hack window.onYoutubeIframeAPIReady
+					enqueueOnYoutubeIframeAPIReady(function () {
 						_initYoutube(videoContainer);
 
-					} else {
-						_appendScript("https://www.youtube.com/iframe_api");
-						//hack window.onYoutubeIframeAPIReady
-						enqueueOnYoutubeIframeAPIReady(function () {
-							_initYoutube(videoContainer);
+					})
 
-						})
-
-					}
+					// }
 					break;
 				case 'html5-video':
 					const container = self.element;
@@ -791,7 +845,7 @@
 							self.transcript = _createTranscript(id, _formatTranscriptText(id));
 							self.transcript.element.innerHTML = '';
 							_showTranscript(self.transcript.tracks[0]);
-							
+
 						}
 					})
 
@@ -825,18 +879,21 @@
 				};
 			})
 		}
-		const _showTranscript = ( track) => {
+		const _showTranscript = (track) => {
 			const content = self.transcript.transcript;
 			const current = content[track.index];
 			const next = content.slice(track.index + 1).join(' ');
-			const prev = content.slice(0,track.index).join(' ');
-			self.transcript.element.scroll(0,(prev.length-1)*0.33);
-			self.transcript.element.innerHTML = `<span class="passive-transcript"> ${prev}</span><span class="active-transcript">${current}</span><span class="passive-transcript"> ${next}</span>`;
+			const prev = content.slice(0, track.index).join(' ');
+			self.transcript.element.scroll(0, (prev.length - 1) * 0.33);
+			self.transcript.element.innerHTML =
+				`<span class="passive-transcript"> ${prev}</span>
+				<span class="active-transcript">${current}</span>
+				<span class="passive-transcript"> ${next}</span>`;
 		}
 
 		const _updateCurrentTrack = () => {
-			const current = self.transcript.currentTrack; 
-		
+			const current = self.transcript.currentTrack;
+
 			if (current.next !== current.index) {
 				const time = self.player.getCurrentTime();
 				if (time >= current.end) {
@@ -844,17 +901,17 @@
 					_showTranscript(self.transcript.tracks[self.transcript.currentTrack.next]);
 
 					self.transcript.currentTrack = self.transcript.tracks[current.next];
-				
+
 				}
 			}
-		
+
 		}
 		const _getCurrentTrack = (time) => {
 			const tracks = self.transcript.tracks;
 			tracks.map((item, index) => {
-				if ( time >= item.start && time < item.end) {
+				if (time >= item.start && time < item.end) {
 					self.transcript.currentTrack = item;
-					_showTranscript(  self.transcript.tracks[index]);
+					_showTranscript(self.transcript.tracks[index]);
 				}
 			})
 		}
@@ -863,16 +920,16 @@
 			const transcriptContainer = document.getElementById('transcript-container_' + id)
 			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
 			const textsOnly = textContent.map((item) => item.content);
-			const tracksOnly = textContent.reduce((acc,item) => {
-				acc.push({start:item.start,end:item.end,next:item.next,index:item.index});
+			const tracksOnly = textContent.reduce((acc, item) => {
+				acc.push({ start: item.start, end: item.end, next: item.next, index: item.index });
 				return acc;
-			},[]);
-		
+			}, []);
+
 			return {
-				tracks:tracksOnly, 
-				transcript:textsOnly, 
-				currentTrack:tracksOnly[0], 
-				element:document.getElementById('transcript-container_' + id)
+				tracks: tracksOnly,
+				transcript: textsOnly,
+				currentTrack: tracksOnly[0],
+				element: document.getElementById('transcript-container_' + id)
 			};
 		}
 
@@ -893,6 +950,9 @@
 
 
 			self.actions = {
+
+
+
 				play: () => {
 					video.play();
 					self.playing = true;
@@ -912,6 +972,10 @@
 					_setPPButtonStatus();
 
 				},
+				setVolume: (volume) => {
+					const remaped =  _normalize(volume,0, 100);
+					video.volume =remaped;
+				},
 				goToTime: (time) => {
 					const timeInSec = time * video.duration;
 					video.currentTime = timeInSec;
@@ -921,13 +985,12 @@
 					_getCurrentTrack(timeInSec);
 					return timeInSec;
 				},
-				updateTrackedText: () => {	_updateCurrentTrack() }
+				updateTrackedText: () => { _updateCurrentTrack() }
 			}
 			self.player.getCurrentTime = () => {
 				return video.currentTime;
 			}
 
-		
 
 			self.player.getDuration = () => video.duration;
 			if (!self.timer.getDuration()) {
@@ -964,7 +1027,7 @@
 
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
-				playerconsts: {
+				playerVars: {
 					autoplay: 0,
 					controls: 0,
 					rel: 0,
@@ -975,11 +1038,12 @@
 
 				},
 				events: {
-	
+
 
 					'onReady': function (event) {
 
 						const obj = event.target;
+
 						self.actions.play = function () { obj.playVideo(); }
 						self.actions.stop = function () {
 							self.actions.goToTime(0);
@@ -994,16 +1058,19 @@
 							_getCurrentTrack(timeInSec)
 							return timeInSec;
 						}
-				
-						self.actions.updateTrackedText = () => {_updateCurrentTrack() }
+						self.actions.setVolume = function (volume) {
+							obj.setVolume(volume);
+						}
+
+						self.actions.updateTrackedText = () => { _updateCurrentTrack() }
 						_slidesTimeIndicators();
 						// data - source();
 
 						self.actions.getDuration = () => {
-							
+
 							return obj.getDuration();
 						}
-						
+
 						self.transcript = _createTranscript(self.playerId, _formatTranscriptText(id));
 						self.transcript.element.innerHTML = '';
 						_showTranscript(self.transcript.tracks[0]);
@@ -1103,7 +1170,31 @@
 				self.actions.goToTime(time);
 			}
 		}
+		// The function to change volume
+		const _setVolume = function (e) {
+			if (typeof self.actions.setVolume === 'function') {
+				self.actions.setVolume(e.target.value);
+			}
+		}
+		// The function to mute video
+		const _muteVolume = function (e) {
 
+			if (typeof self.actions.setVolume === 'function') {
+				const slider = document.getElementById('volumeControlSlider_' + self.playerId);
+
+				if (e.target.getAttribute('state') === 'unmute') {
+					e.target.setAttribute('cached-volume', slider.value);
+					self.actions.setVolume(0);
+					slider.value = 0;
+					e.target.setAttribute('state', 'mute');
+				} else {
+					e.target.setAttribute('state', 'unmute');
+					slider.value = e.target.getAttribute('cached-volume');
+					self.actions.setVolume(slider.value);
+				}
+
+			}
+		}
 		// The function to be called on init
 		const _init = function () {
 
