@@ -140,10 +140,75 @@
 		}
 
 	}
+
+
+
+
 	
+//******************************** 
+
+const dragElement = (elmnt,state) => {
+	let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+	const positionCache = { left:'0px',top:'0px'};
+	const elementDrag = (e) => {
+	
+	if(elmnt.parentNode.getAttribute('swapstate') === state){
+	  e = e || window.event;
+	  e.preventDefault();
+	  // calculate the new cursor position:
+	  pos1 = pos3 - e.clientX;
+	  pos2 = pos4 - e.clientY;
+	  pos3 = e.clientX;
+	  pos4 = e.clientY;
+	  // set the element's new position:
+	  elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	  elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	  positionCache.top = elmnt.style.top;
+	  positionCache.left = elmnt.style.left;
+		}
+	}
+	const dragMouseDown = (e)=> {
+	
+		e = e || window.event;
+		e.preventDefault();
+		// get the mouse cursor position at startup:
+		pos3 = e.clientX;
+		pos4 = e.clientY;
+		document.onmouseup = closeDragElement;
+		// call a function whenever the cursor moves:
+		document.onmousemove = elementDrag;
+	  }
+
+	if (document.getElementById(elmnt.id + "header")) {
+	  // if present, the header is where you move the DIV from:
+	  document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+	} else {
+	  // otherwise, move the DIV from anywhere inside the DIV:
+	  elmnt.onmousedown = dragMouseDown;
+	}
+  
+	
+  
+  
+	const closeDragElement = () => {
+	  // stop moving when mouse button is released:
+	  document.onmouseup = null;
+	  document.onmousemove = null;
+	  
+	elmnt.setAttribute('cached-pos',`${positionCache.left}:${positionCache.top}`);
+	}
+  }
+
+//**************************** 
+
+
+
+
+	//_normalize(50,0,100) 0.5 
 	const _normalize = (t, tMin, tMax) => {
 		return (t - tMin) / (tMax - tMin);
 	};
+	//_remap(50,0,100,0,1) 50% of 1 0.5
 	const _remap = (t, tMin, tMax, value1, value2) => {
 		return ((t - tMin) / (tMax - tMin)) * (value2 - value1) + value1;
 	};
@@ -162,12 +227,12 @@
 		return element;
 	}
 
-	const _setContainersID = (element, id) => {
+	const _setContainersID = (element, id, transcriptID) => {
 
 		const slidesContainer = element.querySelector(config.dom.slidesContainer)
 		slidesContainer.id = "slides-container_" + id;
 		[...slidesContainer.children].map((child) => child.className = config.dom.slideItem.split('.')[1])
-		const transcriptContainer = document.getElementById('transcript-container_' + id);
+		const transcriptContainer = document.getElementById(transcriptID);
 		transcriptContainer.className = 'prezzideo-transcript-textbox';
 		[...transcriptContainer.children].map((child) => child.style.display = "none")
 
@@ -364,7 +429,7 @@
 
 
 	// PLAYER CLASS
-	function Prezzideo(element, id, videoProvider) {
+	function Prezzideo(element, id, videoProvider, transcriptID) {
 
 		// Properties ---------------------------------------------------------
 
@@ -376,7 +441,8 @@
 
 		// keeps the sequence id of the player - 0,1,2...
 		self.playerId = id;
-
+		self.transcriptID = transcriptID;
+	
 		// keeps the ide of the container, for ie 'prezzideo-video1'
 		// self.videoContainerId = config.dom.videoContainer.substr(
 		// 	1, config.dom.videoContainer.length - 1) + "_" + id;
@@ -436,7 +502,7 @@
 			const muteButton = document.getElementById('volumeControlMute' + '_' + id);
 
 			// const tooltip = document.getElementById('slides-tooltip' + '_' + id);
-
+	
 			_addEvent(muteButton, 'click', _muteVolume)
 
 			_addEvent(sliderControlVolume, 'change', _setVolume)
@@ -561,8 +627,10 @@
 			if (config.defaultBigScreen == 'video') {
 				const slideC = _selectChild(config.dom.slidesContainer);
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
+			
 			} else if (config.defaultBigScreen == 'slides') {
 				const videoC = _selectChild(config.dom.videoContainer);
+			
 				_toggleClass(videoC, config.dom.videoShrinkedClass, true)
 			}
 
@@ -572,21 +640,22 @@
 		const _changeSmallScreenPosition = function (position) {
 			const slideC = _selectChild(config.dom.slidesContainer);
 			const videoC = _selectChild(config.dom.videoContainer);
-			const buttonSwap = _selectChild('.' + config.dom.controlSwap);
+			// const buttonSwap = _selectChild('.' + config.dom.controlSwap);
 			// First removing the old classes if they exist
 			for (let i = 0; i < config.smallScreenPositions.length; i++) {
 				const pos = config.dom.screenPositionClass
 					+ config.smallScreenPositions[i];
 				_toggleClass(slideC, pos, false);
 				_toggleClass(videoC, pos, false);
-				_toggleClass(buttonSwap, pos, false);
+		
+				// _toggleClass(buttonSwap, pos, false);
 			}
 			_toggleClass(slideC,
 				config.dom.screenPositionClass + position, true);
 			_toggleClass(videoC,
 				config.dom.screenPositionClass + position, true);
-			_toggleClass(buttonSwap,
-				config.dom.screenPositionClass + position, true);
+			// _toggleClass(buttonSwap,
+			// 	config.dom.screenPositionClass + position, true);
 		}
 		const _showToolTip = (e) => {
 			if (self.player && self.player.getDuration) {
@@ -642,11 +711,33 @@
 				_toggleClass(videoC, config.dom.videoShrinkedClass, true);
 				_setSlidesPositions();
 				self.bigScreen = 'slides';
+				self.element.setAttribute('swapstate', 'shrinked');
+				const pos = videoC.getAttribute('cached-pos').split(':');
+
+
+				slideC.style = null;
+				if(self.element.getAttribute('size-screen')==='full'){
+				slideC.style.bottom = '4.8%';
+				}
+			
+				videoC.style.left = pos[0];
+				videoC.style.top = pos[1];
+				
 			} else if (self.bigScreen == 'slides') {
+		
+				self.bigScreen = 'video';
+				self.element.setAttribute('swapstate', 'fit');
 				_toggleClass(slideC, config.dom.slidesShrinkedClass, true);
 				_toggleClass(videoC, config.dom.videoShrinkedClass, false);
 				_setSlidesPositions();
-				self.bigScreen = 'video';
+				   videoC.style = null;
+				   if(self.element.getAttribute('size-screen')==='full'){
+					videoC.style.bottom = '4.8%';
+				   }
+				   const pos = slideC.getAttribute('cached-pos').split(':');
+				   slideC.style.left = pos[0];
+				   slideC.style.top = pos[1];
+				
 			}
 		}
 
@@ -731,10 +822,11 @@
 					_setSlidesPositions();
 				}
 				controlbar.style.bottom = 0;
-				video.style.bottom = '3.8%';
-				presentation.style.bottom = '3.8%';
+				video.style.bottom = '4.8%';
+				presentation.style.bottom = '4.8%';
 				volumeSlider.setAttribute('style','margin-top:0.5%')
-				container.setAttribute('size-screen', 'full')
+				container.setAttribute('size-screen', 'full');
+			
 			}
 		}
 
@@ -805,7 +897,8 @@
 
 		// Adds the video markup to the container, depending on the provider
 		const _addVideo = function (id) {
-
+			// _createElement('button',self.element,{class:'.move-video-handle'},{innerHTML:' + '})
+		
 			const videoContainer = _createElement(
 				'div',
 				self.element,
@@ -816,6 +909,7 @@
 				}
 			)
 
+		
 			//config.videoProvider
 			switch (videoProvider) {
 
@@ -836,13 +930,15 @@
 					break;
 				case 'html5-video':
 					const container = self.element;
-
+				
 					const videoElement = _initHtmlVideo(videoContainer, container.getAttribute('data-path'));
-
+				
+				
+					dragElement(videoContainer,'shrinked');
 					videoElement.addEventListener('loadeddata', (e) => {
 						if (videoElement.readyState >= 3) {
 							_slidesTimeIndicators();
-							self.transcript = _createTranscript(id, _formatTranscriptText(id));
+							self.transcript = _createTranscript(self.transcriptID, _formatTranscriptText(id));
 							self.transcript.element.innerHTML = '';
 							_showTranscript(self.transcript.tracks[0]);
 
@@ -855,8 +951,6 @@
 					break;
 			}
 		}
-
-
 		const _slidesTimeIndicators = (show = config.showSlideTimeIndicators) => {
 			const id = self.playerId;
 			const timeline = document.getElementById('controlTimeline_' + id);
@@ -867,24 +961,31 @@
 		}
 		const _formatTranscriptText = (id) => {
 			const slideNodes = [...document.getElementById('slides-container_' + id).children];
-			const textNodes = [...document.getElementById('transcript-container_' + id).children];
-			return textContent = slideNodes.map((node, index, array) => {
-				return {
-					start: +node.getAttribute('data-time-in-seconds'),
-					end: array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : self.player.getDuration(),
-					content: textNodes[index] ? textNodes[index].textContent.trim().replace(/\s\s+/g, '@@\n').split('@@\n').join('\n\n') : '',
-					next: array[index + 1] ? index + 1 : index,
-					index: index
+			const textNodes = [...document.querySelectorAll(`#${self.transcriptID} > div `)];
 
-				};
-			})
+			let count = 0;
+			return textContent = slideNodes.reduce((acc, node, index, array) => {
+				const trimmedText = textNodes[index].innerHTML.trim().replace(/\s\s+/g, '')
+				if(trimmedText!=''){
+					 acc.push({
+						start: +node.getAttribute('data-time-in-seconds'),
+						end: array[index + 1] ? +array[index + 1].getAttribute('data-time-in-seconds') : self.player.getDuration(),
+						content: trimmedText,
+						next: array[index + 1] ? count + 1 : count,
+						index: count
+					});
+					count+=1;
+				}
+				return acc;
+			},[])
 		}
+		//.replace(/\s\s+/g, '@@***').split('@@***').join('\n\n') 
 		const _showTranscript = (track) => {
 			const content = self.transcript.transcript;
 			const current = content[track.index];
 			const next = content.slice(track.index + 1).join(' ');
 			const prev = content.slice(0, track.index).join(' ');
-			self.transcript.element.scroll(0, (prev.length - 1) * 0.33);
+			self.transcript.element.scroll(0, (prev.length - 1)*0.33 );
 			self.transcript.element.innerHTML =
 				`<span class="passive-transcript"> ${prev}</span>
 				<span class="active-transcript">${current}</span>
@@ -916,8 +1017,9 @@
 			})
 		}
 
-		const _createTranscript = (id = 0, textContent = []) => {
-			const transcriptContainer = document.getElementById('transcript-container_' + id)
+		const _createTranscript = (id, textContent = []) => {
+	
+			const transcriptContainer = document.getElementById(id);
 			const showTrack = _createElement('pre', transcriptContainer, { id: 'display-track_' + id, class: 'prezzideo-transcript' }, { textContent: '\xa0' });
 			const textsOnly = textContent.map((item) => item.content);
 			const tracksOnly = textContent.reduce((acc, item) => {
@@ -929,7 +1031,7 @@
 				tracks: tracksOnly,
 				transcript: textsOnly,
 				currentTrack: tracksOnly[0],
-				element: document.getElementById('transcript-container_' + id)
+				element: transcriptContainer
 			};
 		}
 
@@ -973,7 +1075,7 @@
 
 				},
 				setVolume: (volume) => {
-					const remaped =  _normalize(volume,0, 100);
+					const remaped =  _normalize(volume,0,100);
 					video.volume =remaped;
 				},
 				goToTime: (time) => {
@@ -1023,7 +1125,7 @@
 					id: self.videoContainerId + '-youtube'
 				}
 			)
-
+		
 
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
@@ -1067,11 +1169,11 @@
 						// data - source();
 
 						self.actions.getDuration = () => {
-
 							return obj.getDuration();
 						}
 
-						self.transcript = _createTranscript(self.playerId, _formatTranscriptText(id));
+						self.transcript = _createTranscript(self.transcriptID, _formatTranscriptText(id));
+				
 						self.transcript.element.innerHTML = '';
 						_showTranscript(self.transcript.tracks[0]);
 
@@ -1259,14 +1361,17 @@
 		API Methods -----------------------------------------------------------
 	*/
 
-	const _setupMainContainer = (item) => {
-		const container = document.getElementById(item);
+	const _setupMainContainer = (id,transcriptID) => {
+		const container = document.getElementById(id);
 		container.className = 'prezzideo';
 		container.setAttribute('size-screen', 'small');
-		const ID = container.getAttribute('data-id');
+		container.setAttribute('swapstate', 'shrinked');
+		const ID = container.id;
 
-		_setContainersID(container, ID);
+		_setContainersID(container, ID, transcriptID);
 		const slidesContainer = document.getElementById('slides-container_' + ID);
+		dragElement(slidesContainer,'fit');
+		// slidesContainer.setAttribute('swapstate', 'shrinked');
 		_calculateTotalSlidesTime(slidesContainer);
 		return container;
 	}
@@ -1282,7 +1387,8 @@
 		// Get the players 
 		if (config.source === 'html') {
 			if (typeof presentationData === 'string') {
-				elements = [_setupMainContainer(presentationData)];
+			
+				elements = [_setupMainContainer(presentationData,options.transcriptID)];
 
 			}
 
@@ -1295,7 +1401,7 @@
 			// Setup a player instance and add to the element
 			if (typeof item.prezzideo === 'undefined') {
 				// Create new Prezzideo instance
-				const prezzideo = new Prezzideo(item, item.getAttribute('data-id'), options.videoProvider);
+				const prezzideo = new Prezzideo(item, item.id, options.videoProvider, options.transcriptID);
 				// Set prezzideo to false if setup failed
 				item.prezzideo = (Object.keys(prezzideo).length ? prezzideo : false);
 				// Callback
@@ -1310,3 +1416,6 @@
 	}
 
 }(window.prezzideo = window.prezzideo || {}));
+
+
+

@@ -50,8 +50,8 @@
 
 
                     <!-- data-urlid="9U4Ha9HQvMo" data-path="./videos/bh.mp4"-->
-                        <button id="setVol">volume</button>
-                        <div data-id="1" id="player-container" data-urlid="9U4Ha9HQvMo">
+               
+                        <div id="player-container" data-urlid="9U4Ha9HQvMo">
                             <div class="prezzideo-slides">
 
                                 <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
@@ -64,15 +64,21 @@
                             </div>
 
                         </div>
+
                         <div id="transcript-container_1">
-                            <text>
+                         
+                            <div>
                                 In the past I have written on how the track element can be used to add captions and
-                                subtitles to HTML5 video, but this, and many other examples around the web, used a
+                                <strong style="color:red"> subtitles </strong> to 
+                               
+                                <strong> HTML5 </strong>video but this, and many other examples around the web, used a
                                 static example. But what if you need to load this information dynamically? This is
                                 what I’m going to take a quick look at here.
-                            </text>
-                            <text>
-                                One ring to rule them all.
+                                <hr>
+                            </div>
+                  
+                            <div>
+                           <strong>One ring to rule them all.</strong>
 
                                 One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
                                 were some who resisted. A last alliance of men and elves marched against the armies
@@ -80,14 +86,16 @@
                                 Middle-Earth. Victory was near, but the power of the ring could not be undone. It
                                 was in this moment, when all hope had faded, that Isildur, son of the king, took up
                                 his father’s sword.
-                            </text>
-                            <text>
+                                <hr>
+                            </div>
+                            <div>
                                 The slice() method returns a shallow copy of a portion of an array into a new array
                                 object selected from start to end (end not included) where start and end represent
                                 the index of items in that array. The original array will not be modified.
-                            </text>
+                            </div>
 
-                            <text>
+                            <div>
+                                 <hr>
                                 Update a caption track
                                 The API supports the ability to change a caption track's draft status, upload a new
                                 caption track for a file, or both.
@@ -102,8 +110,8 @@
                                 The request updates the draft status of a caption track to true, which means the track
                                 will not be publicly visible. To complete the request in the APIs Explorer, you need to
                                 set the id property's value to identify a caption track.
-                            </text>
-                            <text>
+                            </div>
+                            <div>
                                 Delete a caption track
                                 This example shows how to delete a caption track. The example has the following steps:
 
@@ -118,8 +126,8 @@
                                 parameter specifies the caption track ID of the track that you are deleting. The request
                                 must be authorized using OAuth 2.0. If you are testing this query in the APIs Explorer,
                                 you will need to substitute a valid caption track ID for the id parameter value.
-                            </text>
-                            <text>
+                            </div>
+                            <div>
                                 You can use the API's captions.insert method to upload a new caption track for a video.
                                 When uploading a track, you must specify a value for the following caption resource
                                 properties:
@@ -140,7 +148,7 @@
                                 be publicly visible.
 
                                 See the captions.insert method's documentation for code samples.
-                            </text>
+                            </div>
                         </div>
 
                         <p>&nbsp;</p>
@@ -148,15 +156,26 @@
 
                         <h2>Example 2 (html5 video)</h2>
 
+                       
+                       
+                        <div  id="other-player-container" data-path="./videos/bh.mp4">
+                            <div class="prezzideo-slides">
+                                <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
+                                <img src="img/Presentation1/Slide2.png" data-time="00:00:05">
+                                <img src="img/Presentation1/Slide3.png" data-time="00:00:10">
+                                <img src="img/Presentation1/Slide1.png" data-time="00:00:15">
+                            </div>
+                        </div>
+                       
                         <div id="transcript-container_2" style="height: 125px;">
 
-                            <text>
+                            <div>
                                 In the past I have written on how the track element can be used to add captions and
                                 subtitles to HTML5 video, but this, and many other examples around the web, used a
                                 static example. But what if you need to load this information dynamically? This is
                                 what I’m going to take a quick look at here.
-                            </text>
-                            <text>
+                            </div>
+                            <div>
                                 One ring to rule them all.
                                 One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
                                 were some who resisted. A last alliance of men and elves marched against the armies
@@ -164,8 +183,8 @@
                                 Middle-Earth. Victory was near, but the power of the ring could not be undone. It
                                 was in this moment, when all hope had faded, that Isildur, son of the king, took up
                                 his father’s sword.
-                            </text>
-                            <text>
+                            </div>
+                            <div>
                                 In ddddddddddddddddddd this information dynamically? This is
                                 what I’m going to take a quick look at here.
                                 To extend a class: class Child extends Parent:
@@ -182,8 +201,8 @@
 
                                 Arrow functions don’t have their own this or super, so they transparently fit into the
                                 surrounding context.
-                            </text>
-                            <text>
+                            </div>
+                            <div>
                                 some text at the end
                                 Species
                                 You might want to return Array objects in your derived array class MyArray. The species
@@ -191,20 +210,9 @@
                                 For example, when using methods such as map() that returns the default constructor, you
                                 want these methods to return a parent
                                 Array object, instead of the MyArray object. The Symbol.species symbol lets you do this:
-                            </text>
+                            </div>
 
                         </div>
-                       
-                        <div data-id="2" id="other-player-container" data-path="./videos/bh.mp4">
-                            <div class="prezzideo-slides">
-                                <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
-                                <img src="img/Presentation1/Slide2.png" data-time="00:00:05">
-                                <img src="img/Presentation1/Slide3.png" data-time="00:00:10">
-                                <img src="img/Presentation1/Slide1.png" data-time="00:00:15">
-                            </div>
-                        </div>
-                       
-                 
                 </section>
                 <footer>
                     <h3>Check out the Github source  <a href="https://github.com/frenski/prezzideo">here</a></h3>
@@ -224,8 +232,8 @@
 
     <script>
 
-        prezzideo.init('player-container', { videoProvider: 'youtube' });
-        prezzideo.init('other-player-container', { videoProvider: 'html5-video' });
+        prezzideo.init('player-container', { videoProvider: 'youtube', transcriptID:'transcript-container_1' });
+        prezzideo.init('other-player-container', { videoProvider: 'html5-video',transcriptID:'transcript-container_2' });
 
     </script>
 

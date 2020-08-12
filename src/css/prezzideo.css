@@ -49,9 +49,13 @@
 	width: 25%;
 	padding-bottom: 12%;
 	z-index: 1;
-	pointer-events: none;
+	/* pointer-events: none; */
+	cursor: move;
+	
 }
-
+.move-video-handle{
+	cursor: move;
+}
 .prezzideo-slides-shrinked {
 	width: 25%;
 	height: 25%;
