@@ -53,13 +53,12 @@
 	cursor: move;
 	
 }
-.move-video-handle{
-	cursor: move;
-}
+
 .prezzideo-slides-shrinked {
 	width: 25%;
 	height: 25%;
 	z-index: 1;
+	cursor: move;
 }
 
 /* .prezzideo-swap-screen-button {

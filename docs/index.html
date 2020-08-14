@@ -45,11 +45,12 @@
                 </header>
                 <section>
                     <hr>
-                    <h2>Example 1 (youtube video)</h2>
+                                        <!-- data-urlid="9U4Ha9HQvMo" data-path="./videos/bh.mp4"-->
+
+                    <!-- <h2>Example 1 (youtube video)</h2>
 
 
 
-                    <!-- data-urlid="9U4Ha9HQvMo" data-path="./videos/bh.mp4"-->
                
                         <div id="player-container" data-urlid="9U4Ha9HQvMo">
                             <div class="prezzideo-slides">
@@ -149,7 +150,7 @@
 
                                 See the captions.insert method's documentation for code samples.
                             </div>
-                        </div>
+                        </div> -->
 
                         <p>&nbsp;</p>
                         <hr>
@@ -158,31 +159,31 @@
 
                        
                        
-                        <div  id="other-player-container" data-path="./videos/bh.mp4">
+                        <div  id="other-player-container" data-path="./videos/videoplayback.mp4">
                             <div class="prezzideo-slides">
                                 <img src="img/Presentation1/Slide1.png" data-time="00:00:00">
-                                <img src="img/Presentation1/Slide2.png" data-time="00:00:05">
-                                <img src="img/Presentation1/Slide3.png" data-time="00:00:10">
-                                <img src="img/Presentation1/Slide1.png" data-time="00:00:15">
+                                <img src="img/Presentation1/Slide2.png" data-time="00:02:25">
+                                <img src="img/Presentation1/Slide3.png" data-time="00:05:30">
+                                <img src="img/Presentation1/Slide1.png" data-time="00:08:15">
                             </div>
                         </div>
                        
-                        <div id="transcript-container_2" style="height: 125px;">
+                        <div id="transcript-container_2" >
 
-                            <div>
-                                In the past I have written on how the track element can be used to add captions and
-                                subtitles to HTML5 video, but this, and many other examples around the web, used a
+                            <p>
+                               <strong style="font-size: 25px;color:red"> In the past</strong> I have written on how the track element can be used to add captions and
+                                subtitles to <strong color="red">HTML5</strong> video, but this, and many other examples around the web, used a
                                 static example. But what if you need to load this information dynamically? This is
                                 what I’m going to take a quick look at here.
-                            </div>
+                            </p>
                             <div>
-                                One ring to rule them all.
+                               <p style="font-size: 25px;"> One ring to rule them all.</p>
                                 One by one, the free lands of Middle-Earth fell to the power of the Ring, but there
                                 were some who resisted. A last alliance of men and elves marched against the armies
                                 of Mordor, and on the very slopes of Mount Doom, they fought for the freedom of
                                 Middle-Earth. Victory was near, but the power of the ring could not be undone. It
                                 was in this moment, when all hope had faded, that Isildur, son of the king, took up
-                                his father’s sword.
+                                his father’s <hr><strong>sword</strong>.
                             </div>
                             <div>
                                 In ddddddddddddddddddd this information dynamically? This is
@@ -232,8 +233,11 @@
 
     <script>
 
-        prezzideo.init('player-container', { videoProvider: 'youtube', transcriptID:'transcript-container_1' });
+        // prezzideo.init('player-container', { videoProvider: 'youtube', transcriptID:'transcript-container_1' });
         prezzideo.init('other-player-container', { videoProvider: 'html5-video',transcriptID:'transcript-container_2' });
+
+
+        
 
     </script>
 

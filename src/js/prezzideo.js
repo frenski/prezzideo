@@ -741,29 +741,11 @@ const dragElement = (elmnt,state) => {
 			}
 		}
 
-		// const _exitFS =  () => {
-		// 	const container = self.element;
-		// 	container.setAttribute('size-screen', 'small');
 	
-			
-		// 	// const id = self.playerId;
-		// 	// const bar = document.getElementById('controlBar_'+id);
-		// 	// bar.style = null;
-		// 	// container.setAttribute('size-screen', 'small');
-		// 	// document.getElementById('slides-container_' + id).style = null;
-		// 	// document.getElementById('prezzideo-video' + id).style = null;
-		// 	// document.getElementById('volumeControlSlider_' + id).style = null;
-	
-		// }
-		// when exiting full screen with escape add escape callback
-
 	 _exitFullScreen =  () => {
 			// const containers = document.getElementsByClassName('prezzideo');
 			const container = self.element;
-
 			const id = self.playerId;
-		
-		
 		
 			if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
 				const bar = document.getElementById('controlBar_'+id);
@@ -775,11 +757,13 @@ const dragElement = (elmnt,state) => {
 				document.getElementById('volumeControlSlider_' + id).style = null;
 			}
 
-		
-		
-
 			_setSlidesPositions();
-	
+		
+			// const videoContainer = 	document.getElementById('prezzideo-video' + id)
+			// const pos = videoContainer.getAttribute('cached-pos').split(':');
+			// videoContainer.style.left = pos[0];
+			// videoContainer.style.top = pos[1];
+			
 		}
 
 		const _changeScreenSize = async function () {
@@ -961,8 +945,11 @@ const dragElement = (elmnt,state) => {
 		}
 		const _formatTranscriptText = (id) => {
 			const slideNodes = [...document.getElementById('slides-container_' + id).children];
-			const textNodes = [...document.querySelectorAll(`#${self.transcriptID} > div `)];
-
+			const textNodes =  [...document.getElementById(self.transcriptID).childNodes].filter((el)=>{
+				if(el.nodeType == Node.ELEMENT_NODE){
+					return el;
+				}
+			});
 			let count = 0;
 			return textContent = slideNodes.reduce((acc, node, index, array) => {
 				const trimmedText = textNodes[index].innerHTML.trim().replace(/\s\s+/g, '')
@@ -982,14 +969,27 @@ const dragElement = (elmnt,state) => {
 		//.replace(/\s\s+/g, '@@***').split('@@***').join('\n\n') 
 		const _showTranscript = (track) => {
 			const content = self.transcript.transcript;
-			const current = content[track.index];
+			const currentID = `${self.transcriptID}:${track.index}`;
+			const current = `<div id="${currentID}">${content[track.index]}</div>`;
+			// const current = content[track.index];
+
 			const next = content.slice(track.index + 1).join(' ');
 			const prev = content.slice(0, track.index).join(' ');
-			self.transcript.element.scroll(0, (prev.length - 1)*0.33 );
+		
+			//self.transcript.element.scroll(0, (prev.length - 1)*0.33 );
+
 			self.transcript.element.innerHTML =
 				`<span class="passive-transcript"> ${prev}</span>
-				<span class="active-transcript">${current}</span>
+				<span  class="active-transcript">${current}</span>
 				<span class="passive-transcript"> ${next}</span>`;
+			
+				const currentElement = document.getElementById(`${self.transcriptID}:${track.index}`);
+				console.log(currentElement.offsetTop)
+			
+			currentElement.scrollIntoView();
+		// self.transcript.element.scrollTop = currentElement.offsetTop;
+				//self.transcript.element.scrollTop = currentElement.offsetTop;
+
 		}
 
 		const _updateCurrentTrack = () => {
