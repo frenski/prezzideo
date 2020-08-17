@@ -249,13 +249,23 @@
   visibility: visible;
 } */
 
+.unclickable-container,
+#prezzideo-youtube_player-container-youtube{
+	user-select: none;
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10+ and Edge */
+	user-select: none; /* Standard syntax */
 
+	pointer-events: none;
+	z-index: 1000;
+}
 
 .tooltip .tooltip-content {
 	width: 120px;
 	bottom: 25px;
 	left: 50%;
 	margin-left: -60px; 
+	user-select: none;
 	-webkit-user-select: none; /* Safari */
 	-ms-user-select: none; /* IE 10+ and Edge */
 	user-select: none; /* Standard syntax */

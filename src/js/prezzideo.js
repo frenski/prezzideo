@@ -6,14 +6,6 @@
 // ============================================================================
 
 
-//TODO
-// drag the window
-// sound control 
-// button for swap
-
-
-
-
 (function (api) {
 
 	/* 
@@ -539,7 +531,7 @@ const dragElement = (elmnt,state) => {
 			const sliderMove = function (e) {
 				const posSl = positionSlider(e);
 				const duration = self.timer.getDuration();
-
+					
 				if (duration) {
 					_setDisplayTime(posSl.relW * duration, duration);
 				}
@@ -592,7 +584,7 @@ const dragElement = (elmnt,state) => {
 		// Sets the slider position, by passing value for x
 		const _setSliderPosition = function (posX) {
 			const slider = _selectChild('.' + config.dom.controlSlider);
-			slider.style.left = posX + 'px';
+			slider.style.left = posX-10 + 'px';
 		}
 
 		const _setDisplayTime = function (timeElapsed, timeTotal) {
@@ -663,8 +655,16 @@ const dragElement = (elmnt,state) => {
 				const tooltipContent = document.getElementById('slides-tooltip-content_' + id);
 				const timeline = document.getElementById('controlTimeline_' + id);
 				const slidesContainerChildren = document.getElementById('slides-container_' + id).children;
+				console.log(self.element.getAttribute('size-screen'))
+				if(self.element.getAttribute('size-screen')==='full'){
+					tooltipContent.style.width = '200px';
+					tooltipContent.style.height = '200px';
 
-
+				}else{
+					tooltipContent.style.width = '120px';
+					tooltipContent.style.height = 'auto'
+				}
+			
 				tooltipContent.style.visibility = 'visible';
 				const mouseX = _getMouseCoords(e).x;
 
@@ -907,7 +907,7 @@ const dragElement = (elmnt,state) => {
 					//hack window.onYoutubeIframeAPIReady
 					enqueueOnYoutubeIframeAPIReady(function () {
 						_initYoutube(videoContainer);
-
+						dragElement(videoContainer,'shrinked');
 					})
 
 					// }
@@ -984,9 +984,10 @@ const dragElement = (elmnt,state) => {
 				<span class="passive-transcript"> ${next}</span>`;
 			
 				const currentElement = document.getElementById(`${self.transcriptID}:${track.index}`);
-				console.log(currentElement.offsetTop)
 			
-			currentElement.scrollIntoView();
+			
+			currentElement.scrollIntoView(false);
+		
 		// self.transcript.element.scrollTop = currentElement.offsetTop;
 				//self.transcript.element.scrollTop = currentElement.offsetTop;
 
@@ -1118,14 +1119,20 @@ const dragElement = (elmnt,state) => {
 
 		// Videos initializers
 		const _initYoutube = (videoContainer) => {
+		
+
 			const container = _createElement(
 				'div',
 				videoContainer,
 				{
-					id: self.videoContainerId + '-youtube'
+					id: self.videoContainerId + '-youtube',
+					
 				}
 			)
+				
 		
+
+				// const unclickableContainer = _createElement('div',videoContainer,{id: self.videoContainerId + '-youtube' + '-unclickable'})
 
 			self.player = new YT.Player(self.videoContainerId + '-youtube', {
 				videoId: self.element.getAttribute('data-urlid'),
@@ -1224,6 +1231,9 @@ const dragElement = (elmnt,state) => {
 					}
 				}
 			});
+
+					
+			
 
 		}
 
